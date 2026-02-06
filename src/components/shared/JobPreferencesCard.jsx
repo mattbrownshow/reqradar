@@ -144,45 +144,74 @@ export default function JobPreferencesCard() {
         </div>
 
         {profile ? (
-          <div className="space-y-2.5">
-            <div className="flex items-baseline gap-3">
-              <span className="text-sm font-semibold text-gray-600 min-w-[140px]">Target Roles:</span>
-              <span className="text-sm text-gray-900">
-                {profile.target_roles?.length > 0 ? profile.target_roles.join(", ") : "Not set"}
-              </span>
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+            <div>
+              <p className="text-xs font-semibold text-gray-600 mb-1.5">Target Roles:</p>
+              <div className="flex flex-wrap gap-1.5">
+                {profile.target_roles?.length > 0 ? (
+                  profile.target_roles.map((role, idx) => (
+                    <span key={idx} className="bg-orange-50 text-[#F7931E] text-xs px-2 py-0.5 rounded-full">{role}</span>
+                  ))
+                ) : (
+                  <span className="text-xs text-gray-500">Not set</span>
+                )}
+              </div>
             </div>
-            <div className="flex items-baseline gap-3">
-              <span className="text-sm font-semibold text-gray-600 min-w-[140px]">Industries:</span>
-              <span className="text-sm text-gray-900">
-                {profile.industries?.length > 0 ? profile.industries.join(", ") : "All industries"}
-              </span>
+            <div>
+              <p className="text-xs font-semibold text-gray-600 mb-1.5">Industries:</p>
+              <div className="flex flex-wrap gap-1.5">
+                {profile.industries?.length > 0 ? (
+                  profile.industries.map((industry, idx) => (
+                    <span key={idx} className="bg-blue-50 text-blue-700 text-xs px-2 py-0.5 rounded-full">{industry}</span>
+                  ))
+                ) : (
+                  <span className="text-xs text-gray-500">All industries</span>
+                )}
+              </div>
             </div>
-            <div className="flex items-baseline gap-3">
-              <span className="text-sm font-semibold text-gray-600 min-w-[140px]">Location:</span>
-              <span className="text-sm text-gray-900">
-                {profile.preferred_locations?.length > 0
-                  ? `${profile.preferred_locations.join(", ")}${profile.remote_preferences?.includes("Remote") || profile.remote_preferences?.includes("Fully Remote") ? " + Remote OK" : ""}`
-                  : profile.remote_preferences?.includes("Remote") || profile.remote_preferences?.includes("Fully Remote") ? "Remote only" : "Any location"}
-              </span>
+            <div>
+              <p className="text-xs font-semibold text-gray-600 mb-1.5">Location:</p>
+              <div className="flex flex-wrap gap-1.5">
+                {profile.preferred_locations?.length > 0 ? (
+                  profile.preferred_locations.map((loc, idx) => (
+                    <span key={idx} className="bg-green-50 text-green-700 text-xs px-2 py-0.5 rounded-full">{loc}</span>
+                  ))
+                ) : profile.remote_preferences?.includes("Remote") || profile.remote_preferences?.includes("Fully Remote") ? (
+                  <span className="bg-green-50 text-green-700 text-xs px-2 py-0.5 rounded-full">Remote only</span>
+                ) : (
+                  <span className="text-xs text-gray-500">Any location</span>
+                )}
+                {(profile.remote_preferences?.includes("Remote") || profile.remote_preferences?.includes("Fully Remote")) && profile.preferred_locations?.length > 0 && (
+                  <span className="bg-green-50 text-green-700 text-xs px-2 py-0.5 rounded-full">Remote OK</span>
+                )}
+              </div>
             </div>
-            <div className="flex items-baseline gap-3">
-              <span className="text-sm font-semibold text-gray-600 min-w-[140px]">Salary Range:</span>
+            <div>
+              <p className="text-xs font-semibold text-gray-600 mb-1.5">Salary Range:</p>
               <span className="text-sm text-gray-900">
                 ${profile.min_salary?.toLocaleString() || "0"} - ${profile.max_salary?.toLocaleString() || "999,999"}
               </span>
             </div>
-            <div className="flex items-baseline gap-3">
-              <span className="text-sm font-semibold text-gray-600 min-w-[140px]">Company Size:</span>
-              <span className="text-sm text-gray-900">
-                {profile.company_sizes?.length > 0 ? profile.company_sizes.join(", ") : "All sizes"}
-              </span>
+            <div>
+              <p className="text-xs font-semibold text-gray-600 mb-1.5">Company Size:</p>
+              <div className="flex flex-wrap gap-1.5">
+                {profile.company_sizes?.length > 0 ? (
+                  profile.company_sizes.map((size, idx) => (
+                    <span key={idx} className="bg-purple-50 text-purple-700 text-xs px-2 py-0.5 rounded-full">{size}</span>
+                  ))
+                ) : (
+                  <span className="text-xs text-gray-500">All sizes</span>
+                )}
+              </div>
             </div>
             {profile.funding_stages?.length > 0 && (
-              <div className="flex items-baseline gap-3">
-                <span className="text-sm font-semibold text-gray-600 min-w-[140px]">Funding Stage:</span>
-                <span className="text-sm text-gray-900">
-                  {profile.funding_stages.join(", ")}
-                </span>
+              <div>
+                <p className="text-xs font-semibold text-gray-600 mb-1.5">Funding Stage:</p>
+                <div className="flex flex-wrap gap-1.5">
+                  {profile.funding_stages.map((stage, idx) => (
+                    <span key={idx} className="bg-pink-50 text-pink-700 text-xs px-2 py-0.5 rounded-full">{stage}</span>
+                  ))}
+                </div>
               </div>
             )}
           </div>
