@@ -114,12 +114,9 @@ export default function JobPreferencesCard() {
 
   return (
     <>
-      <div className="bg-gradient-to-br from-[#FFF5E6] to-white border-2 border-[#F7931E] rounded-2xl p-6 shadow-sm">
-        <div className="flex items-center justify-between mb-4">
-          <div className="flex items-center gap-3">
-            <span className="text-2xl">🎯</span>
-            <h2 className="text-lg font-semibold text-gray-900">Your Job Search Preferences</h2>
-          </div>
+      <div className="bg-[#FFF5E6] border border-[#F7931E] rounded-lg p-5">
+        <div className="flex items-center justify-between pb-4 border-b border-[#F7931E] mb-4">
+          <h3 className="text-base font-semibold text-gray-900">Your Job Search Preferences</h3>
           <Button
             variant="outline"
             size="sm"
@@ -136,82 +133,54 @@ export default function JobPreferencesCard() {
               }
               setShowPreferencesModal(true);
             }}
-            className="gap-2 rounded-lg"
+            className="rounded-md"
           >
-            <Edit className="w-4 h-4" />
             Edit
           </Button>
         </div>
 
         {profile ? (
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
-            <div>
-              <p className="text-xs font-semibold text-gray-600 mb-1.5">Target Roles:</p>
-              <div className="flex flex-wrap gap-1.5">
-                {profile.target_roles?.length > 0 ? (
-                  profile.target_roles.map((role, idx) => (
-                    <span key={idx} className="bg-orange-50 text-[#F7931E] text-xs px-2 py-0.5 rounded-full">{role}</span>
-                  ))
-                ) : (
-                  <span className="text-xs text-gray-500">Not set</span>
-                )}
-              </div>
+            <div className="flex gap-2 text-sm">
+              <span className="font-semibold text-gray-600 whitespace-nowrap">Target Roles:</span>
+              <span className={profile.target_roles?.length > 0 ? "text-gray-900" : "text-red-600 italic"}>
+                {profile.target_roles?.length > 0 
+                  ? profile.target_roles.slice(0, 2).join(", ") + (profile.target_roles.length > 2 ? ` +${profile.target_roles.length - 2} more` : "")
+                  : "Not set"}
+              </span>
             </div>
-            <div>
-              <p className="text-xs font-semibold text-gray-600 mb-1.5">Industries:</p>
-              <div className="flex flex-wrap gap-1.5">
-                {profile.industries?.length > 0 ? (
-                  profile.industries.map((industry, idx) => (
-                    <span key={idx} className="bg-blue-50 text-blue-700 text-xs px-2 py-0.5 rounded-full">{industry}</span>
-                  ))
-                ) : (
-                  <span className="text-xs text-gray-500">All industries</span>
-                )}
-              </div>
+            <div className="flex gap-2 text-sm">
+              <span className="font-semibold text-gray-600 whitespace-nowrap">Industries:</span>
+              <span className="text-gray-900">
+                {profile.industries?.length > 0 
+                  ? profile.industries.slice(0, 2).join(", ") + (profile.industries.length > 2 ? ` +${profile.industries.length - 2} more` : "")
+                  : "All industries"}
+              </span>
             </div>
-            <div>
-              <p className="text-xs font-semibold text-gray-600 mb-1.5">Location:</p>
-              <div className="flex flex-wrap gap-1.5">
-                {profile.preferred_locations?.length > 0 ? (
-                  profile.preferred_locations.map((loc, idx) => (
-                    <span key={idx} className="bg-green-50 text-green-700 text-xs px-2 py-0.5 rounded-full">{loc}</span>
-                  ))
-                ) : profile.remote_preferences?.includes("Remote") || profile.remote_preferences?.includes("Fully Remote") ? (
-                  <span className="bg-green-50 text-green-700 text-xs px-2 py-0.5 rounded-full">Remote only</span>
-                ) : (
-                  <span className="text-xs text-gray-500">Any location</span>
-                )}
-                {(profile.remote_preferences?.includes("Remote") || profile.remote_preferences?.includes("Fully Remote")) && profile.preferred_locations?.length > 0 && (
-                  <span className="bg-green-50 text-green-700 text-xs px-2 py-0.5 rounded-full">Remote OK</span>
-                )}
-              </div>
+            <div className="flex gap-2 text-sm">
+              <span className="font-semibold text-gray-600 whitespace-nowrap">Location:</span>
+              <span className="text-gray-900">
+                {profile.preferred_locations?.length > 0
+                  ? `${profile.preferred_locations.slice(0, 2).join(", ")}${profile.preferred_locations.length > 2 ? ` +${profile.preferred_locations.length - 2} more` : ""}${profile.remote_preferences?.includes("Remote") || profile.remote_preferences?.includes("Fully Remote") ? " + Remote" : ""}`
+                  : profile.remote_preferences?.includes("Remote") || profile.remote_preferences?.includes("Fully Remote") ? "Remote only" : "Any location"}
+              </span>
             </div>
-            <div>
-              <p className="text-xs font-semibold text-gray-600 mb-1.5">Salary Range:</p>
-              <span className="text-sm text-gray-900">
+            <div className="flex gap-2 text-sm">
+              <span className="font-semibold text-gray-600 whitespace-nowrap">Salary:</span>
+              <span className="text-gray-900">
                 ${profile.min_salary?.toLocaleString() || "0"} - ${profile.max_salary?.toLocaleString() || "999,999"}
               </span>
             </div>
-            <div>
-              <p className="text-xs font-semibold text-gray-600 mb-1.5">Company Size:</p>
-              <div className="flex flex-wrap gap-1.5">
-                {profile.company_sizes?.length > 0 ? (
-                  profile.company_sizes.map((size, idx) => (
-                    <span key={idx} className="bg-purple-50 text-purple-700 text-xs px-2 py-0.5 rounded-full">{size}</span>
-                  ))
-                ) : (
-                  <span className="text-xs text-gray-500">All sizes</span>
-                )}
-              </div>
+            <div className="flex gap-2 text-sm sm:col-span-2">
+              <span className="font-semibold text-gray-600 whitespace-nowrap">Company Size:</span>
+              <span className="text-gray-900">
+                {profile.company_sizes?.length > 0 ? profile.company_sizes.join(", ") : "All sizes"}
+              </span>
             </div>
             {profile.funding_stages?.length > 0 && (
-              <div>
-                <p className="text-xs font-semibold text-gray-600 mb-1.5">Funding Stage:</p>
-                <div className="flex flex-wrap gap-1.5">
-                  {profile.funding_stages.map((stage, idx) => (
-                    <span key={idx} className="bg-pink-50 text-pink-700 text-xs px-2 py-0.5 rounded-full">{stage}</span>
-                  ))}
-                </div>
+              <div className="flex gap-2 text-sm sm:col-span-2">
+                <span className="font-semibold text-gray-600 whitespace-nowrap">Funding Stage:</span>
+                <span className="text-gray-900">{profile.funding_stages.join(", ")}</span>
               </div>
             )}
           </div>
@@ -226,11 +195,8 @@ export default function JobPreferencesCard() {
           </div>
         )}
 
-        <div className="flex items-center gap-2 mt-4 p-3 bg-yellow-50 rounded-lg">
-          <AlertCircle className="w-5 h-5 text-yellow-600 shrink-0" />
-          <p className="text-xs text-yellow-800">
-            These preferences control which jobs appear in your feed and RSS results
-          </p>
+        <div className="mt-4 pt-4 border-t border-[#F7931E] border-opacity-20 text-xs text-[#92400E]">
+          ⚠ These preferences control which jobs appear in your feed and RSS results
         </div>
       </div>
 
