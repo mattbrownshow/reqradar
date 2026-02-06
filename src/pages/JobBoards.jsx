@@ -11,7 +11,7 @@ import {
 } from "@/components/ui/dialog";
 import {
   Rss, Plus, Play, Pause, Trash2, ExternalLink,
-  Clock, Check, X, AlertCircle, Loader2
+  Clock, Check, X, AlertCircle, Loader2, RefreshCw
 } from "lucide-react";
 import StatusBadge from "../components/shared/StatusBadge";
 import EmptyState from "../components/shared/EmptyState";
@@ -25,6 +25,13 @@ export default function JobBoards() {
   const { data: feeds = [], isLoading: feedsLoading } = useQuery({
     queryKey: ["feeds"],
     queryFn: () => base44.entities.RSSFeed.list("-created_date", 50),
+  });
+
+  const refreshFeedsMutation = useMutation({
+    mutationFn: () => base44.functions.invoke('createDefaultFeeds', {}),
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ["feeds"] });
+    }
   });
 
   // Auto-create default feeds if none exist
@@ -73,9 +80,14 @@ export default function JobBoards() {
               : `Monitoring ${feeds.length} RSS feed${feeds.length !== 1 ? 's' : ''} for executive opportunities`}
           </p>
         </div>
-        <Button onClick={() => setShowAddFeed(true)} className="bg-[#F7931E] hover:bg-[#E07A0A] text-white rounded-xl gap-2">
-          <Plus className="w-4 h-4" /> Add RSS Feed
-        </Button>
+        <div className="flex gap-2">
+          <Button onClick={() => refreshFeedsMutation.mutate()} disabled={refreshFeedsMutation.isPending} variant="outline" className="rounded-xl gap-2">
+            <Loader2 className={`w-4 h-4 ${refreshFeedsMutation.isPending ? 'animate-spin' : ''}`} /> Refresh Feeds
+          </Button>
+          <Button onClick={() => setShowAddFeed(true)} className="bg-[#F7931E] hover:bg-[#E07A0A] text-white rounded-xl gap-2">
+            <Plus className="w-4 h-4" /> Add RSS Feed
+          </Button>
+        </div>
       </div>
       
       {/* Info banner for loading */}
