@@ -11,7 +11,7 @@ import {
 } from "@/components/ui/dialog";
 import {
   Rss, Plus, Play, Pause, Trash2, ExternalLink,
-  Clock, Check, X, AlertCircle
+  Clock, Check, X, AlertCircle, Loader2
 } from "lucide-react";
 import StatusBadge from "../components/shared/StatusBadge";
 import EmptyState from "../components/shared/EmptyState";
