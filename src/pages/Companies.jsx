@@ -10,7 +10,7 @@ import {
 } from "@/components/ui/select";
 import {
   Building2, Search, MapPin, Users, DollarSign,
-  Briefcase, Plus, Grid3X3, List, Star, ArrowUpRight, Loader2
+  Briefcase, Plus, Grid3X3, List, Star, ArrowUpRight, Loader2, X, Trash2
 } from "lucide-react";
 import StatusBadge from "../components/shared/StatusBadge";
 import EmptyState from "../components/shared/EmptyState";
@@ -22,10 +22,15 @@ export default function Companies() {
   const [industryFilter, setIndustryFilter] = useState("all");
   const [viewMode, setViewMode] = useState("grid");
   const [isSearching, setIsSearching] = useState(false);
+  const [discoveryResults, setDiscoveryResults] = useState([]);
+  const [showDiscoveryResults, setShowDiscoveryResults] = useState(false);
+  const [selectedIndustries, setSelectedIndustries] = useState([]);
+  const [selectedSizes, setSelectedSizes] = useState([]);
+  const [selectedFunding, setSelectedFunding] = useState([]);
 
   const { data: companies = [], isLoading } = useQuery({
     queryKey: ["companies"],
-    queryFn: () => base44.entities.Company.list("-match_score", 200),
+    queryFn: () => base44.entities.Company.filter({ tracked: true }),
   });
 
   const { data: profiles = [] } = useQuery({
@@ -33,49 +38,46 @@ export default function Companies() {
     queryFn: () => base44.entities.CandidateProfile.list("-created_date", 1),
   });
 
-  const handleAISearch = async () => {
-    if (!searchTerm.trim()) return;
+  const handleDiscoverCompanies = async () => {
     setIsSearching(true);
-    const profile = profiles[0] || {};
-    const result = await base44.integrations.Core.InvokeLLM({
-      prompt: `Generate a list of 8 real companies matching this search: "${searchTerm}". 
-      Candidate prefers industries: ${(profile.industries || []).join(", ") || "any"}.
-      Target roles: ${(profile.target_roles || []).join(", ") || "executive"}.
-      Location preferences: ${(profile.preferred_locations || []).join(", ") || "any"}.
+    try {
+      const profile = profiles[0] || {};
+      const response = await base44.functions.invoke('discoverCompanies', {
+        industries: selectedIndustries.length > 0 ? selectedIndustries : profile.industries || [],
+        companySizes: selectedSizes.length > 0 ? selectedSizes : profile.company_sizes || [],
+        fundingStages: selectedFunding.length > 0 ? selectedFunding : profile.funding_stages || [],
+        locations: profile.preferred_locations || [],
+        keywords: searchTerm
+      });
       
-      Return realistic company data with real company names that exist.`,
-      add_context_from_internet: true,
-      response_json_schema: {
-        type: "object",
-        properties: {
-          companies: {
-            type: "array",
-            items: {
-              type: "object",
-              properties: {
-                name: { type: "string" },
-                domain: { type: "string" },
-                industry: { type: "string" },
-                employee_count: { type: "number" },
-                revenue_estimate: { type: "string" },
-                location: { type: "string" },
-                description: { type: "string" },
-                match_score: { type: "number" },
-                open_positions_count: { type: "number" },
-                funding_stage: { type: "string" }
-              }
-            }
-          }
-        }
+      if (response.data.companies) {
+        setDiscoveryResults(response.data.companies);
+        setShowDiscoveryResults(true);
       }
-    });
-    if (result.companies) {
-      await base44.entities.Company.bulkCreate(
-        result.companies.map(c => ({ ...c, pipeline_stage: "research", tracked: true }))
-      );
-      queryClient.invalidateQueries({ queryKey: ["companies"] });
+    } catch (error) {
+      console.error('Discovery error:', error);
     }
     setIsSearching(false);
+  };
+
+  const handleAddToTargetList = async (companyData) => {
+    try {
+      await base44.functions.invoke('addToTargetList', { companyData });
+      queryClient.invalidateQueries({ queryKey: ["companies"] });
+      // Remove from discovery results
+      setDiscoveryResults(prev => prev.filter(c => c.apolloId !== companyData.apolloId));
+    } catch (error) {
+      console.error('Add error:', error);
+    }
+  };
+
+  const handleRemoveFromTarget = async (companyId) => {
+    try {
+      await base44.entities.Company.update(companyId, { tracked: false });
+      queryClient.invalidateQueries({ queryKey: ["companies"] });
+    } catch (error) {
+      console.error('Remove error:', error);
+    }
   };
 
   const industries = [...new Set(companies.map(c => c.industry).filter(Boolean))];
@@ -97,22 +99,22 @@ export default function Companies() {
         <JobPreferencesCard />
       </div>
 
-      {/* Search & AI Find */}
+      {/* Company Discovery */}
       <div className="bg-white border border-gray-100 rounded-2xl p-6 space-y-4">
-        <h3 className="font-semibold text-gray-900">Find Target Companies</h3>
+        <h3 className="font-semibold text-gray-900">Discover New Companies</h3>
         <div className="flex flex-col sm:flex-row gap-3">
           <div className="flex-1 relative">
             <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-400" />
             <Input
               value={searchTerm}
               onChange={e => setSearchTerm(e.target.value)}
-              onKeyDown={e => e.key === "Enter" && handleAISearch()}
-              placeholder="Search by name, industry, or keywords..."
+              onKeyDown={e => e.key === "Enter" && handleDiscoverCompanies()}
+              placeholder="Optional keywords..."
               className="pl-10 rounded-xl"
             />
           </div>
           <Button
-            onClick={handleAISearch}
+            onClick={handleDiscoverCompanies}
             disabled={isSearching}
             className="bg-[#F7931E] hover:bg-[#E07A0A] text-white rounded-xl gap-2 shrink-0"
           >
@@ -122,36 +124,146 @@ export default function Companies() {
         </div>
 
         {/* Filters */}
-        <div className="flex flex-wrap gap-3 items-center">
-          <Select value={industryFilter} onValueChange={setIndustryFilter}>
-            <SelectTrigger className="w-[180px] rounded-xl">
-              <SelectValue placeholder="Industry" />
-            </SelectTrigger>
-            <SelectContent>
-              <SelectItem value="all">All Industries</SelectItem>
-              {industries.map(ind => (
-                <SelectItem key={ind} value={ind}>{ind}</SelectItem>
-              ))}
-            </SelectContent>
-          </Select>
-
-          <div className="ml-auto flex items-center gap-1 bg-gray-100 p-1 rounded-lg">
-            <button onClick={() => setViewMode("grid")} className={`p-1.5 rounded-md transition-colors ${viewMode === "grid" ? "bg-white shadow-sm" : ""}`}>
-              <Grid3X3 className="w-4 h-4 text-gray-600" />
-            </button>
-            <button onClick={() => setViewMode("list")} className={`p-1.5 rounded-md transition-colors ${viewMode === "list" ? "bg-white shadow-sm" : ""}`}>
-              <List className="w-4 h-4 text-gray-600" />
-            </button>
+        <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
+          <div>
+            <label className="text-xs text-gray-500 mb-1.5 block">Industries</label>
+            <Select value={selectedIndustries[0] || "all"} onValueChange={v => setSelectedIndustries(v === "all" ? [] : [v])}>
+              <SelectTrigger className="rounded-xl">
+                <SelectValue placeholder="Any industry" />
+              </SelectTrigger>
+              <SelectContent>
+                <SelectItem value="all">Any industry</SelectItem>
+                <SelectItem value="Technology">Technology</SelectItem>
+                <SelectItem value="Healthcare">Healthcare</SelectItem>
+                <SelectItem value="Finance">Finance</SelectItem>
+                <SelectItem value="Manufacturing">Manufacturing</SelectItem>
+                <SelectItem value="Retail">Retail</SelectItem>
+              </SelectContent>
+            </Select>
+          </div>
+          <div>
+            <label className="text-xs text-gray-500 mb-1.5 block">Company Size</label>
+            <Select value={selectedSizes[0] || "all"} onValueChange={v => setSelectedSizes(v === "all" ? [] : [v])}>
+              <SelectTrigger className="rounded-xl">
+                <SelectValue placeholder="Any size" />
+              </SelectTrigger>
+              <SelectContent>
+                <SelectItem value="all">Any size</SelectItem>
+                <SelectItem value="1-50">1-50 employees</SelectItem>
+                <SelectItem value="51-200">51-200 employees</SelectItem>
+                <SelectItem value="201-1000">201-1000 employees</SelectItem>
+                <SelectItem value="1000+">1000+ employees</SelectItem>
+              </SelectContent>
+            </Select>
+          </div>
+          <div>
+            <label className="text-xs text-gray-500 mb-1.5 block">Funding Stage</label>
+            <Select value={selectedFunding[0] || "all"} onValueChange={v => setSelectedFunding(v === "all" ? [] : [v])}>
+              <SelectTrigger className="rounded-xl">
+                <SelectValue placeholder="Any stage" />
+              </SelectTrigger>
+              <SelectContent>
+                <SelectItem value="all">Any stage</SelectItem>
+                <SelectItem value="Seed">Seed</SelectItem>
+                <SelectItem value="Series A">Series A</SelectItem>
+                <SelectItem value="Series B">Series B</SelectItem>
+                <SelectItem value="Series C+">Series C+</SelectItem>
+              </SelectContent>
+            </Select>
           </div>
         </div>
       </div>
 
-      {/* Company Grid/List */}
-      {filtered.length === 0 && !isLoading ? (
+      {/* Discovery Results */}
+      {showDiscoveryResults && discoveryResults.length > 0 && (
+        <div className="bg-blue-50 border border-blue-200 rounded-2xl p-6 space-y-4">
+          <div className="flex items-center justify-between">
+            <h3 className="font-semibold text-gray-900">Found {discoveryResults.length} Matching Companies</h3>
+            <Button variant="ghost" size="sm" onClick={() => setShowDiscoveryResults(false)}>
+              <X className="w-4 h-4" />
+            </Button>
+          </div>
+          <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-4">
+            {discoveryResults.map((company, idx) => (
+              <div key={idx} className="bg-white border border-gray-200 rounded-xl p-4 space-y-3">
+                <div className="flex items-start justify-between">
+                  <div>
+                    <h4 className="font-semibold text-gray-900">{company.name}</h4>
+                    <p className="text-xs text-gray-500">{company.industry}</p>
+                  </div>
+                  {company.matchScore && (
+                    <div className="w-10 h-10 bg-orange-50 rounded-lg flex items-center justify-center text-sm font-bold text-[#F7931E]">
+                      {company.matchScore}%
+                    </div>
+                  )}
+                </div>
+                <div className="space-y-1 text-sm text-gray-600">
+                  {company.location && (
+                    <div className="flex items-center gap-1.5">
+                      <MapPin className="w-3.5 h-3.5" />
+                      {company.location}
+                    </div>
+                  )}
+                  {company.employeeCount && (
+                    <div className="flex items-center gap-1.5">
+                      <Users className="w-3.5 h-3.5" />
+                      {company.employeeCount} employees
+                    </div>
+                  )}
+                  {company.fundingStage && (
+                    <div className="text-xs text-gray-500">
+                      💰 {company.fundingStage}
+                    </div>
+                  )}
+                </div>
+                <Button 
+                  size="sm"
+                  onClick={() => handleAddToTargetList(company)}
+                  className="w-full bg-[#F7931E] hover:bg-[#E07A0A] text-white rounded-lg gap-1.5"
+                >
+                  <Plus className="w-3.5 h-3.5" /> Add to Target List
+                </Button>
+              </div>
+            ))}
+          </div>
+        </div>
+      )}
+
+      {/* Your Target Companies */}
+      {companies.length > 0 && (
+        <div>
+          <h3 className="font-semibold text-gray-900 mb-4">Your Target Companies ({companies.length})</h3>
+          <div className="flex flex-wrap gap-3 items-center mb-4">
+            <Select value={industryFilter} onValueChange={setIndustryFilter}>
+              <SelectTrigger className="w-[180px] rounded-xl">
+                <SelectValue placeholder="Industry" />
+              </SelectTrigger>
+              <SelectContent>
+                <SelectItem value="all">All Industries</SelectItem>
+                {industries.map(ind => (
+                  <SelectItem key={ind} value={ind}>{ind}</SelectItem>
+                ))}
+              </SelectContent>
+            </Select>
+
+            <div className="ml-auto flex items-center gap-1 bg-gray-100 p-1 rounded-lg">
+              <button onClick={() => setViewMode("grid")} className={`p-1.5 rounded-md transition-colors ${viewMode === "grid" ? "bg-white shadow-sm" : ""}`}>
+                <Grid3X3 className="w-4 h-4 text-gray-600" />
+              </button>
+              <button onClick={() => setViewMode("list")} className={`p-1.5 rounded-md transition-colors ${viewMode === "list" ? "bg-white shadow-sm" : ""}`}>
+                <List className="w-4 h-4 text-gray-600" />
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* Target Companies Grid/List */}
+      {companies.length === 0 ? (
         <EmptyState
           icon={Building2}
-          title="No companies yet"
-          description="Search for companies above to start building your target list."
+          title="No target companies yet"
+          description="Use the discovery tool above to find and add companies to your target list."
         />
       ) : viewMode === "grid" ? (
         <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-4">
@@ -163,45 +275,66 @@ export default function Companies() {
             >
               <div className="flex items-start justify-between mb-4">
                 <div className="flex items-center gap-3">
-                  <div className="w-12 h-12 bg-gray-100 rounded-xl flex items-center justify-center text-lg font-bold text-gray-600 group-hover:bg-orange-50 group-hover:text-[#F7931E] transition-colors">
-                    {company.match_score || "–"}
-                  </div>
-                  <div>
-                    <h3 className="font-semibold text-gray-900 group-hover:text-[#F7931E] transition-colors">{company.name}</h3>
-                    {company.industry && <p className="text-xs text-gray-500">{company.industry}</p>}
-                  </div>
+                <div className="w-12 h-12 bg-gray-100 rounded-xl flex items-center justify-center text-lg font-bold text-gray-600 group-hover:bg-orange-50 group-hover:text-[#F7931E] transition-colors">
+                  {company.match_score || "–"}
                 </div>
-                <StatusBadge status={company.pipeline_stage || "research"} />
-              </div>
+                <div>
+                  <h3 className="font-semibold text-gray-900 group-hover:text-[#F7931E] transition-colors">{company.name}</h3>
+                  {company.industry && <p className="text-xs text-gray-500">{company.industry}</p>}
+                </div>
+                </div>
+                <Button
+                variant="ghost"
+                size="icon"
+                onClick={(e) => {
+                  e.preventDefault();
+                  handleRemoveFromTarget(company.id);
+                }}
+                className="text-gray-400 hover:text-red-500"
+                >
+                <Trash2 className="w-4 h-4" />
+                </Button>
+                </div>
 
-              <div className="space-y-2 text-sm text-gray-500">
+                <div className="space-y-2 text-sm text-gray-500">
                 {company.location && (
-                  <div className="flex items-center gap-2">
-                    <MapPin className="w-3.5 h-3.5" />
-                    {company.location}
-                  </div>
+                <div className="flex items-center gap-2">
+                  <MapPin className="w-3.5 h-3.5" />
+                  {company.location}
+                </div>
                 )}
                 <div className="flex items-center gap-4">
-                  {company.employee_count && (
-                    <div className="flex items-center gap-1.5">
-                      <Users className="w-3.5 h-3.5" />
-                      {company.employee_count}
-                    </div>
-                  )}
-                  {company.revenue_estimate && (
-                    <div className="flex items-center gap-1.5">
-                      <DollarSign className="w-3.5 h-3.5" />
-                      {company.revenue_estimate}
-                    </div>
-                  )}
-                </div>
-                {company.open_positions_count > 0 && (
-                  <div className="flex items-center gap-1.5 text-[#F7931E] font-medium">
-                    <Briefcase className="w-3.5 h-3.5" />
-                    {company.open_positions_count} open positions
+                {company.employee_count && (
+                  <div className="flex items-center gap-1.5">
+                    <Users className="w-3.5 h-3.5" />
+                    {company.employee_count}
                   </div>
                 )}
-              </div>
+                {company.revenue_estimate && (
+                  <div className="flex items-center gap-1.5">
+                    <DollarSign className="w-3.5 h-3.5" />
+                    {company.revenue_estimate}
+                  </div>
+                )}
+                </div>
+                {company.open_positions_count > 0 && (
+                <div className="flex items-center gap-1.5 text-[#F7931E] font-medium">
+                  <Briefcase className="w-3.5 h-3.5" />
+                  {company.open_positions_count} open positions
+                </div>
+                )}
+                {company.domain && (
+                <a 
+                  href={`https://${company.domain}`} 
+                  target="_blank" 
+                  rel="noopener noreferrer"
+                  className="text-xs text-blue-500 hover:underline"
+                  onClick={(e) => e.stopPropagation()}
+                >
+                  Visit website →
+                </a>
+                )}
+                </div>
             </Link>
           ))}
         </div>
