@@ -4,9 +4,10 @@ import { createPageUrl } from "../../utils";
 import { base44 } from "@/api/base44Client";
 import { useQuery } from "@tanstack/react-query";
 import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Checkbox } from "@/components/ui/checkbox";
-import { Edit, AlertCircle } from "lucide-react";
+import { Edit, AlertCircle, X } from "lucide-react";
 import {
   Dialog,
   DialogContent,
@@ -18,6 +19,13 @@ export default function JobPreferencesCard() {
   const [showPreferencesModal, setShowPreferencesModal] = useState(false);
   const [selectedIndustries, setSelectedIndustries] = useState([]);
   const [selectedCompanySizes, setSelectedCompanySizes] = useState([]);
+  const [targetRoles, setTargetRoles] = useState([]);
+  const [newRole, setNewRole] = useState("");
+  const [preferredLocations, setPreferredLocations] = useState([]);
+  const [newLocation, setNewLocation] = useState("");
+  const [remotePreferred, setRemotePreferred] = useState(false);
+  const [minSalary, setMinSalary] = useState("");
+  const [maxSalary, setMaxSalary] = useState("");
 
   const { data: profiles = [] } = useQuery({
     queryKey: ["candidateProfile"],
@@ -41,6 +49,11 @@ export default function JobPreferencesCard() {
               if (profile) {
                 setSelectedIndustries(profile.industries || []);
                 setSelectedCompanySizes(profile.company_sizes || []);
+                setTargetRoles(profile.target_roles || []);
+                setPreferredLocations(profile.preferred_locations || []);
+                setRemotePreferred(profile.remote_preferences?.includes("Remote") || false);
+                setMinSalary(profile.min_salary?.toString() || "");
+                setMaxSalary(profile.max_salary?.toString() || "");
               }
               setShowPreferencesModal(true);
             }}
@@ -120,16 +133,52 @@ export default function JobPreferencesCard() {
             <div>
               <Label className="text-base font-semibold">Target Roles *</Label>
               <p className="text-xs text-gray-500 mt-1 mb-2">
-                The executive roles you're targeting (shown on your profile)
+                The executive roles you're targeting
               </p>
-              <div className="p-3 bg-gray-50 rounded-lg border border-gray-200">
-                <p className="text-sm text-gray-700">
-                  {profile?.target_roles?.join(", ") || "Not set"}
-                </p>
+              <div className="space-y-2">
+                {targetRoles.length > 0 && (
+                  <div className="flex flex-wrap gap-2">
+                    {targetRoles.map((role, idx) => (
+                      <div key={idx} className="flex items-center gap-1 px-3 py-1.5 bg-[#FEF3E2] text-gray-800 rounded-lg text-sm">
+                        {role}
+                        <button
+                          onClick={() => setTargetRoles(targetRoles.filter((_, i) => i !== idx))}
+                          className="ml-1 hover:text-red-600"
+                        >
+                          <X className="w-3 h-3" />
+                        </button>
+                      </div>
+                    ))}
+                  </div>
+                )}
+                <div className="flex gap-2">
+                  <Input
+                    value={newRole}
+                    onChange={e => setNewRole(e.target.value)}
+                    onKeyDown={e => {
+                      if (e.key === "Enter" && newRole.trim()) {
+                        setTargetRoles([...targetRoles, newRole.trim()]);
+                        setNewRole("");
+                      }
+                    }}
+                    placeholder="Add a role (e.g., CFO, COO, CTO)"
+                    className="rounded-lg"
+                  />
+                  <Button
+                    type="button"
+                    variant="outline"
+                    onClick={() => {
+                      if (newRole.trim()) {
+                        setTargetRoles([...targetRoles, newRole.trim()]);
+                        setNewRole("");
+                      }
+                    }}
+                    className="rounded-lg"
+                  >
+                    Add
+                  </Button>
+                </div>
               </div>
-              <Link to={createPageUrl("CandidateSetup")} className="text-xs text-blue-500 hover:underline mt-1 inline-block">
-                Edit in Profile Setup →
-              </Link>
             </div>
 
             {/* Industries */}
@@ -161,35 +210,95 @@ export default function JobPreferencesCard() {
             <div>
               <Label className="text-base font-semibold">Location Preferences</Label>
               <p className="text-xs text-gray-500 mt-1 mb-2">
-                Preferred locations (shown on your profile)
+                Add cities or states where you'd like to work
               </p>
-              <div className="p-3 bg-gray-50 rounded-lg border border-gray-200">
-                <p className="text-sm text-gray-700">
-                  {profile?.preferred_locations?.join(", ") || "Not set"}
-                </p>
-                {profile?.remote_preferences?.includes("Remote") && (
-                  <p className="text-sm text-green-600 mt-1">✓ Remote work preferred</p>
+              <div className="space-y-3">
+                {preferredLocations.length > 0 && (
+                  <div className="flex flex-wrap gap-2">
+                    {preferredLocations.map((loc, idx) => (
+                      <div key={idx} className="flex items-center gap-1 px-3 py-1.5 bg-blue-50 text-gray-800 rounded-lg text-sm">
+                        {loc}
+                        <button
+                          onClick={() => setPreferredLocations(preferredLocations.filter((_, i) => i !== idx))}
+                          className="ml-1 hover:text-red-600"
+                        >
+                          <X className="w-3 h-3" />
+                        </button>
+                      </div>
+                    ))}
+                  </div>
                 )}
+                <div className="flex gap-2">
+                  <Input
+                    value={newLocation}
+                    onChange={e => setNewLocation(e.target.value)}
+                    onKeyDown={e => {
+                      if (e.key === "Enter" && newLocation.trim()) {
+                        setPreferredLocations([...preferredLocations, newLocation.trim()]);
+                        setNewLocation("");
+                      }
+                    }}
+                    placeholder="Add a location (e.g., Seattle, WA)"
+                    className="rounded-lg"
+                  />
+                  <Button
+                    type="button"
+                    variant="outline"
+                    onClick={() => {
+                      if (newLocation.trim()) {
+                        setPreferredLocations([...preferredLocations, newLocation.trim()]);
+                        setNewLocation("");
+                      }
+                    }}
+                    className="rounded-lg"
+                  >
+                    Add
+                  </Button>
+                </div>
+                <label className="flex items-center gap-2 cursor-pointer">
+                  <Checkbox
+                    checked={remotePreferred}
+                    onCheckedChange={setRemotePreferred}
+                  />
+                  <span className="text-sm">Open to remote work</span>
+                </label>
               </div>
-              <Link to={createPageUrl("CandidateSetup")} className="text-xs text-blue-500 hover:underline mt-1 inline-block">
-                Edit in Profile Setup →
-              </Link>
             </div>
 
             {/* Salary Range */}
             <div>
               <Label className="text-base font-semibold">Salary Range</Label>
               <p className="text-xs text-gray-500 mt-1 mb-2">
-                Target compensation range (shown on your profile)
+                Your target compensation range
               </p>
-              <div className="p-3 bg-gray-50 rounded-lg border border-gray-200">
-                <p className="text-sm text-gray-700">
-                  ${profile?.min_salary?.toLocaleString() || "0"} - ${profile?.max_salary?.toLocaleString() || "999,999"}
-                </p>
+              <div className="grid grid-cols-2 gap-3">
+                <div>
+                  <Label className="text-xs text-gray-500">Minimum</Label>
+                  <div className="relative mt-1">
+                    <span className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-500">$</span>
+                    <Input
+                      type="number"
+                      value={minSalary}
+                      onChange={e => setMinSalary(e.target.value)}
+                      placeholder="170000"
+                      className="pl-7 rounded-lg"
+                    />
+                  </div>
+                </div>
+                <div>
+                  <Label className="text-xs text-gray-500">Maximum</Label>
+                  <div className="relative mt-1">
+                    <span className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-500">$</span>
+                    <Input
+                      type="number"
+                      value={maxSalary}
+                      onChange={e => setMaxSalary(e.target.value)}
+                      placeholder="350000"
+                      className="pl-7 rounded-lg"
+                    />
+                  </div>
+                </div>
               </div>
-              <Link to={createPageUrl("CandidateSetup")} className="text-xs text-blue-500 hover:underline mt-1 inline-block">
-                Edit in Profile Setup →
-              </Link>
             </div>
 
             {/* Company Size */}
@@ -231,7 +340,12 @@ export default function JobPreferencesCard() {
                 onClick={async () => {
                   if (profile) {
                     await base44.entities.CandidateProfile.update(profile.id, {
+                      target_roles: targetRoles,
                       industries: selectedIndustries,
+                      preferred_locations: preferredLocations,
+                      remote_preferences: remotePreferred ? ["Remote"] : [],
+                      min_salary: minSalary ? parseInt(minSalary) : undefined,
+                      max_salary: maxSalary ? parseInt(maxSalary) : undefined,
                       company_sizes: selectedCompanySizes
                     });
                     window.location.reload();
