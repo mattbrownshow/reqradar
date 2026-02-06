@@ -7,25 +7,91 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Checkbox } from "@/components/ui/checkbox";
-import { Edit, AlertCircle, X } from "lucide-react";
+import { Edit, AlertCircle } from "lucide-react";
 import {
   Dialog,
   DialogContent,
   DialogHeader,
   DialogTitle,
 } from "@/components/ui/dialog";
+import SearchableMultiSelect from "./SearchableMultiSelect";
+
+const ROLES_DB = {
+  'C-Suite': [
+    'Chief Executive Officer (CEO)',
+    'Chief Financial Officer (CFO)',
+    'Chief Technology Officer (CTO)',
+    'Chief Operating Officer (COO)',
+    'Chief Marketing Officer (CMO)',
+    'Chief Information Officer (CIO)',
+    'Chief Human Resources Officer (CHRO)',
+    'Chief Product Officer (CPO)',
+    'Chief Revenue Officer (CRO)',
+    'Chief Data Officer (CDO)',
+    'Chief Security Officer (CSO)',
+    'Chief Legal Officer / General Counsel'
+  ],
+  'VP Level': [
+    'VP of Finance', 'VP of Engineering', 'VP of Sales',
+    'VP of Marketing', 'VP of Operations', 'VP of Product',
+    'VP of Human Resources', 'VP of Business Development',
+    'VP of Customer Success'
+  ],
+  'Director Level': [
+    'Director of Finance', 'Director of Engineering',
+    'Director of Operations', 'Director of Marketing',
+    'Director of Sales', 'Director of Product Management'
+  ]
+};
+
+const INDUSTRIES_DB = [
+  'Technology / Software / SaaS',
+  'Healthcare / Biotech',
+  'Financial Services / Fintech',
+  'Manufacturing',
+  'Retail / E-commerce',
+  'Professional Services',
+  'Real Estate / PropTech',
+  'Energy / CleanTech',
+  'Education / EdTech',
+  'Media / Entertainment',
+  'Telecommunications',
+  'Transportation / Logistics',
+  'Hospitality / Travel',
+  'Agriculture / AgTech',
+  'Construction',
+  'Automotive',
+  'Aerospace / Defense',
+  'Consumer Goods',
+  'Insurance / InsurTech',
+  'Legal Services / LegalTech'
+];
+
+const US_CITIES = [
+  'New York, NY', 'Los Angeles, CA', 'Chicago, IL',
+  'Houston, TX', 'Phoenix, AZ', 'Philadelphia, PA',
+  'San Antonio, TX', 'San Diego, CA', 'Dallas, TX',
+  'San Jose, CA', 'Austin, TX', 'Seattle, WA',
+  'Denver, CO', 'Boston, MA', 'Portland, OR',
+  'Atlanta, GA', 'Miami, FL', 'Minneapolis, MN',
+  'San Francisco, CA', 'Detroit, MI', 'Nashville, TN',
+  'Charlotte, NC', 'Washington, DC', 'Las Vegas, NV',
+  'Baltimore, MD', 'Raleigh, NC', 'Salt Lake City, UT',
+  'Tampa, FL', 'Orlando, FL', 'Cleveland, OH',
+  'Pittsburgh, PA', 'Sacramento, CA', 'Kansas City, MO',
+  'Indianapolis, IN', 'Columbus, OH', 'Milwaukee, WI'
+];
 
 export default function JobPreferencesCard() {
   const [showPreferencesModal, setShowPreferencesModal] = useState(false);
-  const [selectedIndustries, setSelectedIndustries] = useState([]);
-  const [selectedCompanySizes, setSelectedCompanySizes] = useState([]);
   const [targetRoles, setTargetRoles] = useState([]);
-  const [newRole, setNewRole] = useState("");
+  const [selectedIndustries, setSelectedIndustries] = useState([]);
   const [preferredLocations, setPreferredLocations] = useState([]);
-  const [newLocation, setNewLocation] = useState("");
   const [remotePreferred, setRemotePreferred] = useState(false);
   const [minSalary, setMinSalary] = useState("");
   const [maxSalary, setMaxSalary] = useState("");
+  const [selectedCompanySizes, setSelectedCompanySizes] = useState([]);
+  const [selectedFundingStages, setSelectedFundingStages] = useState([]);
 
   const { data: profiles = [] } = useQuery({
     queryKey: ["candidateProfile"],
@@ -33,6 +99,18 @@ export default function JobPreferencesCard() {
   });
 
   const profile = profiles[0];
+
+  const formatSalary = (value) => {
+    if (!value) return "";
+    return parseInt(value.replace(/,/g, '')).toLocaleString();
+  };
+
+  const handleSalaryChange = (value, setter) => {
+    const numeric = value.replace(/,/g, '');
+    if (numeric === '' || /^\d+$/.test(numeric)) {
+      setter(numeric);
+    }
+  };
 
   return (
     <>
@@ -47,13 +125,14 @@ export default function JobPreferencesCard() {
             size="sm"
             onClick={() => {
               if (profile) {
-                setSelectedIndustries(profile.industries || []);
-                setSelectedCompanySizes(profile.company_sizes || []);
                 setTargetRoles(profile.target_roles || []);
+                setSelectedIndustries(profile.industries || []);
                 setPreferredLocations(profile.preferred_locations || []);
-                setRemotePreferred(profile.remote_preferences?.includes("Remote") || false);
+                setRemotePreferred(profile.remote_preferences?.includes("Remote") || profile.remote_preferences?.includes("Fully Remote") || false);
                 setMinSalary(profile.min_salary?.toString() || "");
                 setMaxSalary(profile.max_salary?.toString() || "");
+                setSelectedCompanySizes(profile.company_sizes || []);
+                setSelectedFundingStages(profile.funding_stages || []);
               }
               setShowPreferencesModal(true);
             }}
@@ -82,8 +161,8 @@ export default function JobPreferencesCard() {
               <span className="text-sm font-semibold text-gray-600 min-w-[140px]">Location:</span>
               <span className="text-sm text-gray-900">
                 {profile.preferred_locations?.length > 0
-                  ? `${profile.preferred_locations.join(", ")}${profile.remote_preferences?.includes("Remote") ? " + Remote OK" : ""}`
-                  : profile.remote_preferences?.includes("Remote") ? "Remote only" : "Any location"}
+                  ? `${profile.preferred_locations.join(", ")}${profile.remote_preferences?.includes("Remote") || profile.remote_preferences?.includes("Fully Remote") ? " + Remote OK" : ""}`
+                  : profile.remote_preferences?.includes("Remote") || profile.remote_preferences?.includes("Fully Remote") ? "Remote only" : "Any location"}
               </span>
             </div>
             <div className="flex items-baseline gap-3">
@@ -98,6 +177,14 @@ export default function JobPreferencesCard() {
                 {profile.company_sizes?.length > 0 ? profile.company_sizes.join(", ") : "All sizes"}
               </span>
             </div>
+            {profile.funding_stages?.length > 0 && (
+              <div className="flex items-baseline gap-3">
+                <span className="text-sm font-semibold text-gray-600 min-w-[140px]">Funding Stage:</span>
+                <span className="text-sm text-gray-900">
+                  {profile.funding_stages.join(", ")}
+                </span>
+              </div>
+            )}
           </div>
         ) : (
           <div className="text-center py-4">
@@ -132,156 +219,73 @@ export default function JobPreferencesCard() {
             {/* Target Roles */}
             <div>
               <Label className="text-base font-semibold">Target Roles *</Label>
-              <p className="text-xs text-gray-500 mt-1 mb-2">
+              <p className="text-xs text-gray-500 mt-1 mb-3">
                 The executive roles you're targeting
               </p>
-              <div className="space-y-2">
-                {targetRoles.length > 0 && (
-                  <div className="flex flex-wrap gap-2">
-                    {targetRoles.map((role, idx) => (
-                      <div key={idx} className="flex items-center gap-1 px-3 py-1.5 bg-[#FEF3E2] text-gray-800 rounded-lg text-sm">
-                        {role}
-                        <button
-                          onClick={() => setTargetRoles(targetRoles.filter((_, i) => i !== idx))}
-                          className="ml-1 hover:text-red-600"
-                        >
-                          <X className="w-3 h-3" />
-                        </button>
-                      </div>
-                    ))}
-                  </div>
-                )}
-                <div className="flex gap-2">
-                  <Input
-                    value={newRole}
-                    onChange={e => setNewRole(e.target.value)}
-                    onKeyDown={e => {
-                      if (e.key === "Enter" && newRole.trim()) {
-                        setTargetRoles([...targetRoles, newRole.trim()]);
-                        setNewRole("");
-                      }
-                    }}
-                    placeholder="Add a role (e.g., CFO, COO, CTO)"
-                    className="rounded-lg"
-                  />
-                  <Button
-                    type="button"
-                    variant="outline"
-                    onClick={() => {
-                      if (newRole.trim()) {
-                        setTargetRoles([...targetRoles, newRole.trim()]);
-                        setNewRole("");
-                      }
-                    }}
-                    className="rounded-lg"
-                  >
-                    Add
-                  </Button>
-                </div>
-              </div>
+              <SearchableMultiSelect
+                items={[]}
+                groupedBy={ROLES_DB}
+                selected={targetRoles}
+                onSelect={(role) => setTargetRoles([...targetRoles, role])}
+                onRemove={(role) => setTargetRoles(targetRoles.filter(r => r !== role))}
+                placeholder="Search roles (e.g., CFO, CTO, VP Finance)..."
+              />
+              <p className="text-xs text-gray-500 mt-2">💡 Select from common roles or type to search</p>
             </div>
 
             {/* Industries */}
             <div>
               <Label className="text-base font-semibold">Preferred Industries</Label>
               <p className="text-xs text-gray-500 mt-1 mb-3">
-                Select industries you're interested in (optional)
+                Optional - leave blank for all industries
               </p>
-              <div className="grid grid-cols-2 gap-3">
-                {["Technology", "Healthcare", "Finance", "Manufacturing", "Retail", "Professional Services", "Energy", "Real Estate"].map(industry => (
-                  <label key={industry} className="flex items-center gap-2 p-2 border border-gray-200 rounded-lg hover:bg-gray-50 cursor-pointer">
-                    <Checkbox
-                      checked={selectedIndustries.includes(industry)}
-                      onCheckedChange={(checked) => {
-                        if (checked) {
-                          setSelectedIndustries([...selectedIndustries, industry]);
-                        } else {
-                          setSelectedIndustries(selectedIndustries.filter(i => i !== industry));
-                        }
-                      }}
-                    />
-                    <span className="text-sm">{industry}</span>
-                  </label>
-                ))}
-              </div>
+              <SearchableMultiSelect
+                items={INDUSTRIES_DB}
+                selected={selectedIndustries}
+                onSelect={(industry) => setSelectedIndustries([...selectedIndustries, industry])}
+                onRemove={(industry) => setSelectedIndustries(selectedIndustries.filter(i => i !== industry))}
+                placeholder="Search industries (e.g., Technology, Healthcare)..."
+              />
             </div>
 
             {/* Location Preferences */}
             <div>
               <Label className="text-base font-semibold">Location Preferences</Label>
-              <p className="text-xs text-gray-500 mt-1 mb-2">
-                Add cities or states where you'd like to work
+              <p className="text-xs text-gray-500 mt-1 mb-3">
+                Where you're willing to work
               </p>
-              <div className="space-y-3">
-                {preferredLocations.length > 0 && (
-                  <div className="flex flex-wrap gap-2">
-                    {preferredLocations.map((loc, idx) => (
-                      <div key={idx} className="flex items-center gap-1 px-3 py-1.5 bg-blue-50 text-gray-800 rounded-lg text-sm">
-                        {loc}
-                        <button
-                          onClick={() => setPreferredLocations(preferredLocations.filter((_, i) => i !== idx))}
-                          className="ml-1 hover:text-red-600"
-                        >
-                          <X className="w-3 h-3" />
-                        </button>
-                      </div>
-                    ))}
-                  </div>
-                )}
-                <div className="flex gap-2">
-                  <Input
-                    value={newLocation}
-                    onChange={e => setNewLocation(e.target.value)}
-                    onKeyDown={e => {
-                      if (e.key === "Enter" && newLocation.trim()) {
-                        setPreferredLocations([...preferredLocations, newLocation.trim()]);
-                        setNewLocation("");
-                      }
-                    }}
-                    placeholder="Add a location (e.g., Seattle, WA)"
-                    className="rounded-lg"
-                  />
-                  <Button
-                    type="button"
-                    variant="outline"
-                    onClick={() => {
-                      if (newLocation.trim()) {
-                        setPreferredLocations([...preferredLocations, newLocation.trim()]);
-                        setNewLocation("");
-                      }
-                    }}
-                    className="rounded-lg"
-                  >
-                    Add
-                  </Button>
-                </div>
-                <label className="flex items-center gap-2 cursor-pointer">
-                  <Checkbox
-                    checked={remotePreferred}
-                    onCheckedChange={setRemotePreferred}
-                  />
-                  <span className="text-sm">Open to remote work</span>
-                </label>
-              </div>
+              <SearchableMultiSelect
+                items={US_CITIES}
+                selected={preferredLocations}
+                onSelect={(city) => setPreferredLocations([...preferredLocations, city])}
+                onRemove={(city) => setPreferredLocations(preferredLocations.filter(c => c !== city))}
+                placeholder="Search cities (e.g., Seattle, San Francisco, New York)..."
+              />
+              <label className="flex items-center gap-2 mt-3 cursor-pointer">
+                <Checkbox
+                  checked={remotePreferred}
+                  onCheckedChange={setRemotePreferred}
+                />
+                <span className="text-sm">☑ Open to Remote Work</span>
+              </label>
             </div>
 
             {/* Salary Range */}
             <div>
-              <Label className="text-base font-semibold">Salary Range</Label>
+              <Label className="text-base font-semibold">Target Salary Range</Label>
               <p className="text-xs text-gray-500 mt-1 mb-2">
-                Your target compensation range
+                Your desired compensation range
               </p>
-              <div className="grid grid-cols-2 gap-3">
+              <div className="grid grid-cols-2 gap-4">
                 <div>
                   <Label className="text-xs text-gray-500">Minimum</Label>
                   <div className="relative mt-1">
                     <span className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-500">$</span>
                     <Input
-                      type="number"
-                      value={minSalary}
-                      onChange={e => setMinSalary(e.target.value)}
-                      placeholder="170000"
-                      className="pl-7 rounded-lg"
+                      value={minSalary ? parseInt(minSalary).toLocaleString() : ""}
+                      onChange={e => handleSalaryChange(e.target.value, setMinSalary)}
+                      placeholder="170,000"
+                      className="pl-7 rounded-xl"
                     />
                   </div>
                 </div>
@@ -290,31 +294,35 @@ export default function JobPreferencesCard() {
                   <div className="relative mt-1">
                     <span className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-500">$</span>
                     <Input
-                      type="number"
-                      value={maxSalary}
-                      onChange={e => setMaxSalary(e.target.value)}
-                      placeholder="350000"
-                      className="pl-7 rounded-lg"
+                      value={maxSalary ? parseInt(maxSalary).toLocaleString() : ""}
+                      onChange={e => handleSalaryChange(e.target.value, setMaxSalary)}
+                      placeholder="350,000"
+                      className="pl-7 rounded-xl"
                     />
                   </div>
                 </div>
               </div>
+              <p className="text-xs text-gray-500 mt-2">💡 System shows roles within ±20% of this range</p>
             </div>
 
             {/* Company Size */}
             <div>
               <Label className="text-base font-semibold">Company Size (Employees)</Label>
               <p className="text-xs text-gray-500 mt-1 mb-3">
-                Select your preferred company sizes
+                Select all that apply
               </p>
               <div className="grid grid-cols-2 gap-3">
                 {[
-                  { label: "Startup (1-50)", value: "1-50" },
-                  { label: "Small (51-200)", value: "51-200" },
-                  { label: "Mid-size (201-1000)", value: "201-1000" },
-                  { label: "Enterprise (1000+)", value: "1000+" }
+                  { label: "Startup", sublabel: "1-50 employees", value: "1-50" },
+                  { label: "Small Company", sublabel: "51-200 employees", value: "51-200" },
+                  { label: "Mid-Size", sublabel: "201-1000 employees", value: "201-1000" },
+                  { label: "Enterprise", sublabel: "1000+ employees", value: "1000+" }
                 ].map(size => (
-                  <label key={size.value} className="flex items-center gap-2 p-2 border border-gray-200 rounded-lg hover:bg-gray-50 cursor-pointer">
+                  <label key={size.value} className={`flex items-start gap-3 p-3 border rounded-xl cursor-pointer transition-colors ${
+                    selectedCompanySizes.includes(size.value) 
+                      ? "border-[#F7931E] bg-[#FEF3E2]" 
+                      : "border-gray-200 hover:bg-gray-50"
+                  }`}>
                     <Checkbox
                       checked={selectedCompanySizes.includes(size.value)}
                       onCheckedChange={(checked) => {
@@ -325,10 +333,53 @@ export default function JobPreferencesCard() {
                         }
                       }}
                     />
-                    <span className="text-sm">{size.label}</span>
+                    <div>
+                      <div className="text-sm font-medium">{size.label}</div>
+                      <div className="text-xs text-gray-500">{size.sublabel}</div>
+                    </div>
                   </label>
                 ))}
               </div>
+            </div>
+
+            {/* Funding Stage */}
+            <div>
+              <Label className="text-base font-semibold">Company Funding Stage</Label>
+              <p className="text-xs text-gray-500 mt-1 mb-3">
+                Optional - filter by fundraising stage
+              </p>
+              <div className="grid grid-cols-2 sm:grid-cols-3 gap-3">
+                {[
+                  { label: "Bootstrapped", sublabel: "Self-funded", value: "Bootstrapped" },
+                  { label: "Seed", sublabel: "Early funding", value: "Seed" },
+                  { label: "Series A", sublabel: "$2-15M", value: "Series A" },
+                  { label: "Series B", sublabel: "$15-50M", value: "Series B" },
+                  { label: "Series C+", sublabel: "$50M+", value: "Series C+" },
+                  { label: "Public", sublabel: "IPO", value: "Public" }
+                ].map(stage => (
+                  <label key={stage.value} className={`flex items-start gap-3 p-3 border rounded-xl cursor-pointer transition-colors ${
+                    selectedFundingStages.includes(stage.value) 
+                      ? "border-[#F7931E] bg-[#FEF3E2]" 
+                      : "border-gray-200 hover:bg-gray-50"
+                  }`}>
+                    <Checkbox
+                      checked={selectedFundingStages.includes(stage.value)}
+                      onCheckedChange={(checked) => {
+                        if (checked) {
+                          setSelectedFundingStages([...selectedFundingStages, stage.value]);
+                        } else {
+                          setSelectedFundingStages(selectedFundingStages.filter(s => s !== stage.value));
+                        }
+                      }}
+                    />
+                    <div>
+                      <div className="text-sm font-medium">{stage.label}</div>
+                      <div className="text-xs text-gray-500">{stage.sublabel}</div>
+                    </div>
+                  </label>
+                ))}
+              </div>
+              <p className="text-xs text-gray-500 mt-2">💡 Leave blank to see companies at all funding stages</p>
             </div>
 
             <div className="flex justify-end gap-2 pt-4 border-t">
@@ -343,10 +394,11 @@ export default function JobPreferencesCard() {
                       target_roles: targetRoles,
                       industries: selectedIndustries,
                       preferred_locations: preferredLocations,
-                      remote_preferences: remotePreferred ? ["Remote"] : [],
+                      remote_preferences: remotePreferred ? ["Fully Remote"] : [],
                       min_salary: minSalary ? parseInt(minSalary) : undefined,
                       max_salary: maxSalary ? parseInt(maxSalary) : undefined,
-                      company_sizes: selectedCompanySizes
+                      company_sizes: selectedCompanySizes,
+                      funding_stages: selectedFundingStages
                     });
                     window.location.reload();
                   }
