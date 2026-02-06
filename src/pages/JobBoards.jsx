@@ -27,6 +27,15 @@ export default function JobBoards() {
     queryFn: () => base44.entities.RSSFeed.list("-created_date", 50),
   });
 
+  // Auto-create default feeds if none exist
+  React.useEffect(() => {
+    if (!feedsLoading && feeds.length === 0) {
+      base44.functions.invoke('createDefaultFeeds', {}).then(() => {
+        queryClient.invalidateQueries({ queryKey: ["feeds"] });
+      }).catch(err => console.error('Failed to create default feeds:', err));
+    }
+  }, [feedsLoading, feeds.length, queryClient]);
+
   const { data: roles = [] } = useQuery({
     queryKey: ["openRoles"],
     queryFn: () => base44.entities.OpenRole.list("-created_date", 200),
@@ -69,23 +78,12 @@ export default function JobBoards() {
         </Button>
       </div>
       
-      {/* Info banner for new users */}
-      {feeds.length === 0 && !feedsLoading && (
+      {/* Info banner for loading */}
+      {feedsLoading && (
         <div className="bg-blue-50 border border-blue-200 rounded-2xl p-6">
-          <div className="flex items-start gap-4">
-            <div className="w-12 h-12 bg-blue-100 rounded-xl flex items-center justify-center shrink-0">
-              <Rss className="w-6 h-6 text-blue-600" />
-            </div>
-            <div>
-              <h3 className="font-semibold text-gray-900 mb-2">Default RSS Feeds Created</h3>
-              <p className="text-sm text-gray-600 mb-3">
-                We've automatically configured 5 executive job feeds for you (Indeed CFO, CTO, CMO, COO + LinkedIn C-Suite). 
-                These feeds check for new roles every 4 hours.
-              </p>
-              <p className="text-sm text-gray-500">
-                Note: RSS feeds will be populated after your profile is complete. You can add custom feeds using the button above.
-              </p>
-            </div>
+          <div className="flex items-center gap-3">
+            <Loader2 className="w-5 h-5 text-blue-600 animate-spin" />
+            <p className="text-sm text-gray-700">Setting up default RSS feeds...</p>
           </div>
         </div>
       )}
