@@ -292,66 +292,87 @@ export default function Companies() {
             >
               <div className="flex items-start justify-between mb-4">
                 <div className="flex items-center gap-3">
-                <div className="w-12 h-12 bg-gray-100 rounded-xl flex items-center justify-center text-lg font-bold text-gray-600 group-hover:bg-orange-50 group-hover:text-[#F7931E] transition-colors">
-                  {company.match_score || "–"}
+                  {company.logo_url ? (
+                    <img src={company.logo_url} alt={company.name} className="w-12 h-12 rounded-xl object-contain bg-gray-50" />
+                  ) : (
+                    <div className="w-12 h-12 bg-gray-100 rounded-xl flex items-center justify-center text-xs font-bold text-gray-400">
+                      {company.name.substring(0, 2).toUpperCase()}
+                    </div>
+                  )}
+                  <div>
+                    <h3 className="font-semibold text-gray-900 group-hover:text-[#F7931E] transition-colors">{company.name}</h3>
+                    {company.industry && <p className="text-xs text-gray-500">{company.industry}</p>}
+                    {company.pipeline_stage && (
+                      <div className="mt-1">
+                        <StatusBadge status={company.pipeline_stage} />
+                      </div>
+                    )}
+                  </div>
                 </div>
-                <div>
-                  <h3 className="font-semibold text-gray-900 group-hover:text-[#F7931E] transition-colors">{company.name}</h3>
-                  {company.industry && <p className="text-xs text-gray-500">{company.industry}</p>}
-                </div>
-                </div>
-                <Button
-                variant="ghost"
-                size="icon"
-                onClick={(e) => {
-                  e.preventDefault();
-                  handleRemoveFromTarget(company.id);
-                }}
-                className="text-gray-400 hover:text-red-500"
-                >
-                <Trash2 className="w-4 h-4" />
-                </Button>
-                </div>
-
-                <div className="space-y-2 text-sm text-gray-500">
-                {company.location && (
                 <div className="flex items-center gap-2">
-                  <MapPin className="w-3.5 h-3.5" />
-                  {company.location}
+                  {company.match_score && (
+                    <div className="px-2 py-1 bg-orange-50 rounded-lg flex items-center gap-1">
+                      <Star className="w-3 h-3 text-[#F7931E] fill-[#F7931E]" />
+                      <span className="text-xs font-semibold text-[#F7931E]">{company.match_score}%</span>
+                    </div>
+                  )}
+                  <Button
+                    variant="ghost"
+                    size="icon"
+                    onClick={(e) => {
+                      e.preventDefault();
+                      handleRemoveFromTarget(company.id);
+                    }}
+                    className="text-gray-400 hover:text-red-500"
+                  >
+                    <Trash2 className="w-4 h-4" />
+                  </Button>
                 </div>
+              </div>
+
+              {company.description && (
+                <p className="text-sm text-gray-600 mb-3 line-clamp-2">{company.description}</p>
+              )}
+
+              <div className="space-y-2 text-sm text-gray-500">
+                {company.location && (
+                  <div className="flex items-center gap-2">
+                    <MapPin className="w-3.5 h-3.5" />
+                    {company.location}
+                  </div>
                 )}
                 <div className="flex items-center gap-4">
-                {company.employee_count && (
-                  <div className="flex items-center gap-1.5">
-                    <Users className="w-3.5 h-3.5" />
-                    {company.employee_count}
-                  </div>
-                )}
-                {company.revenue_estimate && (
-                  <div className="flex items-center gap-1.5">
-                    <DollarSign className="w-3.5 h-3.5" />
-                    {company.revenue_estimate}
-                  </div>
-                )}
+                  {company.employee_count && (
+                    <div className="flex items-center gap-1.5">
+                      <Users className="w-3.5 h-3.5" />
+                      {company.employee_count.toLocaleString()}
+                    </div>
+                  )}
+                  {company.funding_stage && (
+                    <div className="flex items-center gap-1.5">
+                      <DollarSign className="w-3.5 h-3.5" />
+                      {company.funding_stage}
+                    </div>
+                  )}
                 </div>
                 {company.open_positions_count > 0 && (
-                <div className="flex items-center gap-1.5 text-[#F7931E] font-medium">
-                  <Briefcase className="w-3.5 h-3.5" />
-                  {company.open_positions_count} open positions
-                </div>
+                  <div className="flex items-center gap-1.5 text-[#F7931E] font-medium">
+                    <Briefcase className="w-3.5 h-3.5" />
+                    {company.open_positions_count} open positions
+                  </div>
                 )}
                 {company.domain && (
-                <a 
-                  href={`https://${company.domain}`} 
-                  target="_blank" 
-                  rel="noopener noreferrer"
-                  className="text-xs text-blue-500 hover:underline"
-                  onClick={(e) => e.stopPropagation()}
-                >
-                  Visit website →
-                </a>
+                  <a 
+                    href={`https://${company.domain}`} 
+                    target="_blank" 
+                    rel="noopener noreferrer"
+                    className="text-xs text-blue-500 hover:underline inline-flex items-center gap-1"
+                    onClick={(e) => e.stopPropagation()}
+                  >
+                    Visit website <ArrowUpRight className="w-3 h-3" />
+                  </a>
                 )}
-                </div>
+              </div>
             </Link>
           ))}
         </div>
