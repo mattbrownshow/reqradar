@@ -93,7 +93,21 @@ export default function SearchableMultiSelect({
                 </div>
               ))
             ) : (
-              <div className="px-3 py-4 text-sm text-gray-500 text-center">No matches found</div>
+              <div>
+                <div className="px-3 py-3 text-sm text-gray-500 text-center border-b border-gray-100">
+                  No matches found
+                </div>
+                <button
+                  onClick={() => {
+                    handleSelect(query.trim());
+                    setShowDropdown(false);
+                  }}
+                  className="w-full text-left px-3 py-3 text-sm text-[#F7931E] hover:bg-[#FFF5E6] flex items-center gap-2 font-medium transition-colors"
+                >
+                  <span className="text-lg">+</span>
+                  Add "<strong>{query.trim()}</strong>" as custom option
+                </button>
+              </div>
             )
           ) : (
             filteredItems.length > 0 ? (
@@ -113,7 +127,21 @@ export default function SearchableMultiSelect({
                 );
               })
             ) : (
-              <div className="px-3 py-4 text-sm text-gray-500 text-center">No matches found</div>
+              <div>
+                <div className="px-3 py-3 text-sm text-gray-500 text-center border-b border-gray-100">
+                  No matches found
+                </div>
+                <button
+                  onClick={() => {
+                    handleSelect(query.trim());
+                    setShowDropdown(false);
+                  }}
+                  className="w-full text-left px-3 py-3 text-sm text-[#F7931E] hover:bg-[#FFF5E6] flex items-center gap-2 font-medium transition-colors"
+                >
+                  <span className="text-lg">+</span>
+                  Add "<strong>{query.trim()}</strong>" as custom option
+                </button>
+              </div>
             )
           )}
         </div>
