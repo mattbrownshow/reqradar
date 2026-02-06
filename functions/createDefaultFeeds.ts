@@ -21,8 +21,9 @@ Deno.serve(async (req) => {
       });
     }
     
-    // Default RSS feeds for executive job search
+    // Default RSS feeds for executive and general job search
     const DEFAULT_FEEDS = [
+      // Executive-focused feeds
       {
         feed_name: "Indeed - Executive CFO Jobs",
         feed_url: "https://www.indeed.com/rss?q=CFO+OR+%22Chief+Financial+Officer%22&sort=date",
@@ -48,8 +49,74 @@ Deno.serve(async (req) => {
         status: "active"
       },
       {
-        feed_name: "LinkedIn Jobs - C-Suite Roles",
-        feed_url: "https://www.linkedin.com/jobs-guest/jobs/api/seeMoreJobPostings/search?keywords=C-Suite%20Executive&location=United%20States&f_TPR=r86400",
+        feed_name: "Indeed - C-Suite Executive Jobs",
+        feed_url: "https://www.indeed.com/rss?q=C-Suite+OR+Executive&sort=date",
+        refresh_frequency: "every_4_hours",
+        status: "active"
+      },
+      
+      // General job board RSS feeds
+      {
+        feed_name: "CareerJet - Job Search",
+        feed_url: "https://www.careerjet.com/search/rss",
+        refresh_frequency: "every_4_hours",
+        status: "active"
+      },
+      {
+        feed_name: "Adzuna - Job Feed",
+        feed_url: "https://www.adzuna.com/feed/jobs",
+        refresh_frequency: "every_4_hours",
+        status: "active"
+      },
+      {
+        feed_name: "SimplyHired - Job Search",
+        feed_url: "https://www.simplyhired.com/search/rss",
+        refresh_frequency: "every_4_hours",
+        status: "active"
+      },
+      {
+        feed_name: "Jooble - Job Listings",
+        feed_url: "https://jooble.org/rss",
+        refresh_frequency: "every_4_hours",
+        status: "active"
+      },
+      {
+        feed_name: "USAJobs - Federal Jobs",
+        feed_url: "https://www.usajobs.gov/Search/RSSFeed",
+        refresh_frequency: "every_4_hours",
+        status: "active"
+      },
+      {
+        feed_name: "Dice - Tech Jobs",
+        feed_url: "https://www.dice.com/jobs/rss",
+        refresh_frequency: "every_4_hours",
+        status: "active"
+      },
+      
+      // Remote job feeds
+      {
+        feed_name: "We Work Remotely",
+        feed_url: "https://weworkremotely.com/remote-jobs.rss",
+        refresh_frequency: "every_4_hours",
+        status: "active"
+      },
+      {
+        feed_name: "RemoteOK - Remote Jobs",
+        feed_url: "https://remoteok.com/remote-jobs.rss",
+        refresh_frequency: "every_4_hours",
+        status: "active"
+      },
+      
+      // Specialized feeds
+      {
+        feed_name: "CryptoJobsList - Crypto Jobs",
+        feed_url: "https://cryptojobslist.com/jobs/rss",
+        refresh_frequency: "every_4_hours",
+        status: "active"
+      },
+      {
+        feed_name: "Google News - Jobs",
+        feed_url: "https://news.google.com/rss/search?q=jobs",
         refresh_frequency: "every_4_hours",
         status: "active"
       }
