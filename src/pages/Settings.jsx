@@ -213,16 +213,12 @@ export default function Settings() {
                 </label>
               )}
             </div>
-            <Link to={createPageUrl("CandidateSetup")}>
-              <Button variant="outline" className="rounded-xl gap-2 mt-4">
-                Edit Full Profile
-              </Button>
-            </Link>
+
           </div>
         </TabsContent>
 
         <TabsContent value="job-search" className="mt-6">
-          <div className="bg-white border border-gray-100 rounded-2xl p-6 sm:p-8 space-y-8 max-w-4xl">
+          <div className="bg-white rounded-3xl shadow-sm border border-gray-100 p-6 sm:p-10 space-y-8 max-w-3xl mx-auto">
             <div>
               <h3 className="font-semibold text-gray-900 text-lg">Job Search Preferences</h3>
               <p className="text-sm text-gray-500 mt-1">Configure your job search criteria to find the best matches</p>
