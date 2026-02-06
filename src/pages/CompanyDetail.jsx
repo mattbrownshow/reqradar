@@ -183,9 +183,39 @@ export default function CompanyDetail() {
 
         {/* Contacts Tab */}
         <TabsContent value="contacts" className="mt-6 space-y-4">
-          <div className="flex justify-end">
+          <div className="flex justify-between items-center">
+            <Button 
+              variant="outline" 
+              className="rounded-xl gap-2 bg-[#F7931E] hover:bg-[#E07A0A] text-white border-[#F7931E]" 
+              onClick={async () => {
+                try {
+                  const result = await base44.functions.invoke('findContacts', {
+                    companyDomain: company.domain,
+                    companyName: company.name,
+                    titles: ['CEO', 'CTO', 'COO', 'CFO', 'VP', 'Director', 'Head']
+                  });
+                  
+                  // Add found contacts to database
+                  for (const contact of result.data.contacts) {
+                    await base44.entities.Contact.create({
+                      ...contact,
+                      company_id: companyId,
+                      company_name: company.name
+                    });
+                  }
+                  
+                  queryClient.invalidateQueries({ queryKey: ["contacts", companyId] });
+                  alert(`Found and added ${result.data.contacts.length} contacts!`);
+                } catch (error) {
+                  console.error('Error finding contacts:', error);
+                  alert('Failed to find contacts');
+                }
+              }}
+            >
+              <Search className="w-4 h-4" /> Auto-Find Contacts
+            </Button>
             <Button variant="outline" className="rounded-xl gap-2" onClick={() => setShowAddContact(!showAddContact)}>
-              <Plus className="w-4 h-4" /> Add Contact
+              <Plus className="w-4 h-4" /> Add Contact Manually
             </Button>
           </div>
           {showAddContact && (
