@@ -127,6 +127,14 @@ export default function CandidateSetup() {
 
   const handleFinish = async () => {
     await saveMutation.mutateAsync({ ...profile, setup_complete: true });
+    
+    // Auto-create default RSS feeds for new user
+    try {
+      await base44.functions.invoke('createDefaultFeeds', {});
+    } catch (error) {
+      console.error('Failed to create default feeds:', error);
+    }
+    
     navigate(createPageUrl("Dashboard"));
   };
 

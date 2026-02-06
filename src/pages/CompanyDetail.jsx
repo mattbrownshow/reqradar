@@ -55,39 +55,35 @@ export default function CompanyDetail() {
 
   const handleGenerateOutreach = async (contact) => {
     setGeneratingOutreach(true);
-    const result = await base44.integrations.Core.InvokeLLM({
-      prompt: `Write a professional outreach email to ${contact.full_name}, ${contact.title} at ${company.name}.
-      Company industry: ${company.industry}
-      Company size: ${company.employee_count} employees
-      Intelligence signals: ${(company.intelligence_signals || []).join(", ")}
+    try {
+      const result = await base44.functions.invoke('generateOutreach', {
+        contactId: contact.id,
+        companyId: companyId,
+        angle: company.intelligence_signals?.[0] || "Hiring Pain Point"
+      });
       
-      Write a compelling, personalized email that references specific company details.
-      Use a consultative tone, not salesy. Include a clear CTA for a brief call.`,
-      response_json_schema: {
-        type: "object",
-        properties: {
-          subject: { type: "string" },
-          body: { type: "string" }
-        }
-      }
-    });
-    setGeneratedMessage({ ...result, contact });
+      setGeneratedMessage({ 
+        subject: result.subject, 
+        body: result.body, 
+        contact,
+        messageId: result.messageId 
+      });
+    } catch (error) {
+      console.error('Failed to generate outreach:', error);
+      alert('Failed to generate outreach message');
+    }
     setGeneratingOutreach(false);
   };
 
   const saveOutreach = async () => {
     if (!generatedMessage) return;
-    await base44.entities.OutreachMessage.create({
-      contact_id: generatedMessage.contact.id,
-      contact_name: generatedMessage.contact.full_name,
-      contact_title: generatedMessage.contact.title,
-      company_id: companyId,
-      company_name: company.name,
-      subject: generatedMessage.subject,
-      body: generatedMessage.body,
-      status: "draft"
-    });
+    
+    // Message is already saved in "draft" status by the backend function
+    // Just need to navigate to outreach page to view it
     queryClient.invalidateQueries({ queryKey: ["outreach"] });
+    
+    // Show success message
+    alert(`Outreach message saved! View it in the Outreach page.`);
     setGeneratedMessage(null);
   };
 

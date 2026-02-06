@@ -17,6 +17,7 @@ import {
 import MetricCard from "../components/shared/MetricCard";
 import StatusBadge from "../components/shared/StatusBadge";
 import EmptyState from "../components/shared/EmptyState";
+import EmailIntegrationBanner from "../components/outreach/EmailIntegrationBanner";
 import { format } from "date-fns";
 
 export default function Outreach() {
@@ -24,6 +25,7 @@ export default function Outreach() {
   const [statusFilter, setStatusFilter] = useState("all");
   const [showCreate, setShowCreate] = useState(false);
   const [generating, setGenerating] = useState(false);
+  const [emailConnected, setEmailConnected] = useState(false); // TODO: Check actual integration status
   const [newOutreach, setNewOutreach] = useState({
     contact_name: "", contact_title: "", company_name: "",
     subject: "", body: "", channel: "email", template_type: ""
@@ -72,6 +74,11 @@ export default function Outreach() {
     setGenerating(false);
   };
 
+  const handleConnectEmail = () => {
+    alert('Email integration coming soon! For now, copy/paste messages manually.');
+    // TODO: Implement OAuth flow for Gmail/Outlook
+  };
+
   const queued = messages.filter(m => m.status === "queued" || m.status === "draft").length;
   const sent = messages.filter(m => ["sent", "delivered", "opened", "responded"].includes(m.status)).length;
   const delivered = messages.filter(m => ["delivered", "opened", "responded"].includes(m.status)).length;
@@ -91,9 +98,14 @@ export default function Outreach() {
         </Button>
       </div>
 
+      {/* Email Integration Banner */}
+      {!emailConnected && queued > 0 && (
+        <EmailIntegrationBanner onConnect={handleConnectEmail} />
+      )}
+
       {/* Metrics */}
       <div className="grid grid-cols-2 lg:grid-cols-4 gap-4">
-        <MetricCard icon={Clock} title="Queued" value={queued} bgColor="bg-yellow-50" iconColor="text-yellow-600" />
+        <MetricCard icon={Clock} title="Queued" value={queued} subtitle={queued > 0 ? "Ready to send" : "—"} bgColor="bg-yellow-50" iconColor="text-yellow-600" />
         <MetricCard icon={Send} title="Sent" value={sent} bgColor="bg-blue-50" iconColor="text-blue-500" />
         <MetricCard icon={Check} title="Delivered" value={delivered} bgColor="bg-indigo-50" iconColor="text-indigo-500" />
         <MetricCard icon={Eye} title="Opened" value={opened} bgColor="bg-purple-50" iconColor="text-purple-500" />

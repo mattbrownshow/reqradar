@@ -47,29 +47,29 @@
  *
  * The mainPage value must match a key in the PAGES object exactly.
  */
-import Dashboard from './pages/Dashboard';
+import Analytics from './pages/Analytics';
 import CandidateSetup from './pages/CandidateSetup';
 import Companies from './pages/Companies';
 import CompanyDetail from './pages/CompanyDetail';
-import Pipeline from './pages/Pipeline';
+import Dashboard from './pages/Dashboard';
+import JobBoards from './pages/JobBoards';
 import OpenRoles from './pages/OpenRoles';
 import Outreach from './pages/Outreach';
-import JobBoards from './pages/JobBoards';
-import Analytics from './pages/Analytics';
+import Pipeline from './pages/Pipeline';
 import Settings from './pages/Settings';
 import __Layout from './Layout.jsx';
 
 
 export const PAGES = {
-    "Dashboard": Dashboard,
+    "Analytics": Analytics,
     "CandidateSetup": CandidateSetup,
     "Companies": Companies,
     "CompanyDetail": CompanyDetail,
-    "Pipeline": Pipeline,
+    "Dashboard": Dashboard,
+    "JobBoards": JobBoards,
     "OpenRoles": OpenRoles,
     "Outreach": Outreach,
-    "JobBoards": JobBoards,
-    "Analytics": Analytics,
+    "Pipeline": Pipeline,
     "Settings": Settings,
 }
 

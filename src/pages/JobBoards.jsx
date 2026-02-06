@@ -22,7 +22,7 @@ export default function JobBoards() {
   const [showAddFeed, setShowAddFeed] = useState(false);
   const [newFeed, setNewFeed] = useState({ feed_url: "", feed_name: "", refresh_frequency: "every_4_hours" });
 
-  const { data: feeds = [] } = useQuery({
+  const { data: feeds = [], isLoading: feedsLoading } = useQuery({
     queryKey: ["feeds"],
     queryFn: () => base44.entities.RSSFeed.list("-created_date", 50),
   });
@@ -58,12 +58,37 @@ export default function JobBoards() {
       <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
         <div>
           <h1 className="text-2xl font-bold text-gray-900 tracking-tight">Job Boards</h1>
-          <p className="text-sm text-gray-500 mt-1">Monitor executive opportunities from RSS feeds</p>
+          <p className="text-sm text-gray-500 mt-1">
+            {feeds.length === 0 && !feedsLoading 
+              ? "No RSS feeds configured yet" 
+              : `Monitoring ${feeds.length} RSS feed${feeds.length !== 1 ? 's' : ''} for executive opportunities`}
+          </p>
         </div>
         <Button onClick={() => setShowAddFeed(true)} className="bg-[#F7931E] hover:bg-[#E07A0A] text-white rounded-xl gap-2">
           <Plus className="w-4 h-4" /> Add RSS Feed
         </Button>
       </div>
+      
+      {/* Info banner for new users */}
+      {feeds.length === 0 && !feedsLoading && (
+        <div className="bg-blue-50 border border-blue-200 rounded-2xl p-6">
+          <div className="flex items-start gap-4">
+            <div className="w-12 h-12 bg-blue-100 rounded-xl flex items-center justify-center shrink-0">
+              <Rss className="w-6 h-6 text-blue-600" />
+            </div>
+            <div>
+              <h3 className="font-semibold text-gray-900 mb-2">Default RSS Feeds Created</h3>
+              <p className="text-sm text-gray-600 mb-3">
+                We've automatically configured 5 executive job feeds for you (Indeed CFO, CTO, CMO, COO + LinkedIn C-Suite). 
+                These feeds check for new roles every 4 hours.
+              </p>
+              <p className="text-sm text-gray-500">
+                Note: RSS feeds will be populated after your profile is complete. You can add custom feeds using the button above.
+              </p>
+            </div>
+          </div>
+        </div>
+      )}
 
       <Tabs defaultValue="postings">
         <TabsList className="bg-gray-100 rounded-xl p-1">
