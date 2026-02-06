@@ -93,8 +93,11 @@ export default function JobBoards() {
           <TabsTrigger value="postings" className="rounded-lg data-[state=active]:bg-white">
             Job Postings ({jobBoardRoles.length})
           </TabsTrigger>
-          <TabsTrigger value="feeds" className="rounded-lg data-[state=active]:bg-white">
-            RSS Feeds ({feeds.length})
+          <TabsTrigger value="rss" className="rounded-lg data-[state=active]:bg-white">
+            Open RSS Feeds ({feeds.length})
+          </TabsTrigger>
+          <TabsTrigger value="apis" className="rounded-lg data-[state=active]:bg-white">
+            Open Job APIs (9)
           </TabsTrigger>
         </TabsList>
 
@@ -145,7 +148,7 @@ export default function JobBoards() {
           )}
         </TabsContent>
 
-        <TabsContent value="feeds" className="mt-6 space-y-4">
+        <TabsContent value="rss" className="mt-6 space-y-4">
           {feeds.length === 0 ? (
             <EmptyState
               icon={Rss}
@@ -194,6 +197,47 @@ export default function JobBoards() {
               </div>
             ))
           )}
+        </TabsContent>
+
+        <TabsContent value="apis" className="mt-6 space-y-4">
+          <div className="bg-blue-50 border border-blue-200 rounded-2xl p-6 mb-6">
+            <h3 className="font-semibold text-gray-900 mb-2">Open Job APIs</h3>
+            <p className="text-sm text-gray-600">
+              These APIs provide free access to job listings. Backend integration coming soon.
+            </p>
+          </div>
+
+          {[
+            { name: "Remotive", url: "https://remotive.com/api/remote-jobs", description: "Remote job listings API" },
+            { name: "Arbeitnow", url: "https://www.arbeitnow.com/api/job-board-api", description: "Job board API with multiple sources" },
+            { name: "USAJobs API", url: "https://developer.usajobs.gov/", description: "Federal government jobs" },
+            { name: "Adzuna API", url: "https://developer.adzuna.com/", description: "Job search API with free tier" },
+            { name: "The Muse", url: "https://www.themuse.com/developers/api/v2", description: "Career content and job listings" },
+            { name: "JSearch (RapidAPI)", url: "https://rapidapi.com/letscrape-6bRBa3QguO5/api/jsearch", description: "Job search aggregator" },
+            { name: "SerpAPI", url: "https://serpapi.com/google-jobs-api", description: "Google Jobs scraping API" },
+            { name: "Serper", url: "https://serper.dev/", description: "Google search API with job results" },
+            { name: "Apify Job Scrapers", url: "https://apify.com/store/categories/jobs", description: "Various job board scrapers" }
+          ].map((api, idx) => (
+            <div key={idx} className="bg-white border border-gray-100 rounded-2xl p-6">
+              <div className="flex items-start justify-between gap-4">
+                <div className="flex items-start gap-3">
+                  <div className="w-10 h-10 bg-indigo-50 rounded-xl flex items-center justify-center shrink-0">
+                    <Clock className="w-5 h-5 text-indigo-600" />
+                  </div>
+                  <div>
+                    <h4 className="font-semibold text-gray-900">{api.name}</h4>
+                    <p className="text-sm text-gray-600 mt-1">{api.description}</p>
+                    <a href={api.url} target="_blank" rel="noopener noreferrer" className="text-xs text-blue-500 hover:underline mt-2 inline-block">
+                      {api.url}
+                    </a>
+                  </div>
+                </div>
+                <div className="shrink-0 px-3 py-1 bg-yellow-50 text-yellow-700 text-xs font-medium rounded-full">
+                  Coming Soon
+                </div>
+              </div>
+            </div>
+          ))}
         </TabsContent>
       </Tabs>
 
