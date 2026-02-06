@@ -65,7 +65,7 @@ export default function Companies() {
       await base44.functions.invoke('addToTargetList', { companyData });
       queryClient.invalidateQueries({ queryKey: ["companies"] });
       // Remove from discovery results
-      setDiscoveryResults(prev => prev.filter(c => c.apolloId !== companyData.apolloId));
+      setDiscoveryResults(prev => prev.filter(c => c.lushaId !== companyData.lushaId));
     } catch (error) {
       console.error('Add error:', error);
     }
