@@ -125,8 +125,8 @@ export default function Dashboard() {
           </div>
           <div className="divide-y divide-gray-50">
             {activities.length === 0 ? (
-              <div className="p-8 text-center text-sm text-gray-400">
-                No activity yet. Start by adding companies or applying to roles.
+              <div className="p-8 text-center text-sm text-gray-500">
+                Your activity feed will show your job search actions here - applications submitted, companies added, outreach sent, interview updates, and status changes.
               </div>
             ) : (
               activities.slice(0, 8).map((activity) => (
