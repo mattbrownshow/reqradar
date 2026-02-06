@@ -14,6 +14,7 @@ import {
 } from "lucide-react";
 import StatusBadge from "../components/shared/StatusBadge";
 import EmptyState from "../components/shared/EmptyState";
+import JobPreferencesCard from "../components/shared/JobPreferencesCard";
 
 export default function Companies() {
   const queryClient = useQueryClient();
@@ -94,6 +95,9 @@ export default function Companies() {
           <p className="text-sm text-gray-500 mt-1">{companies.length} companies in your target list</p>
         </div>
       </div>
+
+      {/* Job Preferences Card */}
+      <JobPreferencesCard />
 
       {/* Search & AI Find */}
       <div className="bg-white border border-gray-100 rounded-2xl p-6 space-y-4">

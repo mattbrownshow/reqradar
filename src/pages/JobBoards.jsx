@@ -15,6 +15,7 @@ import {
 } from "lucide-react";
 import StatusBadge from "../components/shared/StatusBadge";
 import EmptyState from "../components/shared/EmptyState";
+import JobPreferencesCard from "../components/shared/JobPreferencesCard";
 import { format } from "date-fns";
 
 export default function JobBoards() {
@@ -99,6 +100,9 @@ export default function JobBoards() {
           </div>
         </div>
       )}
+
+      {/* Job Preferences Card */}
+      <JobPreferencesCard />
 
       <Tabs defaultValue="postings">
         <TabsList className="bg-gray-100 rounded-xl p-1">
