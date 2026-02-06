@@ -202,7 +202,7 @@ export default function JobPreferencesCard() {
 
       {/* Edit Preferences Modal */}
       <Dialog open={showPreferencesModal} onOpenChange={setShowPreferencesModal}>
-        <DialogContent className="max-w-2xl max-h-[90vh] overflow-y-auto">
+        <DialogContent className="max-w-4xl max-h-[90vh] overflow-y-auto">
           <DialogHeader>
             <DialogTitle>Edit Job Search Preferences</DialogTitle>
           </DialogHeader>
