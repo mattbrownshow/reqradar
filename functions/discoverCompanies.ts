@@ -12,59 +12,44 @@ Deno.serve(async (req) => {
     const { industries, companySizes, fundingStages, locations, keywords } = await req.json();
     
     const LUSHA_API_KEY = Deno.env.get('LUSHA_API_KEY');
-    if (!LUSHA_API_KEY) {
-      return Response.json({ error: 'Lusha API key not configured' }, { status: 500 });
-    }
+    const AMPLEMARKET_API_KEY = Deno.env.get('AMPLEMARKET_API_KEY');
+    const APOLLO_API_KEY = Deno.env.get('APOLLO_API_KEY');
 
-    // Build Lusha search query
-    const searchParams = new URLSearchParams();
-    
-    // Add industry filter
-    if (industries && industries.length > 0) {
-      searchParams.append('industry', industries.join(','));
-    }
-    
-    // Add company size filter
-    if (companySizes && companySizes.length > 0) {
-      const sizeRanges = companySizes.map(size => {
-        switch(size) {
-          case '1-50': return '1-50';
-          case '51-200': return '51-200';
-          case '201-1000': return '201-1000';
-          case '1000+': return '1001+';
-          default: return size;
-        }
-      }).join(',');
-      searchParams.append('employeesRange', sizeRanges);
-    }
-    
-    // Add location filter
-    if (locations && locations.length > 0) {
-      searchParams.append('location', locations.join(','));
-    }
-    
-    // Add keywords if provided
-    if (keywords) {
-      searchParams.append('q', keywords);
-    }
-    
-    searchParams.append('limit', '50');
+    let allCompanies = [];
 
-    // Query Lusha API
-    const response = await fetch(`https://api.lusha.com/companies?${searchParams.toString()}`, {
-      method: 'GET',
-      headers: {
-        'api_key': LUSHA_API_KEY,
-        'Content-Type': 'application/json'
+    // Try Lusha API first
+    if (LUSHA_API_KEY) {
+      try {
+        const lushaCompanies = await fetchLushaCompanies(LUSHA_API_KEY, { industries, companySizes, locations, keywords });
+        allCompanies.push(...lushaCompanies);
+      } catch (error) {
+        console.error('Lusha API error:', error);
       }
-    });
-
-    if (!response.ok) {
-      const error = await response.text();
-      return Response.json({ error: `Lusha API error: ${error}` }, { status: response.status });
     }
 
-    const data = await response.json();
+    // Try Amplemarket API if we don't have enough results
+    if (AMPLEMARKET_API_KEY && allCompanies.length < 30) {
+      try {
+        const ampleCompanies = await fetchAmplemarketCompanies(AMPLEMARKET_API_KEY, { industries, companySizes, locations, keywords });
+        allCompanies.push(...ampleCompanies);
+      } catch (error) {
+        console.error('Amplemarket API error:', error);
+      }
+    }
+
+    // Try Apollo API if we still need more results
+    if (APOLLO_API_KEY && allCompanies.length < 30) {
+      try {
+        const apolloCompanies = await fetchApolloCompanies(APOLLO_API_KEY, { industries, companySizes, locations, keywords });
+        allCompanies.push(...apolloCompanies);
+      } catch (error) {
+        console.error('Apollo API error:', error);
+      }
+    }
+
+    if (allCompanies.length === 0) {
+      return Response.json({ error: 'No API keys configured or all APIs failed' }, { status: 500 });
+    }
     
     // Get user's candidate profile for match scoring
     const profiles = await base44.entities.CandidateProfile.list('-created_date', 1);
