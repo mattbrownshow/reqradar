@@ -50,7 +50,7 @@ export default function CandidateSetup() {
     remote_preferences: [], geographic_radius: 50,
     company_sizes: [], employee_counts: [],
     ideal_decision_maker: "", availability: "",
-    industries: [], setup_complete: false
+    industries: [], funding_stages: [], setup_complete: false
   });
 
   const [locationInput, setLocationInput] = useState("");
@@ -389,18 +389,47 @@ export default function CandidateSetup() {
             </div>
           )}
 
-          {/* Step 7: Industries */}
+          {/* Step 7: Industries & Funding */}
           {step === 7 && (
-            <div className="space-y-6">
-              <h2 className="text-xl font-semibold text-gray-900">Industry Preferences</h2>
-              <p className="text-sm text-gray-500">Select all industries that interest you</p>
-              <div className="grid grid-cols-1 sm:grid-cols-2 gap-2">
-                {INDUSTRIES.map(ind => (
-                  <label key={ind} className="flex items-center gap-3 p-3 border border-gray-100 rounded-xl cursor-pointer hover:bg-gray-50 transition-colors">
-                    <Checkbox checked={(profile.industries || []).includes(ind)} onCheckedChange={() => toggleInList("industries", ind)} />
-                    <span className="text-sm text-gray-700">{ind}</span>
-                  </label>
-                ))}
+            <div className="space-y-8">
+              <div>
+                <h2 className="text-xl font-semibold text-gray-900">Industry Preferences</h2>
+                <p className="text-sm text-gray-500 mb-3">Select all industries that interest you</p>
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-2">
+                  {INDUSTRIES.map(ind => (
+                    <label key={ind} className="flex items-center gap-3 p-3 border border-gray-100 rounded-xl cursor-pointer hover:bg-gray-50 transition-colors">
+                      <Checkbox checked={(profile.industries || []).includes(ind)} onCheckedChange={() => toggleInList("industries", ind)} />
+                      <span className="text-sm text-gray-700">{ind}</span>
+                    </label>
+                  ))}
+                </div>
+              </div>
+
+              <div>
+                <h2 className="text-xl font-semibold text-gray-900">Funding Stage Preferences</h2>
+                <p className="text-sm text-gray-500 mb-3">Optional - Select preferred company funding stages</p>
+                <div className="grid grid-cols-2 sm:grid-cols-3 gap-3">
+                  {[
+                    { label: "Bootstrapped", sublabel: "Self-funded", value: "Bootstrapped" },
+                    { label: "Seed", sublabel: "Early funding", value: "Seed" },
+                    { label: "Series A", sublabel: "$2-15M", value: "Series A" },
+                    { label: "Series B", sublabel: "$15-50M", value: "Series B" },
+                    { label: "Series C+", sublabel: "$50M+", value: "Series C+" },
+                    { label: "Public", sublabel: "IPO", value: "Public" }
+                  ].map(stage => (
+                    <label key={stage.value} className={`flex items-start gap-3 p-3 border rounded-xl cursor-pointer transition-colors ${
+                      (profile.funding_stages || []).includes(stage.value) 
+                        ? "border-[#F7931E] bg-[#FEF3E2]" 
+                        : "border-gray-100 hover:bg-gray-50"
+                    }`}>
+                      <Checkbox checked={(profile.funding_stages || []).includes(stage.value)} onCheckedChange={() => toggleInList("funding_stages", stage.value)} />
+                      <div>
+                        <div className="text-sm font-medium text-gray-700">{stage.label}</div>
+                        <div className="text-xs text-gray-500">{stage.sublabel}</div>
+                      </div>
+                    </label>
+                  ))}
+                </div>
               </div>
             </div>
           )}
