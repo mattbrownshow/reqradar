@@ -71,24 +71,26 @@ Deno.serve(async (req) => {
     const profile = profiles[0] || {};
 
     // Transform and score companies
-    const companies = (data.organizations || []).map(org => {
-      const matchScore = calculateMatchScore(org, profile, { industries, companySizes, locations });
+    const companies = (data.data || []).map(company => {
+      const matchScore = calculateMatchScore(company, profile, { industries, companySizes, locations });
       
       return {
-        apolloId: org.id,
-        name: org.name,
-        domain: org.website_url,
-        industry: org.industry,
-        subSector: org.industry_tag_list?.[0],
-        employeeCount: org.estimated_num_employees,
-        revenue: org.estimated_annual_revenue,
-        location: org.city && org.state ? `${org.city}, ${org.state}` : org.country,
-        city: org.city,
-        state: org.state,
-        country: org.country,
-        fundingStage: org.funding_stage,
-        logoUrl: org.logo_url,
-        description: org.short_description,
+        lushaId: company.id,
+        name: company.name,
+        domain: company.domain,
+        industry: company.industry,
+        subSector: company.subIndustry,
+        employeeCount: company.companySize,
+        revenue: company.revenue,
+        location: company.location?.city && company.location?.state 
+          ? `${company.location.city}, ${company.location.state}` 
+          : company.location?.country,
+        city: company.location?.city,
+        state: company.location?.state,
+        country: company.location?.country,
+        fundingStage: company.fundingStage,
+        logoUrl: company.logoUrl,
+        description: company.description,
         matchScore
       };
     });
