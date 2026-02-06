@@ -106,20 +106,20 @@ Deno.serve(async (req) => {
   }
 });
 
-function calculateMatchScore(org, profile, searchFilters) {
+function calculateMatchScore(company, profile, searchFilters) {
   let score = 50; // Base score
 
   // Industry match
-  if (profile.industries?.length > 0 && org.industry) {
+  if (profile.industries?.length > 0 && company.industry) {
     const hasMatch = profile.industries.some(ind => 
-      org.industry.toLowerCase().includes(ind.toLowerCase())
+      company.industry.toLowerCase().includes(ind.toLowerCase())
     );
     if (hasMatch) score += 20;
   }
 
   // Size match
-  if (profile.company_sizes?.length > 0 && org.estimated_num_employees) {
-    const empCount = org.estimated_num_employees;
+  if (profile.company_sizes?.length > 0 && company.companySize) {
+    const empCount = company.companySize;
     const matchesSize = profile.company_sizes.some(size => {
       if (size === '1-50' && empCount <= 50) return true;
       if (size === '51-200' && empCount >= 51 && empCount <= 200) return true;
@@ -131,18 +131,18 @@ function calculateMatchScore(org, profile, searchFilters) {
   }
 
   // Funding stage match
-  if (profile.funding_stages?.length > 0 && org.funding_stage) {
+  if (profile.funding_stages?.length > 0 && company.fundingStage) {
     const hasMatch = profile.funding_stages.some(stage => 
-      org.funding_stage.toLowerCase().includes(stage.toLowerCase())
+      company.fundingStage.toLowerCase().includes(stage.toLowerCase())
     );
     if (hasMatch) score += 10;
   }
 
   // Location match
-  if (profile.preferred_locations?.length > 0 && (org.city || org.state)) {
-    const orgLocation = `${org.city}, ${org.state}`.toLowerCase();
+  if (profile.preferred_locations?.length > 0 && company.location) {
+    const orgLocation = `${company.location.city}, ${company.location.state}`.toLowerCase();
     const hasMatch = profile.preferred_locations.some(loc => 
-      orgLocation.includes(loc.toLowerCase()) || loc.toLowerCase().includes(org.city?.toLowerCase())
+      orgLocation.includes(loc.toLowerCase()) || loc.toLowerCase().includes(company.location.city?.toLowerCase())
     );
     if (hasMatch) score += 15;
   }
