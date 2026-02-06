@@ -186,36 +186,53 @@ export default function Companies() {
           <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-4">
             {discoveryResults.map((company, idx) => (
               <div key={idx} className="bg-white border border-gray-200 rounded-xl p-4 space-y-3">
-                <div className="flex items-start justify-between">
-                  <div>
-                    <h4 className="font-semibold text-gray-900">{company.name}</h4>
-                    <p className="text-xs text-gray-500">{company.industry}</p>
-                  </div>
-                  {company.matchScore && (
-                    <div className="w-10 h-10 bg-orange-50 rounded-lg flex items-center justify-center text-sm font-bold text-[#F7931E]">
-                      {company.matchScore}%
+                <div className="flex items-start gap-3">
+                  {company.logoUrl ? (
+                    <img src={company.logoUrl} alt={company.name} className="w-12 h-12 rounded-lg object-contain bg-gray-50" />
+                  ) : (
+                    <div className="w-12 h-12 bg-gray-100 rounded-lg flex items-center justify-center text-xs font-bold text-gray-400">
+                      {company.name.substring(0, 2).toUpperCase()}
                     </div>
                   )}
+                  <div className="flex-1 min-w-0">
+                    <h4 className="font-semibold text-gray-900 truncate">{company.name}</h4>
+                    <p className="text-xs text-gray-500">{company.industry}</p>
+                    {company.matchScore && (
+                      <div className="inline-flex items-center gap-1 mt-1 px-2 py-0.5 bg-orange-50 rounded-full">
+                        <Star className="w-3 h-3 text-[#F7931E] fill-[#F7931E]" />
+                        <span className="text-xs font-semibold text-[#F7931E]">{company.matchScore}% match</span>
+                      </div>
+                    )}
+                  </div>
                 </div>
-                <div className="space-y-1 text-sm text-gray-600">
+                
+                {company.description && (
+                  <p className="text-xs text-gray-600 line-clamp-2">{company.description}</p>
+                )}
+
+                <div className="space-y-1.5 text-sm text-gray-600">
                   {company.location && (
                     <div className="flex items-center gap-1.5">
-                      <MapPin className="w-3.5 h-3.5" />
+                      <MapPin className="w-3.5 h-3.5 text-gray-400" />
                       {company.location}
                     </div>
                   )}
-                  {company.employeeCount && (
-                    <div className="flex items-center gap-1.5">
-                      <Users className="w-3.5 h-3.5" />
-                      {company.employeeCount} employees
-                    </div>
-                  )}
-                  {company.fundingStage && (
-                    <div className="text-xs text-gray-500">
-                      💰 {company.fundingStage}
-                    </div>
-                  )}
+                  <div className="flex items-center gap-3">
+                    {company.employeeCount && (
+                      <div className="flex items-center gap-1.5">
+                        <Users className="w-3.5 h-3.5 text-gray-400" />
+                        <span className="text-xs">{company.employeeCount.toLocaleString()}</span>
+                      </div>
+                    )}
+                    {company.fundingStage && (
+                      <div className="flex items-center gap-1.5">
+                        <DollarSign className="w-3.5 h-3.5 text-gray-400" />
+                        <span className="text-xs">{company.fundingStage}</span>
+                      </div>
+                    )}
+                  </div>
                 </div>
+
                 <Button 
                   size="sm"
                   onClick={() => handleAddToTargetList(company)}
