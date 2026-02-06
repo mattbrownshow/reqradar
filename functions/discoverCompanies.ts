@@ -89,46 +89,41 @@ Deno.serve(async (req) => {
 });
 
 async function fetchLushaCompanies(apiKey, { industries, companySizes, locations, keywords }) {
-  const searchParams = new URLSearchParams();
+  const body = {
+    filters: {},
+    limit: 50
+  };
   
-  if (industries?.length > 0) searchParams.append('industry', industries.join(','));
-  if (companySizes?.length > 0) {
-    const sizeRanges = companySizes.map(size => {
-      switch(size) {
-        case '1-50': return '1-50';
-        case '51-200': return '51-200';
-        case '201-1000': return '201-1000';
-        case '1000+': return '1001+';
-        default: return size;
-      }
-    }).join(',');
-    searchParams.append('employeesRange', sizeRanges);
-  }
-  if (locations?.length > 0) searchParams.append('location', locations.join(','));
-  if (keywords) searchParams.append('q', keywords);
-  searchParams.append('limit', '50');
+  if (industries?.length > 0) body.filters.industry = industries;
+  if (companySizes?.length > 0) body.filters.company_size = companySizes;
+  if (locations?.length > 0) body.filters.location = locations;
+  if (keywords) body.filters.keywords = keywords;
 
-  const response = await fetch(`https://api.lusha.com/companies?${searchParams.toString()}`, {
-    method: 'GET',
-    headers: { 'api_key': apiKey, 'Content-Type': 'application/json' }
+  const response = await fetch('https://api.lusha.com/v2/company/search', {
+    method: 'POST',
+    headers: { 
+      'Authorization': `Bearer ${apiKey}`,
+      'Content-Type': 'application/json' 
+    },
+    body: JSON.stringify(body)
   });
 
   if (!response.ok) throw new Error(`Lusha API error: ${response.status}`);
 
   const data = await response.json();
-  return (data.data || []).map(company => ({
+  return (data.results || []).map(company => ({
     lushaId: company.id,
     name: company.name,
-    domain: company.domain,
+    domain: company.website,
     industry: company.industry,
-    subSector: company.subIndustry,
-    employeeCount: company.companySize,
+    subSector: company.sub_industry,
+    employeeCount: company.employee_count,
     revenue: company.revenue,
-    location: company.location?.city && company.location?.state 
-      ? `${company.location.city}, ${company.location.state}` 
-      : company.location?.country,
-    fundingStage: company.fundingStage,
-    logoUrl: company.logoUrl,
+    location: company.city && company.state 
+      ? `${company.city}, ${company.state}` 
+      : company.country,
+    fundingStage: company.funding_stage,
+    logoUrl: company.logo_url,
     description: company.description,
     source: 'lusha'
   }));
@@ -169,16 +164,20 @@ async function fetchAmplemarketCompanies(apiKey, { industries, companySizes, loc
 async function fetchApolloCompanies(apiKey, { industries, companySizes, locations, keywords }) {
   const body = {
     page: 1,
-    per_page: 50,
-    organization_industry_tag_ids: industries || [],
-    organization_num_employees_ranges: companySizes || [],
-    organization_locations: locations || [],
-    q_organization_keyword_tags: keywords ? [keywords] : []
+    per_page: 50
   };
+  
+  if (industries?.length > 0) body.organization_industry_tags = industries;
+  if (companySizes?.length > 0) body.organization_num_employees_ranges = companySizes;
+  if (locations?.length > 0) body.organization_locations = locations;
+  if (keywords) body.q_organization_name = keywords;
 
-  const response = await fetch('https://api.apollo.io/v1/mixed_companies/search', {
+  const response = await fetch('https://api.apollo.io/v1/organizations/search', {
     method: 'POST',
-    headers: { 'Content-Type': 'application/json', 'Cache-Control': 'no-cache', 'X-Api-Key': apiKey },
+    headers: { 
+      'Content-Type': 'application/json',
+      'X-Api-Key': apiKey 
+    },
     body: JSON.stringify(body)
   });
 
@@ -188,7 +187,7 @@ async function fetchApolloCompanies(apiKey, { industries, companySizes, location
   return (data.organizations || []).map(org => ({
     apolloId: org.id,
     name: org.name,
-    domain: org.primary_domain,
+    domain: org.primary_domain || org.website_url,
     industry: org.industry,
     subSector: org.sub_industry,
     employeeCount: org.estimated_num_employees,
