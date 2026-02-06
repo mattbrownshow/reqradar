@@ -52,6 +52,11 @@ import CandidateSetup from './pages/CandidateSetup';
 import Companies from './pages/Companies';
 import CompanyDetail from './pages/CompanyDetail';
 import Pipeline from './pages/Pipeline';
+import OpenRoles from './pages/OpenRoles';
+import Outreach from './pages/Outreach';
+import JobBoards from './pages/JobBoards';
+import Analytics from './pages/Analytics';
+import Settings from './pages/Settings';
 import __Layout from './Layout.jsx';
 
 
@@ -61,6 +66,11 @@ export const PAGES = {
     "Companies": Companies,
     "CompanyDetail": CompanyDetail,
     "Pipeline": Pipeline,
+    "OpenRoles": OpenRoles,
+    "Outreach": Outreach,
+    "JobBoards": JobBoards,
+    "Analytics": Analytics,
+    "Settings": Settings,
 }
 
 export const pagesConfig = {
