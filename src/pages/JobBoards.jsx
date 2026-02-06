@@ -82,6 +82,7 @@ export default function JobBoards() {
           </p>
         </div>
         <div className="flex gap-2">
+          <JobPreferencesCard />
           <Button onClick={() => refreshFeedsMutation.mutate()} disabled={refreshFeedsMutation.isPending} variant="outline" className="rounded-xl gap-2">
             <Loader2 className={`w-4 h-4 ${refreshFeedsMutation.isPending ? 'animate-spin' : ''}`} /> Refresh Feeds
           </Button>
@@ -100,9 +101,6 @@ export default function JobBoards() {
           </div>
         </div>
       )}
-
-      {/* Job Preferences Card */}
-      <JobPreferencesCard />
 
       <Tabs defaultValue="postings">
         <TabsList className="bg-gray-100 rounded-xl p-1">

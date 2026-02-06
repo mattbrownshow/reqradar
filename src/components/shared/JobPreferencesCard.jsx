@@ -114,91 +114,25 @@ export default function JobPreferencesCard() {
 
   return (
     <>
-      <div className="bg-[#FFF5E6] border border-[#F7931E] rounded-lg p-5">
-        <div className="flex items-center justify-between pb-4 border-b border-[#F7931E] mb-4">
-          <h3 className="text-base font-semibold text-gray-900">Your Job Search Preferences</h3>
-          <Button
-            variant="outline"
-            size="sm"
-            onClick={() => {
-              if (profile) {
-                setTargetRoles(profile.target_roles || []);
-                setSelectedIndustries(profile.industries || []);
-                setPreferredLocations(profile.preferred_locations || []);
-                setRemotePreferred(profile.remote_preferences?.includes("Remote") || profile.remote_preferences?.includes("Fully Remote") || false);
-                setMinSalary(profile.min_salary?.toString() || "");
-                setMaxSalary(profile.max_salary?.toString() || "");
-                setSelectedCompanySizes(profile.company_sizes || []);
-                setSelectedFundingStages(profile.funding_stages || []);
-              }
-              setShowPreferencesModal(true);
-            }}
-            className="rounded-md"
-          >
-            Edit
-          </Button>
-        </div>
-
-        {profile ? (
-          <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
-            <div className="flex gap-2 text-sm">
-              <span className="font-semibold text-gray-600 whitespace-nowrap">Target Roles:</span>
-              <span className={profile.target_roles?.length > 0 ? "text-gray-900" : "text-red-600 italic"}>
-                {profile.target_roles?.length > 0 
-                  ? profile.target_roles.slice(0, 2).join(", ") + (profile.target_roles.length > 2 ? ` +${profile.target_roles.length - 2} more` : "")
-                  : "Not set"}
-              </span>
-            </div>
-            <div className="flex gap-2 text-sm">
-              <span className="font-semibold text-gray-600 whitespace-nowrap">Industries:</span>
-              <span className="text-gray-900">
-                {profile.industries?.length > 0 
-                  ? profile.industries.slice(0, 2).join(", ") + (profile.industries.length > 2 ? ` +${profile.industries.length - 2} more` : "")
-                  : "All industries"}
-              </span>
-            </div>
-            <div className="flex gap-2 text-sm">
-              <span className="font-semibold text-gray-600 whitespace-nowrap">Location:</span>
-              <span className="text-gray-900">
-                {profile.preferred_locations?.length > 0
-                  ? `${profile.preferred_locations.slice(0, 2).join(", ")}${profile.preferred_locations.length > 2 ? ` +${profile.preferred_locations.length - 2} more` : ""}${profile.remote_preferences?.includes("Remote") || profile.remote_preferences?.includes("Fully Remote") ? " + Remote" : ""}`
-                  : profile.remote_preferences?.includes("Remote") || profile.remote_preferences?.includes("Fully Remote") ? "Remote only" : "Any location"}
-              </span>
-            </div>
-            <div className="flex gap-2 text-sm">
-              <span className="font-semibold text-gray-600 whitespace-nowrap">Salary:</span>
-              <span className="text-gray-900">
-                ${profile.min_salary?.toLocaleString() || "0"} - ${profile.max_salary?.toLocaleString() || "999,999"}
-              </span>
-            </div>
-            <div className="flex gap-2 text-sm sm:col-span-2">
-              <span className="font-semibold text-gray-600 whitespace-nowrap">Company Size:</span>
-              <span className="text-gray-900">
-                {profile.company_sizes?.length > 0 ? profile.company_sizes.join(", ") : "All sizes"}
-              </span>
-            </div>
-            {profile.funding_stages?.length > 0 && (
-              <div className="flex gap-2 text-sm sm:col-span-2">
-                <span className="font-semibold text-gray-600 whitespace-nowrap">Funding Stage:</span>
-                <span className="text-gray-900">{profile.funding_stages.join(", ")}</span>
-              </div>
-            )}
-          </div>
-        ) : (
-          <div className="text-center py-4">
-            <p className="text-sm text-gray-500 mb-3">Complete your profile to set job search preferences</p>
-            <Link to={createPageUrl("CandidateSetup")}>
-              <Button className="bg-[#F7931E] hover:bg-[#E07A0A] text-white rounded-xl">
-                Set Up Profile
-              </Button>
-            </Link>
-          </div>
-        )}
-
-        <div className="mt-4 pt-4 border-t border-[#F7931E] border-opacity-20 text-xs text-[#92400E]">
-          ⚠ These preferences control which jobs appear in your feed and RSS results
-        </div>
-      </div>
+      <Button
+        variant="outline"
+        onClick={() => {
+          if (profile) {
+            setTargetRoles(profile.target_roles || []);
+            setSelectedIndustries(profile.industries || []);
+            setPreferredLocations(profile.preferred_locations || []);
+            setRemotePreferred(profile.remote_preferences?.includes("Remote") || profile.remote_preferences?.includes("Fully Remote") || false);
+            setMinSalary(profile.min_salary?.toString() || "");
+            setMaxSalary(profile.max_salary?.toString() || "");
+            setSelectedCompanySizes(profile.company_sizes || []);
+            setSelectedFundingStages(profile.funding_stages || []);
+          }
+          setShowPreferencesModal(true);
+        }}
+        className="rounded-xl whitespace-nowrap"
+      >
+        View/Edit Job Search Preferences
+      </Button>
 
       {/* Edit Preferences Modal */}
       <Dialog open={showPreferencesModal} onOpenChange={setShowPreferencesModal}>
