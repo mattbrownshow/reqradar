@@ -19,6 +19,7 @@ export default function OpenRoles() {
   const queryClient = useQueryClient();
   const [searchTerm, setSearchTerm] = useState("");
   const [statusFilter, setStatusFilter] = useState("all");
+  const [sourceFilter, setSourceFilter] = useState("all");
   const [isSearching, setIsSearching] = useState(false);
 
   const { data: roles = [], isLoading } = useQuery({
@@ -116,8 +117,17 @@ export default function OpenRoles() {
   const filtered = roles.filter(r => {
     const matchSearch = !searchTerm || r.title?.toLowerCase().includes(searchTerm.toLowerCase()) || r.company_name?.toLowerCase().includes(searchTerm.toLowerCase());
     const matchStatus = statusFilter === "all" || r.status === statusFilter;
-    return matchSearch && matchStatus;
+    const matchSource = sourceFilter === "all" || 
+      (sourceFilter === "job-boards" && (r.source?.toLowerCase().includes("rss") || r.source?.toLowerCase().includes("feed") || r.source?.toLowerCase().includes("indeed") || r.source?.toLowerCase().includes("linkedin"))) ||
+      (sourceFilter === "target-companies" && (r.source?.toLowerCase().includes("career") || r.source?.toLowerCase().includes("company")));
+    return matchSearch && matchStatus && matchSource;
   });
+
+  const sourceCounts = {
+    all: roles.length,
+    jobBoards: roles.filter(r => r.source?.toLowerCase().includes("rss") || r.source?.toLowerCase().includes("feed") || r.source?.toLowerCase().includes("indeed") || r.source?.toLowerCase().includes("linkedin")).length,
+    targetCompanies: roles.filter(r => r.source?.toLowerCase().includes("career") || r.source?.toLowerCase().includes("company")).length,
+  };
 
   return (
     <div className="px-4 sm:px-6 py-8 space-y-6">
@@ -148,6 +158,41 @@ export default function OpenRoles() {
             {isSearching ? "Searching..." : "Find Roles"}
           </Button>
         </div>
+
+        {/* Source Tabs */}
+        <div className="flex gap-2 border-b-2 border-gray-200 -mb-px">
+          <button
+            onClick={() => setSourceFilter("all")}
+            className={`px-5 py-3 text-sm font-medium transition-all -mb-0.5 border-b-3 ${
+              sourceFilter === "all"
+                ? "text-[#F7931E] border-b-[#F7931E]"
+                : "text-gray-600 border-b-transparent hover:text-gray-900 hover:bg-gray-50"
+            }`}
+          >
+            All Sources ({sourceCounts.all})
+          </button>
+          <button
+            onClick={() => setSourceFilter("job-boards")}
+            className={`px-5 py-3 text-sm font-medium transition-all -mb-0.5 border-b-3 ${
+              sourceFilter === "job-boards"
+                ? "text-[#F7931E] border-b-[#F7931E]"
+                : "text-gray-600 border-b-transparent hover:text-gray-900 hover:bg-gray-50"
+            }`}
+          >
+            Job Boards ({sourceCounts.jobBoards})
+          </button>
+          <button
+            onClick={() => setSourceFilter("target-companies")}
+            className={`px-5 py-3 text-sm font-medium transition-all -mb-0.5 border-b-3 ${
+              sourceFilter === "target-companies"
+                ? "text-[#F7931E] border-b-[#F7931E]"
+                : "text-gray-600 border-b-transparent hover:text-gray-900 hover:bg-gray-50"
+            }`}
+          >
+            Target Companies ({sourceCounts.targetCompanies})
+          </button>
+        </div>
+
         <div className="flex gap-3">
           <Select value={statusFilter} onValueChange={setStatusFilter}>
             <SelectTrigger className="w-[160px] rounded-xl">
@@ -207,6 +252,23 @@ export default function OpenRoles() {
                           ))}
                         </div>
                       )}
+                      {role.source && (
+                        <div className="flex items-center gap-2 mt-3 text-xs">
+                          <span className="font-semibold text-gray-600">Source:</span>
+                          <span className={`px-2.5 py-1 rounded font-medium ${
+                            role.source?.toLowerCase().includes("rss") || role.source?.toLowerCase().includes("feed") || role.source?.toLowerCase().includes("indeed") || role.source?.toLowerCase().includes("linkedin")
+                              ? "bg-amber-50 text-amber-800"
+                              : "bg-blue-50 text-blue-800"
+                          }`}>
+                            {role.source}
+                          </span>
+                          {role.posted_date && (
+                            <span className="text-gray-500 ml-auto">
+                              Posted: {new Date(role.posted_date).toLocaleDateString()}
+                            </span>
+                          )}
+                        </div>
+                      )}
                     </div>
                   </div>
                 </div>
@@ -214,7 +276,7 @@ export default function OpenRoles() {
                   <StatusBadge status={role.status || "new"} />
                 </div>
               </div>
-              <div className="flex flex-wrap gap-2 mt-4 pt-4 border-t border-gray-50">
+              <div className="flex flex-wrap gap-2 mt-4 pt-4 border-t border-gray-100">
                 {role.status !== "applied" && (
                   <Button
                     size="sm"
