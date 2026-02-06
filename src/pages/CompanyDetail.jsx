@@ -11,7 +11,7 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import {
   Building2, MapPin, Users, DollarSign, Globe, ArrowLeft,
   Star, TrendingUp, Mail, Phone, Linkedin, Copy, Plus,
-  Zap, Briefcase, Check, Loader2, Send, ExternalLink
+  Zap, Briefcase, Check, Loader2, Send, ExternalLink, Search
 } from "lucide-react";
 import StatusBadge from "../components/shared/StatusBadge";
 
