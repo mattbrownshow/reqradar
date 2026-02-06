@@ -112,233 +112,62 @@ export default function JobPreferencesCard() {
     }
   };
 
+  if (!profile) {
+    return (
+      <Link to={createPageUrl("Settings") + "?tab=job-search"}>
+        <Button variant="outline" className="rounded-xl gap-2">
+          <Edit className="w-4 h-4" /> Set Up Job Preferences
+        </Button>
+      </Link>
+    );
+  }
+
   return (
-    <>
-      <Button
-        variant="outline"
-        onClick={() => {
-          if (profile) {
-            setTargetRoles(profile.target_roles || []);
-            setSelectedIndustries(profile.industries || []);
-            setPreferredLocations(profile.preferred_locations || []);
-            setRemotePreferred(profile.remote_preferences?.includes("Remote") || profile.remote_preferences?.includes("Fully Remote") || false);
-            setMinSalary(profile.min_salary?.toString() || "");
-            setMaxSalary(profile.max_salary?.toString() || "");
-            setSelectedCompanySizes(profile.company_sizes || []);
-            setSelectedFundingStages(profile.funding_stages || []);
-          }
-          setShowPreferencesModal(true);
-        }}
-        className="rounded-xl whitespace-nowrap"
-      >
-        View/Edit Job Search Preferences
-      </Button>
+    <div className="bg-white border border-gray-100 rounded-2xl p-4 sm:p-6">
+      <div className="flex items-start justify-between mb-4">
+        <div>
+          <h3 className="font-semibold text-gray-900">Your Job Search Preferences</h3>
+          <p className="text-xs text-gray-500 mt-1">Last updated: {new Date(profile.updated_date || Date.now()).toLocaleDateString()}</p>
+        </div>
+        <Link to={createPageUrl("Settings") + "?tab=job-search"}>
+          <Button variant="ghost" size="sm" className="gap-1.5 text-[#F7931E] hover:text-[#E07A0A] hover:bg-orange-50">
+            <Edit className="w-3.5 h-3.5" /> Edit in Settings
+          </Button>
+        </Link>
+      </div>
 
-      {/* Edit Preferences Modal */}
-      <Dialog open={showPreferencesModal} onOpenChange={setShowPreferencesModal}>
-        <DialogContent className="max-w-4xl max-h-[90vh] overflow-y-auto">
-          <DialogHeader>
-            <DialogTitle>Edit Job Search Preferences</DialogTitle>
-          </DialogHeader>
-          <div className="space-y-6 mt-4">
-            <p className="text-sm text-gray-500">
-              Update your preferences to refine job matches and RSS feed results
-            </p>
-
-            {/* Target Roles */}
-            <div>
-              <Label className="text-base font-semibold">Target Roles *</Label>
-              <p className="text-xs text-gray-500 mt-1 mb-3">
-                The executive roles you're targeting
-              </p>
-              <SearchableMultiSelect
-                items={[]}
-                groupedBy={ROLES_DB}
-                selected={targetRoles}
-                onSelect={(role) => setTargetRoles([...targetRoles, role])}
-                onRemove={(role) => setTargetRoles(targetRoles.filter(r => r !== role))}
-                placeholder="Search roles (e.g., CFO, CTO, VP Finance)..."
-              />
-              <p className="text-xs text-gray-500 mt-2">💡 Select from common roles or type to search</p>
-            </div>
-
-            {/* Industries */}
-            <div>
-              <Label className="text-base font-semibold">Preferred Industries</Label>
-              <p className="text-xs text-gray-500 mt-1 mb-3">
-                Optional - leave blank for all industries
-              </p>
-              <SearchableMultiSelect
-                items={INDUSTRIES_DB}
-                selected={selectedIndustries}
-                onSelect={(industry) => setSelectedIndustries([...selectedIndustries, industry])}
-                onRemove={(industry) => setSelectedIndustries(selectedIndustries.filter(i => i !== industry))}
-                placeholder="Search industries (e.g., Technology, Healthcare)..."
-              />
-            </div>
-
-            {/* Location Preferences */}
-            <div>
-              <Label className="text-base font-semibold">Location Preferences</Label>
-              <p className="text-xs text-gray-500 mt-1 mb-3">
-                Where you're willing to work
-              </p>
-              <SearchableMultiSelect
-                items={US_CITIES}
-                selected={preferredLocations}
-                onSelect={(city) => setPreferredLocations([...preferredLocations, city])}
-                onRemove={(city) => setPreferredLocations(preferredLocations.filter(c => c !== city))}
-                placeholder="Search cities (e.g., Seattle, San Francisco, New York)..."
-              />
-              <label className="flex items-center gap-2 mt-3 cursor-pointer">
-                <Checkbox
-                  checked={remotePreferred}
-                  onCheckedChange={setRemotePreferred}
-                />
-                <span className="text-sm">☑ Open to Remote Work</span>
-              </label>
-            </div>
-
-            {/* Salary Range */}
-            <div>
-              <Label className="text-base font-semibold">Target Salary Range</Label>
-              <p className="text-xs text-gray-500 mt-1 mb-2">
-                Your desired compensation range
-              </p>
-              <div className="grid grid-cols-2 gap-4">
-                <div>
-                  <Label className="text-xs text-gray-500">Minimum</Label>
-                  <div className="relative mt-1">
-                    <span className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-500">$</span>
-                    <Input
-                      value={minSalary ? parseInt(minSalary).toLocaleString() : ""}
-                      onChange={e => handleSalaryChange(e.target.value, setMinSalary)}
-                      placeholder="170,000"
-                      className="pl-7 rounded-xl"
-                    />
-                  </div>
-                </div>
-                <div>
-                  <Label className="text-xs text-gray-500">Maximum</Label>
-                  <div className="relative mt-1">
-                    <span className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-500">$</span>
-                    <Input
-                      value={maxSalary ? parseInt(maxSalary).toLocaleString() : ""}
-                      onChange={e => handleSalaryChange(e.target.value, setMaxSalary)}
-                      placeholder="350,000"
-                      className="pl-7 rounded-xl"
-                    />
-                  </div>
-                </div>
-              </div>
-              <p className="text-xs text-gray-500 mt-2">💡 System shows roles within ±20% of this range</p>
-            </div>
-
-            {/* Company Size */}
-            <div>
-              <Label className="text-base font-semibold">Company Size (Employees)</Label>
-              <p className="text-xs text-gray-500 mt-1 mb-3">
-                Select all that apply
-              </p>
-              <div className="grid grid-cols-2 gap-3">
-                {[
-                  { label: "Startup", sublabel: "1-50 employees", value: "1-50" },
-                  { label: "Small Company", sublabel: "51-200 employees", value: "51-200" },
-                  { label: "Mid-Size", sublabel: "201-1000 employees", value: "201-1000" },
-                  { label: "Enterprise", sublabel: "1000+ employees", value: "1000+" }
-                ].map(size => (
-                  <label key={size.value} className={`flex items-start gap-3 p-3 border rounded-xl cursor-pointer transition-colors ${
-                    selectedCompanySizes.includes(size.value) 
-                      ? "border-[#F7931E] bg-[#FEF3E2]" 
-                      : "border-gray-200 hover:bg-gray-50"
-                  }`}>
-                    <Checkbox
-                      checked={selectedCompanySizes.includes(size.value)}
-                      onCheckedChange={(checked) => {
-                        if (checked) {
-                          setSelectedCompanySizes([...selectedCompanySizes, size.value]);
-                        } else {
-                          setSelectedCompanySizes(selectedCompanySizes.filter(s => s !== size.value));
-                        }
-                      }}
-                    />
-                    <div>
-                      <div className="text-sm font-medium">{size.label}</div>
-                      <div className="text-xs text-gray-500">{size.sublabel}</div>
-                    </div>
-                  </label>
-                ))}
-              </div>
-            </div>
-
-            {/* Funding Stage */}
-            <div>
-              <Label className="text-base font-semibold">Company Funding Stage</Label>
-              <p className="text-xs text-gray-500 mt-1 mb-3">
-                Optional - filter by fundraising stage
-              </p>
-              <div className="grid grid-cols-2 sm:grid-cols-3 gap-3">
-                {[
-                  { label: "Bootstrapped", sublabel: "Self-funded", value: "Bootstrapped" },
-                  { label: "Seed", sublabel: "Early funding", value: "Seed" },
-                  { label: "Series A", sublabel: "$2-15M", value: "Series A" },
-                  { label: "Series B", sublabel: "$15-50M", value: "Series B" },
-                  { label: "Series C+", sublabel: "$50M+", value: "Series C+" },
-                  { label: "Public", sublabel: "IPO", value: "Public" }
-                ].map(stage => (
-                  <label key={stage.value} className={`flex items-start gap-3 p-3 border rounded-xl cursor-pointer transition-colors ${
-                    selectedFundingStages.includes(stage.value) 
-                      ? "border-[#F7931E] bg-[#FEF3E2]" 
-                      : "border-gray-200 hover:bg-gray-50"
-                  }`}>
-                    <Checkbox
-                      checked={selectedFundingStages.includes(stage.value)}
-                      onCheckedChange={(checked) => {
-                        if (checked) {
-                          setSelectedFundingStages([...selectedFundingStages, stage.value]);
-                        } else {
-                          setSelectedFundingStages(selectedFundingStages.filter(s => s !== stage.value));
-                        }
-                      }}
-                    />
-                    <div>
-                      <div className="text-sm font-medium">{stage.label}</div>
-                      <div className="text-xs text-gray-500">{stage.sublabel}</div>
-                    </div>
-                  </label>
-                ))}
-              </div>
-              <p className="text-xs text-gray-500 mt-2">💡 Leave blank to see companies at all funding stages</p>
-            </div>
-
-            <div className="flex justify-end gap-2 pt-4 border-t">
-              <Button variant="outline" onClick={() => setShowPreferencesModal(false)} className="rounded-xl">
-                Cancel
-              </Button>
-              <Button
-                className="bg-[#F7931E] hover:bg-[#E07A0A] text-white rounded-xl"
-                onClick={async () => {
-                  if (profile) {
-                    await base44.entities.CandidateProfile.update(profile.id, {
-                      target_roles: targetRoles,
-                      industries: selectedIndustries,
-                      preferred_locations: preferredLocations,
-                      remote_preferences: remotePreferred ? ["Fully Remote"] : [],
-                      min_salary: minSalary ? parseInt(minSalary) : undefined,
-                      max_salary: maxSalary ? parseInt(maxSalary) : undefined,
-                      company_sizes: selectedCompanySizes,
-                      funding_stages: selectedFundingStages
-                    });
-                    window.location.reload();
-                  }
-                }}
-              >
-                Save Preferences
-              </Button>
-            </div>
+      <div className="space-y-2 text-sm">
+        {profile.target_roles?.length > 0 && (
+          <div className="flex items-start gap-2">
+            <span className="text-gray-500 shrink-0">• Targeting:</span>
+            <span className="text-gray-900 font-medium">{profile.target_roles.slice(0, 2).join(", ")}{profile.target_roles.length > 2 && ` +${profile.target_roles.length - 2} more`}</span>
           </div>
-        </DialogContent>
-      </Dialog>
-    </>
+        )}
+        {profile.industries?.length > 0 && (
+          <div className="flex items-start gap-2">
+            <span className="text-gray-500 shrink-0">• Industries:</span>
+            <span className="text-gray-900">{profile.industries.slice(0, 2).join(", ")}{profile.industries.length > 2 && ` +${profile.industries.length - 2} more`}</span>
+          </div>
+        )}
+        {profile.preferred_locations?.length > 0 && (
+          <div className="flex items-start gap-2">
+            <span className="text-gray-500 shrink-0">• Location:</span>
+            <span className="text-gray-900">{profile.preferred_locations.slice(0, 2).join(", ")}{profile.preferred_locations.length > 2 && ` +${profile.preferred_locations.length - 2} more`}</span>
+          </div>
+        )}
+        {profile.remote_preferences?.length > 0 && (
+          <div className="flex items-start gap-2">
+            <span className="text-gray-500 shrink-0">• Remote:</span>
+            <span className="text-gray-900">{profile.remote_preferences.join(", ")}</span>
+          </div>
+        )}
+        {profile.min_salary && profile.max_salary && (
+          <div className="flex items-start gap-2">
+            <span className="text-gray-500 shrink-0">• Salary:</span>
+            <span className="text-gray-900">${profile.min_salary.toLocaleString()} - ${profile.max_salary.toLocaleString()}</span>
+          </div>
+        )}
+      </div>
+    </div>
   );
 }
