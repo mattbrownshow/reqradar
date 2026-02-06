@@ -10,7 +10,7 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Checkbox } from "@/components/ui/checkbox";
 import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
 import {
-  User, Bell, Sliders, Shield, Save, Loader2, LogOut, Briefcase
+  User, Bell, Sliders, Shield, Save, Loader2, LogOut, Briefcase, Upload, FileText, ExternalLink
 } from "lucide-react";
 import SearchableMultiSelect from "../components/shared/SearchableMultiSelect";
 import { Link } from "react-router-dom";
@@ -19,6 +19,7 @@ import { createPageUrl } from "../utils";
 export default function Settings() {
   const queryClient = useQueryClient();
   const [user, setUser] = useState(null);
+  const [isUploadingResume, setIsUploadingResume] = useState(false);
   const [autoApplySettings, setAutoApplySettings] = useState({
     daily_limit: 10,
     match_threshold: 70,
@@ -102,6 +103,22 @@ export default function Settings() {
     'Seattle, WA', 'Austin, TX', 'Boston, MA', 'Denver, CO'
   ];
 
+  const handleResumeUpload = async (e) => {
+    const file = e.target.files[0];
+    if (!file) return;
+    setIsUploadingResume(true);
+    try {
+      const { file_url } = await base44.integrations.Core.UploadFile({ file });
+      if (profile.id) {
+        await base44.entities.CandidateProfile.update(profile.id, { resume_url: file_url });
+        queryClient.invalidateQueries({ queryKey: ["candidateProfile"] });
+      }
+    } catch (error) {
+      console.error('Resume upload failed:', error);
+    }
+    setIsUploadingResume(false);
+  };
+
   return (
     <div className="px-4 sm:px-6 py-8 space-y-6">
       <div>
@@ -149,8 +166,55 @@ export default function Settings() {
                 <p className="font-medium mt-1">{profile.current_title || "—"}</p>
               </div>
             </div>
+            <div className="pt-6 border-t border-gray-100">
+              <h4 className="font-semibold text-gray-900 mb-4">Resume</h4>
+              {profile.resume_url ? (
+                <div className="flex items-center justify-between p-4 bg-gray-50 rounded-xl">
+                  <div className="flex items-center gap-3">
+                    <div className="w-10 h-10 bg-emerald-50 rounded-lg flex items-center justify-center">
+                      <FileText className="w-5 h-5 text-emerald-500" />
+                    </div>
+                    <div>
+                      <p className="text-sm font-medium text-gray-900">Resume uploaded</p>
+                      <p className="text-xs text-gray-500">Last updated: {new Date(profile.updated_date || Date.now()).toLocaleDateString()}</p>
+                    </div>
+                  </div>
+                  <div className="flex items-center gap-2">
+                    <a href={profile.resume_url} target="_blank" rel="noopener noreferrer">
+                      <Button variant="ghost" size="sm" className="gap-1.5 rounded-lg">
+                        <ExternalLink className="w-4 h-4" /> View
+                      </Button>
+                    </a>
+                    <label>
+                      <Button variant="outline" size="sm" className="gap-1.5 rounded-lg" disabled={isUploadingResume}>
+                        {isUploadingResume ? (
+                          <><Loader2 className="w-4 h-4 animate-spin" /> Uploading...</>
+                        ) : (
+                          <><Upload className="w-4 h-4" /> Replace</>
+                        )}
+                      </Button>
+                      <input type="file" accept=".pdf,.docx" className="hidden" onChange={handleResumeUpload} />
+                    </label>
+                  </div>
+                </div>
+              ) : (
+                <label className="flex flex-col items-center justify-center p-8 border-2 border-dashed border-gray-200 rounded-xl cursor-pointer hover:border-[#F7931E] transition-colors">
+                  {isUploadingResume ? (
+                    <Loader2 className="w-8 h-8 text-[#F7931E] animate-spin mb-3" />
+                  ) : (
+                    <div className="w-12 h-12 bg-orange-50 rounded-xl flex items-center justify-center mb-3">
+                      <Upload className="w-6 h-6 text-[#F7931E]" />
+                    </div>
+                  )}
+                  <span className="text-sm font-medium text-gray-700">
+                    {isUploadingResume ? "Uploading..." : "Click to upload resume (PDF or DOCX)"}
+                  </span>
+                  <input type="file" accept=".pdf,.docx" className="hidden" onChange={handleResumeUpload} />
+                </label>
+              )}
+            </div>
             <Link to={createPageUrl("CandidateSetup")}>
-              <Button variant="outline" className="rounded-xl gap-2 mt-2">
+              <Button variant="outline" className="rounded-xl gap-2 mt-4">
                 Edit Full Profile
               </Button>
             </Link>
