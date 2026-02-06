@@ -20,18 +20,18 @@ Deno.serve(async (req) => {
     if (existingCompanies.length > 0) {
       company = existingCompanies[0];
     } else {
-      // Create new company
+      // Create new company with all available fields
       company = await base44.entities.Company.create({
         name: companyData.name,
         domain: companyData.domain,
-        industry: companyData.industry,
+        industry: companyData.industry || 'Not specified',
         sub_sector: companyData.subSector,
-        employee_count: companyData.employeeCount,
+        employee_count: companyData.employeeCount || 0,
         revenue_estimate: companyData.revenue?.toString(),
-        location: companyData.location,
-        description: companyData.description,
+        location: companyData.location || 'Not specified',
+        description: companyData.description || '',
         funding_stage: companyData.fundingStage,
-        match_score: companyData.matchScore,
+        match_score: companyData.matchScore || 50,
         logo_url: companyData.logoUrl,
         tracked: true,
         pipeline_stage: 'research'
