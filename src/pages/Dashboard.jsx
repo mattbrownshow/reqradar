@@ -6,7 +6,7 @@ import { useQuery } from "@tanstack/react-query";
 import {
   Building2, FileText, Handshake, CalendarDays,
   ArrowUpRight, Search, Target, Clock, CheckCircle2,
-  Send, MessageSquare, TrendingUp, ChevronRight
+  Send, MessageSquare, TrendingUp, ChevronRight, MapPin, Users
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import MetricCard from "../components/shared/MetricCard";
@@ -192,17 +192,45 @@ export default function Dashboard() {
                 <Link
                   key={company.id}
                   to={createPageUrl("CompanyDetail") + `?id=${company.id}`}
-                  className="flex items-center justify-between py-1 group"
+                  className="flex items-start justify-between py-2 group hover:bg-gray-50 -mx-2 px-2 rounded-lg transition-colors"
                 >
-                  <div className="flex items-center gap-2">
-                    <div className="w-8 h-8 bg-gray-100 rounded-lg flex items-center justify-center text-xs font-bold text-gray-600">
-                      {company.match_score || "–"}
+                  <div className="flex items-start gap-3 flex-1 min-w-0">
+                    {company.logo_url ? (
+                      <img src={company.logo_url} alt={company.name} className="w-10 h-10 rounded-lg object-contain bg-gray-50 shrink-0" />
+                    ) : (
+                      <div className="w-10 h-10 bg-gray-100 rounded-lg flex items-center justify-center text-xs font-bold text-gray-400 shrink-0">
+                        {company.name.substring(0, 2).toUpperCase()}
+                      </div>
+                    )}
+                    <div className="flex-1 min-w-0">
+                      <div className="flex items-center gap-2">
+                        <span className="text-sm font-semibold text-gray-900 group-hover:text-[#F7931E] transition-colors truncate">
+                          {company.name}
+                        </span>
+                        {company.match_score && (
+                          <span className="text-xs font-bold text-[#F7931E] shrink-0">{company.match_score}%</span>
+                        )}
+                      </div>
+                      {company.industry && (
+                        <p className="text-xs text-gray-500 truncate">{company.industry}</p>
+                      )}
+                      <div className="flex items-center gap-3 mt-1 text-xs text-gray-500">
+                        {company.location && (
+                          <div className="flex items-center gap-1">
+                            <MapPin className="w-3 h-3" />
+                            <span className="truncate">{company.location}</span>
+                          </div>
+                        )}
+                        {company.employee_count && (
+                          <div className="flex items-center gap-1 shrink-0">
+                            <Users className="w-3 h-3" />
+                            <span>{company.employee_count.toLocaleString()}</span>
+                          </div>
+                        )}
+                      </div>
                     </div>
-                    <span className="text-sm font-medium text-gray-700 group-hover:text-[#F7931E] transition-colors">
-                      {company.name}
-                    </span>
                   </div>
-                  <ChevronRight className="w-4 h-4 text-gray-300 group-hover:text-[#F7931E] transition-colors" />
+                  <ChevronRight className="w-4 h-4 text-gray-300 group-hover:text-[#F7931E] transition-colors shrink-0 mt-3" />
                 </Link>
               ))}
               {companies.length === 0 && (
