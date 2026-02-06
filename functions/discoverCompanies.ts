@@ -11,40 +11,57 @@ Deno.serve(async (req) => {
 
     const { industries, companySizes, fundingStages, locations, keywords } = await req.json();
     
-    const APOLLO_API_KEY = Deno.env.get('APOLLO_API_KEY');
-    if (!APOLLO_API_KEY) {
-      return Response.json({ error: 'Apollo API key not configured' }, { status: 500 });
+    const LUSHA_API_KEY = Deno.env.get('LUSHA_API_KEY');
+    if (!LUSHA_API_KEY) {
+      return Response.json({ error: 'Lusha API key not configured' }, { status: 500 });
     }
 
-    // Map our size ranges to Apollo format
-    const sizeMap = {
-      '1-50': '1,50',
-      '51-200': '51,200',
-      '201-1000': '201,1000',
-      '1000+': '1001,max'
-    };
+    // Build Lusha search query
+    const searchParams = new URLSearchParams();
     
-    const apolloSizes = companySizes?.map(s => sizeMap[s]).filter(Boolean);
+    // Add industry filter
+    if (industries && industries.length > 0) {
+      searchParams.append('industry', industries.join(','));
+    }
+    
+    // Add company size filter
+    if (companySizes && companySizes.length > 0) {
+      const sizeRanges = companySizes.map(size => {
+        switch(size) {
+          case '1-50': return '1-50';
+          case '51-200': return '51-200';
+          case '201-1000': return '201-1000';
+          case '1000+': return '1001+';
+          default: return size;
+        }
+      }).join(',');
+      searchParams.append('employeesRange', sizeRanges);
+    }
+    
+    // Add location filter
+    if (locations && locations.length > 0) {
+      searchParams.append('location', locations.join(','));
+    }
+    
+    // Add keywords if provided
+    if (keywords) {
+      searchParams.append('q', keywords);
+    }
+    
+    searchParams.append('limit', '50');
 
-    // Query Apollo API
-    const response = await fetch('https://api.apollo.io/v1/mixed_companies/search', {
-      method: 'POST',
+    // Query Lusha API
+    const response = await fetch(`https://api.lusha.com/companies?${searchParams.toString()}`, {
+      method: 'GET',
       headers: {
-        'Content-Type': 'application/json',
-        'X-Api-Key': APOLLO_API_KEY
-      },
-      body: JSON.stringify({
-        organization_num_employees_ranges: apolloSizes || undefined,
-        organization_locations: locations || undefined,
-        q_organization_keyword_tags: industries || undefined,
-        page: 1,
-        per_page: 50
-      })
+        'api_key': LUSHA_API_KEY,
+        'Content-Type': 'application/json'
+      }
     });
 
     if (!response.ok) {
       const error = await response.text();
-      return Response.json({ error: `Apollo API error: ${error}` }, { status: response.status });
+      return Response.json({ error: `Lusha API error: ${error}` }, { status: response.status });
     }
 
     const data = await response.json();
