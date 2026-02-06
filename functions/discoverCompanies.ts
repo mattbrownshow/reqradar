@@ -55,34 +55,31 @@ Deno.serve(async (req) => {
     const profiles = await base44.entities.CandidateProfile.list('-created_date', 1);
     const profile = profiles[0] || {};
 
-    // Transform and score companies
-    const companies = (data.data || []).map(company => {
-      const matchScore = calculateMatchScore(company, profile, { industries, companySizes, locations });
-      
-      return {
-        lushaId: company.id,
-        name: company.name,
-        domain: company.domain,
-        industry: company.industry,
-        subSector: company.subIndustry,
-        employeeCount: company.companySize,
-        revenue: company.revenue,
-        location: company.location?.city && company.location?.state 
-          ? `${company.location.city}, ${company.location.state}` 
-          : company.location?.country,
-        city: company.location?.city,
-        state: company.location?.state,
-        country: company.location?.country,
-        fundingStage: company.fundingStage,
-        logoUrl: company.logoUrl,
-        description: company.description,
-        matchScore
-      };
+    // Score and deduplicate companies
+    const uniqueCompanies = new Map();
+    allCompanies.forEach(company => {
+      const key = company.domain || company.name.toLowerCase();
+      if (!uniqueCompanies.has(key) || (uniqueCompanies.get(key).matchScore || 0) < (company.matchScore || 0)) {
+        uniqueCompanies.set(key, company);
+      }
     });
+
+    const companies = Array.from(uniqueCompanies.values())
+      .map(company => ({
+        ...company,
+        matchScore: calculateMatchScore(company, profile, { industries, companySizes, locations })
+      }))
+      .sort((a, b) => (b.matchScore || 0) - (a.matchScore || 0))
+      .slice(0, 50);
 
     return Response.json({
       companies,
-      count: companies.length
+      count: companies.length,
+      sources: {
+        lusha: LUSHA_API_KEY ? true : false,
+        amplemarket: AMPLEMARKET_API_KEY ? true : false,
+        apollo: APOLLO_API_KEY ? true : false
+      }
     });
 
   } catch (error) {
