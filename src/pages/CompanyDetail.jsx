@@ -9,6 +9,7 @@ import { ArrowLeft, Loader2 } from "lucide-react";
 import CompanyHeader from "../components/company/CompanyHeader";
 import OverviewTab from "../components/company/OverviewTab";
 import ContactCard from "../components/company/ContactCard";
+import CampaignTracker from "../components/company/CampaignTracker";
 
 export default function CompanyDetail() {
   const queryClient = useQueryClient();
@@ -20,6 +21,8 @@ export default function CompanyDetail() {
   const [enriching, setEnriching] = useState(!companyIdParam);
   const [generatedMessages, setGeneratedMessages] = useState({});
   const [generatingContactId, setGeneratingContactId] = useState(null);
+  const [selectedContacts, setSelectedContacts] = useState([]);
+  const [autoApplying, setAutoApplying] = useState(false);
 
   useEffect(() => {
     if (companyName && !companyId) {
@@ -213,6 +216,61 @@ export default function CompanyDetail() {
 
           {/* Contacts Tab */}
           <TabsContent value="contacts" className="space-y-4">
+            {/* Auto-Apply Controls */}
+            {contacts.length > 0 && Object.keys(generatedMessages).length > 0 && (
+              <div className="bg-white border border-gray-200 rounded-xl p-4">
+                <div className="flex items-center justify-between">
+                  <div>
+                    <h4 className="font-semibold text-gray-900">Auto-Send Campaign</h4>
+                    <p className="text-sm text-gray-600 mt-1">
+                      {selectedContacts.length} / {contacts.length} contacts selected
+                    </p>
+                  </div>
+                  <Button
+                    onClick={async () => {
+                      if (selectedContacts.length === 0) {
+                        alert('Select contacts to send to');
+                        return;
+                      }
+                      setAutoApplying(true);
+                      try {
+                        const messagesToSend = {};
+                        selectedContacts.forEach(id => {
+                          messagesToSend[id] = generatedMessages[id];
+                        });
+                        
+                        const response = await base44.functions.invoke('autoApplyToContacts', {
+                          contact_ids: selectedContacts,
+                          company_id: companyId,
+                          company_name: company.name,
+                          messages: messagesToSend
+                        });
+
+                        if (response.data.success) {
+                          alert(`Sent ${response.data.results.sent} emails successfully`);
+                          setSelectedContacts([]);
+                          queryClient.invalidateQueries({ queryKey: ['outreachMessages', companyId] });
+                        } else {
+                          alert(`Sent ${response.data.results.sent}, Failed ${response.data.results.failed}`);
+                        }
+                      } catch (error) {
+                        alert('Campaign failed: ' + error.message);
+                      } finally {
+                        setAutoApplying(false);
+                      }
+                    }}
+                    disabled={autoApplying || selectedContacts.length === 0}
+                    className="bg-orange-600 hover:bg-orange-700 text-white"
+                  >
+                    {autoApplying ? 'Sending...' : 'Send Campaign'}
+                  </Button>
+                </div>
+              </div>
+            )}
+
+            {/* Campaign Tracker */}
+            {companyId && <CampaignTracker companyId={companyId} companyName={company.name} />}
+
             {contacts.length === 0 ? (
               <div className="bg-white border border-gray-200 rounded-xl p-8 text-center">
                 <p className="text-gray-600 mb-4">No decision makers identified yet</p>
@@ -246,13 +304,28 @@ export default function CompanyDetail() {
             ) : (
               <div className="space-y-4">
                 {contacts.map(contact => (
-                  <ContactCard
-                    key={contact.id}
-                    contact={contact}
-                    generatedMessage={generatedMessages[contact.id]}
-                    onGenerateMessage={() => handleGenerateMessage(contact)}
-                    onManualApply={handleManualApply}
-                  />
+                  <div key={contact.id} className="flex items-start gap-3">
+                    <input
+                      type="checkbox"
+                      checked={selectedContacts.includes(contact.id)}
+                      onChange={(e) => {
+                        if (e.target.checked) {
+                          setSelectedContacts([...selectedContacts, contact.id]);
+                        } else {
+                          setSelectedContacts(selectedContacts.filter(id => id !== contact.id));
+                        }
+                      }}
+                      className="mt-2 cursor-pointer"
+                    />
+                    <div className="flex-1">
+                      <ContactCard
+                        contact={contact}
+                        generatedMessage={generatedMessages[contact.id]}
+                        onGenerateMessage={() => handleGenerateMessage(contact)}
+                        onManualApply={handleManualApply}
+                      />
+                    </div>
+                  </div>
                 ))}
               </div>
             )}
