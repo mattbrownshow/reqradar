@@ -59,8 +59,15 @@ Deno.serve(async (req) => {
           continue;
         }
 
+        // Filter by target roles
+        const roleLower = targetRoles.map(r => r.toLowerCase());
+        const matchedJobs = jobs.filter(job => {
+          const titleDesc = (job.title + ' ' + job.description).toLowerCase();
+          return roleLower.some(role => titleDesc.includes(role.split(' ')[0])); // Match first word of role
+        });
+
         // Filter out duplicates
-        const newJobs = jobs.filter(j => !existingUrls.has(j.source_url));
+        const newJobs = matchedJobs.filter(j => !existingUrls.has(j.source_url));
         
         if (newJobs.length > 0) {
           // Create OpenRole records for new jobs
