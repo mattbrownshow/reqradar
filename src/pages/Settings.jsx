@@ -140,19 +140,19 @@ export default function Settings() {
         <Tabs defaultValue="profile">
           <TabsList className="bg-gray-100 rounded-xl p-1">
             <TabsTrigger value="profile" className="rounded-lg data-[state=active]:bg-white gap-1.5">
-              👤 Profile
+              <User className="w-4 h-4" /> Profile
             </TabsTrigger>
             <TabsTrigger value="job-search" className="rounded-lg data-[state=active]:bg-white gap-1.5">
-              🔍 Job Search
+              <Briefcase className="w-4 h-4" /> Job Search
             </TabsTrigger>
             <TabsTrigger value="preferences" className="rounded-lg data-[state=active]:bg-white gap-1.5">
-              🎛️ Preferences
+              <Sliders className="w-4 h-4" /> Preferences
             </TabsTrigger>
             <TabsTrigger value="notifications" className="rounded-lg data-[state=active]:bg-white gap-1.5">
-              🔔 Notifications
+              <Bell className="w-4 h-4" /> Notifications
             </TabsTrigger>
             <TabsTrigger value="privacy" className="rounded-lg data-[state=active]:bg-white gap-1.5">
-              🔒 Privacy
+              <Shield className="w-4 h-4" /> Privacy
             </TabsTrigger>
           </TabsList>
 
