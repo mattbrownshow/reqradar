@@ -1,107 +1,81 @@
-import React, { useState, useEffect } from 'react';
+import React, { useEffect, useState } from 'react';
+import { useNavigate } from 'react-router-dom';
 import { base44 } from '@/api/base44Client';
+import { Loader2, CheckCircle2, AlertCircle } from 'lucide-react';
+import { createPageUrl } from '../utils';
 
 export default function GmailCallback() {
+  const navigate = useNavigate();
   const [status, setStatus] = useState('processing');
-  const [errorMessage, setErrorMessage] = useState('');
+  const [error, setError] = useState(null);
 
   useEffect(() => {
     handleCallback();
   }, []);
 
-  async function handleCallback() {
+  const handleCallback = async () => {
     try {
-      const urlParams = new URLSearchParams(window.location.search);
-      const authCode = urlParams.get('code');
-      const userId = urlParams.get('state');
-      const error = urlParams.get('error');
+      const params = new URLSearchParams(window.location.search);
+      const code = params.get('code');
+      const state = params.get('state');
 
-      if (error) {
-        throw new Error(`Authorization denied: ${error}`);
+      if (!code) {
+        setStatus('error');
+        setError('Authorization canceled. No code received.');
+        return;
       }
 
-      if (!authCode || !userId) {
-        throw new Error('No authorization code or user ID received');
-      }
+      // Exchange code for token
+      const response = await base44.functions.invoke('exchangeGmailAuthCode', { code });
 
-      console.log('Exchanging Gmail auth code...');
-
-      const result = await base44.functions.invoke('exchangeGmailAuthCode', {
-        auth_code: authCode,
-        user_id: parseInt(userId)
-      });
-
-      if (result.data.success) {
-        console.log('Gmail connected:', result.data.email);
+      if (response.data.success) {
         setStatus('success');
         setTimeout(() => {
-          window.location.href = '/settings';
+          navigate(createPageUrl('Settings') + '?tab=connected-accounts');
         }, 2000);
       } else {
-        throw new Error(result.data.error || 'Connection failed');
+        setStatus('error');
+        setError(response.data.error || 'Failed to connect Gmail');
       }
-    } catch (error) {
-      console.error('Gmail OAuth error:', error);
+    } catch (err) {
+      console.error('Error:', err);
       setStatus('error');
-      setErrorMessage(error.message);
+      setError(err.message || 'An error occurred during Gmail connection');
     }
-  }
+  };
 
   return (
     <div className="min-h-screen bg-gray-50 flex items-center justify-center p-4">
-      <div className="bg-white rounded-2xl shadow-lg p-12 max-w-md w-full text-center">
+      <div className="bg-white rounded-2xl shadow-lg p-8 max-w-md w-full text-center">
         {status === 'processing' && (
-          <div className="space-y-6">
-            <div className="flex justify-center">
-              <div className="relative w-16 h-16">
-                <div className="absolute inset-0 border-4 border-gray-200 rounded-full"></div>
-                <div className="absolute inset-0 border-4 border-transparent border-t-orange-500 rounded-full animate-spin"></div>
-              </div>
-            </div>
-            <div>
-              <h2 className="text-2xl font-bold text-gray-900">Connecting Gmail...</h2>
-              <p className="text-gray-600 mt-2">Please wait while we complete the authorization</p>
-            </div>
-          </div>
+          <>
+            <Loader2 className="w-12 h-12 animate-spin text-orange-600 mx-auto mb-4" />
+            <h2 className="text-2xl font-bold text-gray-900 mb-2">Connecting Gmail...</h2>
+            <p className="text-gray-600">Please wait while we authorize your account</p>
+          </>
         )}
 
         {status === 'success' && (
-          <div className="space-y-6">
-            <div className="flex justify-center">
-              <div className="w-16 h-16 bg-green-100 rounded-full flex items-center justify-center">
-                <svg className="w-8 h-8 text-green-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
-                </svg>
-              </div>
-            </div>
-            <div>
-              <h2 className="text-2xl font-bold text-gray-900">Gmail Connected!</h2>
-              <p className="text-gray-600 mt-2">Your Gmail account has been successfully connected</p>
-              <p className="text-sm text-gray-500 mt-4 italic">Redirecting to settings...</p>
-            </div>
-          </div>
+          <>
+            <CheckCircle2 className="w-12 h-12 text-green-600 mx-auto mb-4" />
+            <h2 className="text-2xl font-bold text-gray-900 mb-2">Gmail Connected!</h2>
+            <p className="text-gray-600 mb-4">Your Gmail account is now connected.</p>
+            <p className="text-sm text-gray-500">Redirecting to Settings...</p>
+          </>
         )}
 
         {status === 'error' && (
-          <div className="space-y-6">
-            <div className="flex justify-center">
-              <div className="w-16 h-16 bg-red-100 rounded-full flex items-center justify-center">
-                <svg className="w-8 h-8 text-red-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
-                </svg>
-              </div>
-            </div>
-            <div>
-              <h2 className="text-2xl font-bold text-gray-900">Connection Failed</h2>
-              <p className="text-red-600 font-medium mt-3">{errorMessage}</p>
-              <button
-                onClick={() => window.location.href = '/settings'}
-                className="mt-6 w-full bg-orange-500 hover:bg-orange-600 text-white font-medium py-2 px-4 rounded-lg transition-colors"
-              >
-                Return to Settings
-              </button>
-            </div>
-          </div>
+          <>
+            <AlertCircle className="w-12 h-12 text-red-600 mx-auto mb-4" />
+            <h2 className="text-2xl font-bold text-gray-900 mb-2">Connection Failed</h2>
+            <p className="text-gray-600 mb-4">{error}</p>
+            <button
+              onClick={() => navigate(createPageUrl('Settings') + '?tab=connected-accounts')}
+              className="w-full px-4 py-2 bg-orange-600 text-white rounded-lg hover:bg-orange-700 font-medium"
+            >
+              Back to Settings
+            </button>
+          </>
         )}
       </div>
     </div>
