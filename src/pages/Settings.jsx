@@ -160,7 +160,7 @@ export default function Settings() {
               <Bell className="w-4 h-4" /> Notifications
             </TabsTrigger>
             <TabsTrigger value="connected-accounts" className="rounded-lg data-[state=active]:bg-white gap-1.5">
-              <Mail className="w-4 h-4" /> Connected Accounts
+              <Mail className="w-4 h-4" /> Email
             </TabsTrigger>
             <TabsTrigger value="privacy" className="rounded-lg data-[state=active]:bg-white gap-1.5">
               <Shield className="w-4 h-4" /> Privacy
@@ -589,7 +589,92 @@ export default function Settings() {
         </TabsContent>
 
         <TabsContent value="connected-accounts" className="mt-6">
-          <ConnectedAccountsSection user={user} />
+          <div className="bg-white border border-gray-100 rounded-2xl p-6 sm:p-8 space-y-6">
+            <div>
+              <h3 className="font-semibold text-gray-900 text-lg">Email Connections</h3>
+              <p className="text-sm text-gray-600 mt-1">Connect your email account to send outreach directly from Flowzyn</p>
+            </div>
+
+            {/* Gmail Connection */}
+            <div className="border border-gray-200 rounded-xl p-6 space-y-4">
+              <div className="flex items-start justify-between">
+                <div>
+                  <h4 className="font-semibold text-gray-900">Gmail</h4>
+                  <p className="text-sm text-gray-600 mt-0.5">Send emails directly from your Gmail account</p>
+                </div>
+                {user?.gmail_connected ? (
+                  <div className="flex items-center gap-3">
+                    <div className="text-right">
+                      <p className="text-sm font-medium text-green-600">Connected</p>
+                      <p className="text-xs text-gray-600">{user.gmail_email}</p>
+                    </div>
+                    <Button
+                      onClick={async () => {
+                        await base44.auth.updateMe({ gmail_connected: false, gmail_email: null });
+                        window.location.reload();
+                      }}
+                      variant="outline"
+                      size="sm"
+                      className="border-red-300 text-red-600 hover:bg-red-50"
+                    >
+                      Disconnect
+                    </Button>
+                  </div>
+                ) : (
+                  <Button
+                    onClick={async () => {
+                      const url = await base44.functions.invoke('getGoogleOAuthUrl', {});
+                      window.location.href = url.data.url;
+                    }}
+                    size="sm"
+                    className="bg-blue-600 hover:bg-blue-700 text-white"
+                  >
+                    Connect
+                  </Button>
+                )}
+              </div>
+            </div>
+
+            {/* Outlook Connection */}
+            <div className="border border-gray-200 rounded-xl p-6 space-y-4">
+              <div className="flex items-start justify-between">
+                <div>
+                  <h4 className="font-semibold text-gray-900">Outlook</h4>
+                  <p className="text-sm text-gray-600 mt-0.5">Send emails directly from your Outlook account</p>
+                </div>
+                {user?.outlook_connected ? (
+                  <div className="flex items-center gap-3">
+                    <div className="text-right">
+                      <p className="text-sm font-medium text-green-600">Connected</p>
+                      <p className="text-xs text-gray-600">{user.outlook_email}</p>
+                    </div>
+                    <Button
+                      onClick={async () => {
+                        await base44.auth.updateMe({ outlook_connected: false, outlook_email: null });
+                        window.location.reload();
+                      }}
+                      variant="outline"
+                      size="sm"
+                      className="border-red-300 text-red-600 hover:bg-red-50"
+                    >
+                      Disconnect
+                    </Button>
+                  </div>
+                ) : (
+                  <Button
+                    onClick={async () => {
+                      const url = await base44.functions.invoke('getMicrosoftOAuthUrl', {});
+                      window.location.href = url.data.url;
+                    }}
+                    size="sm"
+                    className="bg-blue-600 hover:bg-blue-700 text-white"
+                  >
+                    Connect
+                  </Button>
+                )}
+              </div>
+            </div>
+          </div>
         </TabsContent>
 
         <TabsContent value="preferences" className="mt-6">
