@@ -5,8 +5,8 @@ export default function CompanyHeader({ company, enriching }) {
   if (!company) return null;
 
   return (
-    <div className="bg-white border-b border-gray-200 sticky top-16 z-40">
-      <div className="px-6 py-6 flex items-start gap-6">
+    <div className="bg-white border-b border-gray-200 sticky top-[80px] z-40">
+      <div className="px-6 py-6 max-w-7xl mx-auto flex items-start gap-6 w-full">
         {/* Logo */}
         <div className="w-20 h-20 bg-gradient-to-br from-orange-50 to-orange-100 rounded-2xl flex items-center justify-center shrink-0 text-3xl font-bold text-orange-600">
           {company.logo_url ? (
