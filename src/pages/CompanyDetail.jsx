@@ -72,10 +72,20 @@ export default function CompanyDetail() {
     enabled: !!companyId,
   });
 
+  // Load contacts by company ID, and also search by company name if no ID-based contacts found
   const { data: contacts = [] } = useQuery({
-    queryKey: ["contacts", companyId],
-    queryFn: () => base44.entities.Contact.filter({ company_id: companyId }),
-    enabled: !!companyId,
+    queryKey: ["contacts", companyId, companyName],
+    queryFn: async () => {
+      if (companyId) {
+        return base44.entities.Contact.filter({ company_id: companyId });
+      } else if (companyName) {
+        // Fallback: search by company name
+        const decodedName = decodeURIComponent(companyName);
+        return base44.entities.Contact.filter({ company_name: decodedName });
+      }
+      return [];
+    },
+    enabled: !!companyId || !!companyName,
   });
 
   const { data: roles = [] } = useQuery({
