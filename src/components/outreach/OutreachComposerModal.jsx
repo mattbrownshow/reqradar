@@ -17,6 +17,55 @@ export default function OutreachComposerModal({ company, contacts, roles, user, 
 
   const selectedContact = contacts.find(c => c.id === selectedContactId);
 
+  useEffect(() => {
+    base44.auth.me().then(currentUser => {
+      setEmailConnected(currentUser?.email_connected || false);
+    }).catch(() => {});
+  }, []);
+
+  const generateSubjectLine = () => {
+    const firstRole = roles[0];
+    if (!firstRole) return 'Connection - Shared Interest in Growth';
+    return `${firstRole.title} Opportunity at ${company.name}`;
+  };
+
+  useEffect(() => {
+    if (messageType === 'email' && !subjectLine) {
+      setSubjectLine(generateSubjectLine());
+    }
+  }, [messageType, messageType === 'email']);
+
+  const handleSendEmail = async () => {
+    if (!selectedContact || !generatedMessage) return;
+
+    setSending(true);
+    try {
+      const response = await base44.functions.invoke('sendOutreachEmail', {
+        decision_maker_id: selectedContact.id,
+        company_id: company.id,
+        contact_name: selectedContact.full_name,
+        contact_email: selectedContact.email,
+        subject: subjectLine,
+        body: generatedMessage.message,
+        message_type: messageType,
+        tone: tone
+      });
+
+      if (response.data.success) {
+        alert('Email sent successfully!');
+        setShowConfirmation(false);
+        onClose();
+      } else {
+        alert('Failed to send email: ' + response.data.error);
+      }
+    } catch (error) {
+      console.error('Send failed:', error);
+      alert('Failed to send email. Please try again.');
+    } finally {
+      setSending(false);
+    }
+  };
+
   const handleGenerateMessage = async () => {
     if (!selectedContact) return;
 
