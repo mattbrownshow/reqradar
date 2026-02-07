@@ -12,24 +12,10 @@ Deno.serve(async (req) => {
       return Response.json({ error: 'Missing job_id or pipeline_id' }, { status: 400 });
     }
 
-    // Fetch the OpenRole to get company info
-    const openRole = await base44.asServiceRole.entities.OpenRole.get(jobPipeline.job_id);
-    if (!openRole || !openRole.company_id) {
-      console.error('OpenRole not found:', jobPipeline.job_id);
-      return Response.json({ error: 'OpenRole not found' }, { status: 404 });
-    }
-
-    const company_id = openRole.company_id;
-    const company_name = openRole.company_name;
-    const company_domain = openRole.company_domain || company_name.toLowerCase().replace(/\s+/g, '');
-
     // Check for existing contacts
     const existingContacts = await base44.asServiceRole.entities.Contact.filter({ company_id });
     if (existingContacts.length > 0) {
       console.log(`Contacts already exist for company ${company_id}`);
-      if (jobPipeline.stage === 'saved') {
-        await base44.asServiceRole.entities.JobPipeline.update(jobPipeline.id, { stage: 'intel_gathering' });
-      }
       return Response.json({ status: 'existing', contacts_count: existingContacts.length });
     }
 
