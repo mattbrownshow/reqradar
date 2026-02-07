@@ -141,7 +141,7 @@ export default function OpenRoles() {
     <div className="px-4 sm:px-6 py-8 space-y-6">
       <div>
         <h1 className="text-2xl font-bold text-gray-900 tracking-tight">Open Roles</h1>
-        <p className="text-sm text-gray-500 mt-2">All VP of Operations jobs from target companies, job boards, and daily discoveries.</p>
+        <p className="text-sm text-gray-500 mt-2">All matching jobs from target companies, job boards, and daily discoveries.</p>
       </div>
 
       {/* Search */}
