@@ -42,7 +42,7 @@ Deno.serve(async (req) => {
       }
     }
     
-    // Add remote job feeds if not already present
+    // Add remote job feeds and public APIs if not already present
     const remoteFeeds = [
       {
         feed_name: "We Work Remotely",
@@ -53,6 +53,24 @@ Deno.serve(async (req) => {
       {
         feed_name: "RemoteOK - Remote Jobs",
         feed_url: "https://remoteok.com/remote-jobs.rss",
+        refresh_frequency: "every_4_hours",
+        status: "active"
+      },
+      {
+        feed_name: "Remotive - Remote Jobs API",
+        feed_url: "https://remotive.com/api/remote-jobs",
+        refresh_frequency: "every_4_hours",
+        status: "active"
+      },
+      {
+        feed_name: "Arbeitnow - Job Board API",
+        feed_url: "https://www.arbeitnow.com/api/job-board-api",
+        refresh_frequency: "every_4_hours",
+        status: "active"
+      },
+      {
+        feed_name: "The Muse - Jobs API",
+        feed_url: "https://www.themuse.com/developers/api/v2/jobs",
         refresh_frequency: "every_4_hours",
         status: "active"
       }
