@@ -18,34 +18,16 @@ import {
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 
-const navPhases = [
-  {
-    name: "Discover",
-    items: [
-      { name: "Discovery", icon: Sparkles, page: "DailySuggestions" },
-      { name: "Companies", icon: Building2, page: "Companies" },
-      { name: "Monitors", icon: Rss, page: "JobBoards" },
-    ]
-  },
-  {
-    name: "Qualify",
-    items: [
-      { name: "Open Roles", icon: Users, page: "OpenRoles" },
-    ]
-  },
-  {
-    name: "Pursue",
-    items: [
-      { name: "Pipeline", icon: Kanban, page: "JobsPipeline" },
-      { name: "Outreach", icon: Send, page: "Outreach" },
-    ]
-  },
-  {
-    name: "Analyze",
-    items: [
-      { name: "Analytics", icon: BarChart3, page: "Analytics" },
-    ]
-  }
+const navItems = [
+  { name: "Dashboard", icon: LayoutDashboard, page: "Dashboard" },
+  { name: "Suggestions", icon: Sparkles, page: "DailySuggestions" },
+  { name: "Companies", icon: Building2, page: "Companies" },
+  { name: "Open Roles", icon: Users, page: "OpenRoles" },
+  { name: "Pipeline", icon: Kanban, page: "JobsPipeline" },
+  { name: "Outreach", icon: Send, page: "Outreach" },
+  { name: "Job Boards", icon: Rss, page: "JobBoards" },
+  { name: "Analytics", icon: BarChart3, page: "Analytics" },
+  { name: "Settings", icon: Settings, page: "Settings" },
 ];
 
 export default function Layout({ children, currentPageName }) {
@@ -78,56 +60,24 @@ export default function Layout({ children, currentPageName }) {
               </Link>
 
               {/* Desktop Nav */}
-              <div className="hidden lg:flex items-center gap-6">
-                <Link
-                  to={createPageUrl("Dashboard")}
-                  className={`flex items-center gap-1.5 px-3 py-2 rounded-lg text-sm font-medium transition-all duration-200 ${
-                    currentPageName === "Dashboard"
-                      ? "text-[#F7931E] bg-[#FEF3E2]"
-                      : "text-gray-500 hover:text-gray-900 hover:bg-gray-50"
-                  }`}
-                >
-                  <LayoutDashboard className="w-4 h-4" />
-                  Dashboard
-                </Link>
-                
-                {navPhases.map((phase) => (
-                  <div key={phase.name} className="flex items-center gap-1">
-                    <span className="text-xs font-semibold text-gray-400 mr-2">{phase.name}</span>
-                    {phase.items.map((item) => {
-                      const isActive = currentPageName === item.page;
-                      return (
-                        <Link
-                          key={item.page}
-                          to={createPageUrl(item.page)}
-                          className={`flex items-center gap-1.5 px-3 py-2 rounded-lg text-sm font-medium transition-all duration-200 ${
-                            isActive
-                              ? "text-[#F7931E] bg-[#FEF3E2]"
-                              : "text-gray-500 hover:text-gray-900 hover:bg-gray-50"
-                          }`}
-                        >
-                          <item.icon className="w-4 h-4" />
-                          {item.name}
-                        </Link>
-                      );
-                    })}
-                  </div>
-                ))}
-              </div>
-              
-              {/* Right side - Settings */}
-              <div className="hidden lg:flex">
-                <Link
-                  to={createPageUrl("Settings")}
-                  className={`flex items-center gap-1.5 px-3 py-2 rounded-lg text-sm font-medium transition-all duration-200 ${
-                    currentPageName === "Settings"
-                      ? "text-[#F7931E] bg-[#FEF3E2]"
-                      : "text-gray-500 hover:text-gray-900 hover:bg-gray-50"
-                  }`}
-                >
-                  <Settings className="w-4 h-4" />
-                  Settings
-                </Link>
+              <div className="hidden lg:flex items-center gap-1">
+                {navItems.map((item) => {
+                  const isActive = currentPageName === item.page;
+                  return (
+                    <Link
+                      key={item.page}
+                      to={createPageUrl(item.page)}
+                      className={`flex items-center gap-1.5 px-3 py-2 rounded-lg text-sm font-medium transition-all duration-200 ${
+                        isActive
+                          ? "text-[#F7931E] bg-[#FEF3E2]"
+                          : "text-gray-500 hover:text-gray-900 hover:bg-gray-50"
+                      }`}
+                    >
+                      <item.icon className="w-4 h-4" />
+                      {item.name}
+                    </Link>
+                  );
+                })}
               </div>
 
               {/* Right side */}
@@ -152,57 +102,25 @@ export default function Layout({ children, currentPageName }) {
           {/* Mobile Menu */}
           {mobileMenuOpen && (
             <div className="lg:hidden border-t border-gray-100 bg-white">
-              <div className="px-4 py-3 space-y-3">
-                <Link
-                  to={createPageUrl("Dashboard")}
-                  onClick={() => setMobileMenuOpen(false)}
-                  className={`flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm font-medium transition-all ${
-                    currentPageName === "Dashboard"
-                      ? "text-[#F7931E] bg-[#FEF3E2]"
-                      : "text-gray-600 hover:bg-gray-50"
-                  }`}
-                >
-                  <LayoutDashboard className="w-4 h-4" />
-                  Dashboard
-                </Link>
-                
-                {navPhases.map((phase) => (
-                  <div key={phase.name} className="space-y-1">
-                    <div className="px-3 py-1 text-xs font-semibold text-gray-400">{phase.name}</div>
-                    {phase.items.map((item) => {
-                      const isActive = currentPageName === item.page;
-                      return (
-                        <Link
-                          key={item.page}
-                          to={createPageUrl(item.page)}
-                          onClick={() => setMobileMenuOpen(false)}
-                          className={`flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm font-medium transition-all ${
-                            isActive
-                              ? "text-[#F7931E] bg-[#FEF3E2]"
-                              : "text-gray-600 hover:bg-gray-50"
-                          }`}
-                        >
-                          <item.icon className="w-4 h-4" />
-                          {item.name}
-                        </Link>
-                      );
-                    })}
-                  </div>
-                ))}
-                
-                <Link
-                  to={createPageUrl("Settings")}
-                  onClick={() => setMobileMenuOpen(false)}
-                  className={`flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm font-medium transition-all ${
-                    currentPageName === "Settings"
-                      ? "text-[#F7931E] bg-[#FEF3E2]"
-                      : "text-gray-600 hover:bg-gray-50"
-                  }`}
-                >
-                  <Settings className="w-4 h-4" />
-                  Settings
-                </Link>
-                
+              <div className="px-4 py-3 space-y-1">
+                {navItems.map((item) => {
+                  const isActive = currentPageName === item.page;
+                  return (
+                    <Link
+                      key={item.page}
+                      to={createPageUrl(item.page)}
+                      onClick={() => setMobileMenuOpen(false)}
+                      className={`flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm font-medium transition-all ${
+                        isActive
+                          ? "text-[#F7931E] bg-[#FEF3E2]"
+                          : "text-gray-600 hover:bg-gray-50"
+                      }`}
+                    >
+                      <item.icon className="w-4 h-4" />
+                      {item.name}
+                    </Link>
+                  );
+                })}
                 <Link
                   to={createPageUrl("CandidateSetup")}
                   onClick={() => setMobileMenuOpen(false)}
