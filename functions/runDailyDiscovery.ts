@@ -52,6 +52,16 @@ Deno.serve(async (req) => {
             let jobsFound = 0;
             let pagesScanned = 0;
 
+            // Fetch jobs from public APIs
+            try {
+              const { data: apiResult } = await base44.functions.invoke('fetchJobsFromAPIs', {});
+              if (apiResult.success) {
+                jobsFound += apiResult.jobs_created || 0;
+              }
+            } catch (error) {
+              console.error('Failed to fetch from job APIs:', error);
+            }
+
             // Process each new company
             for (const company of newCompanies) {
                 let jobs = [];
