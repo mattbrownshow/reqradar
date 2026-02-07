@@ -14,6 +14,7 @@ import {
 } from "lucide-react";
 import StatusBadge from "../components/shared/StatusBadge";
 import EmptyState from "../components/shared/EmptyState";
+import PageDescription from "../components/shared/PageDescription";
 
 export default function OpenRoles() {
   const queryClient = useQueryClient();
@@ -139,9 +140,10 @@ export default function OpenRoles() {
 
   return (
     <div className="px-4 sm:px-6 py-8 space-y-6">
+      <PageDescription page="openRoles" />
+      
       <div>
         <h1 className="text-2xl font-bold text-gray-900 tracking-tight">Open Roles</h1>
-        <p className="text-sm text-gray-600 mt-2 max-w-3xl">Explore current job openings from various sources that match your profile. Apply directly or save roles to your pipeline for future action.</p>
       </div>
 
       {/* Search */}
