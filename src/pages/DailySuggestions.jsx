@@ -1,27 +1,48 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import { Link } from "react-router-dom";
 import { createPageUrl } from "../utils";
 import { base44 } from "@/api/base44Client";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
-import { Sparkles, Building2, MapPin, Users, TrendingUp, Plus, X, Loader2, Play, CheckCircle } from "lucide-react";
+import { Sparkles, Building2, MapPin, Users, TrendingUp, Plus, X, Loader2, Play, CheckCircle, Check } from "lucide-react";
 import { toast } from "sonner";
+import { format } from "date-fns";
 
 export default function DailySuggestions() {
-  const [filter, setFilter] = useState("new");
+  const [filter, setFilter] = useState("new-companies");
+  const [targetRole, setTargetRole] = useState("target role");
   const queryClient = useQueryClient();
 
-  const { data: suggestions = [], isLoading } = useQuery({
-    queryKey: ["suggestions", filter],
+  const { data: profile } = useQuery({
+    queryKey: ["candidateProfile"],
     queryFn: async () => {
-      const allSuggestions = await base44.entities.SuggestedCompany.list("-suggested_at");
-      if (filter === "new") {
-        return allSuggestions.filter(s => s.status === "new");
-      }
-      return allSuggestions;
-    }
+      const profiles = await base44.entities.CandidateProfile.list();
+      return profiles[0];
+    },
   });
+
+  useEffect(() => {
+    if (profile?.target_roles?.length > 0) {
+      setTargetRole(profile.target_roles[0]);
+    }
+  }, [profile]);
+
+  const { data: allSuggestions = [], isLoading } = useQuery({
+    queryKey: ["suggestions"],
+    queryFn: async () => await base44.entities.SuggestedCompany.list("-suggested_at")
+  });
+
+  const suggestions = allSuggestions.filter(s => {
+    if (filter === "new-companies") return s.status === "new";
+    if (filter === "new-roles") return s.jobs_found > 0;
+    if (filter === "high-match") return s.match_score >= 85;
+    return true;
+  });
+
+  const newCompaniesCount = allSuggestions.filter(s => s.status === "new").length;
+  const newRolesCount = allSuggestions.filter(s => s.jobs_found > 0).length;
+  const highMatchCount = allSuggestions.filter(s => s.match_score >= 85).length;
 
   const { data: runs = [] } = useQuery({
     queryKey: ["discoveryRuns"],
@@ -48,108 +69,217 @@ export default function DailySuggestions() {
     }
   });
 
-  const newCount = suggestions.filter(s => s.status === "new").length;
   const lastRun = runs[0];
 
   return (
-    <div className="px-4 sm:px-6 py-8 space-y-6">
-      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
-        <div>
-          <h1 className="text-2xl font-bold text-gray-900 flex items-center gap-2">
-            <Sparkles className="w-6 h-6 text-[#F7931E]" />
-            Daily Recommendations
-          </h1>
-          <p className="text-sm text-gray-500 mt-2">Companies found overnight matching your profile. Add interesting ones to your Target List.</p>
-        </div>
-        <Link to={createPageUrl("Companies")}>
-          <Button variant="outline" className="rounded-xl gap-2">
-            <Building2 className="w-4 h-4" /> View Target List
-          </Button>
-        </Link>
-        <Button
-          onClick={() => runDiscoveryMutation.mutate()}
-          disabled={runDiscoveryMutation.isPending}
-          className="bg-[#F7931E] hover:bg-[#E07A0A] rounded-xl gap-2"
-        >
-          {runDiscoveryMutation.isPending ? (
-            <><Loader2 className="w-4 h-4 animate-spin" /> Running...</>
-          ) : (
-            <><Play className="w-4 h-4" /> Run Discovery Now</>
-          )}
-        </Button>
-      </div>
+    <div className="px-4 sm:px-6 py-8 lg:py-12">
+      <style>{`
+        .filter-tabs {
+          display: flex;
+          gap: 8px;
+          margin-bottom: 32px;
+          border-bottom: 2px solid #E5E5E5;
+          overflow-x: auto;
+        }
+        
+        .tab {
+          background: transparent;
+          border: none;
+          padding: 12px 20px;
+          cursor: pointer;
+          font-size: 14px;
+          font-weight: 600;
+          color: #6B7280;
+          border-bottom: 2px solid transparent;
+          margin-bottom: -2px;
+          transition: all 0.2s;
+          white-space: nowrap;
+        }
+        
+        .tab:hover {
+          color: #1A1A1A;
+        }
+        
+        .tab.active {
+          color: #FF9E4D;
+          border-bottom-color: #FF9E4D;
+        }
+        
+        .preview-card {
+          position: relative;
+          margin: 32px 0;
+        }
+        
+        .preview-badge {
+          position: absolute;
+          top: -12px;
+          left: 50%;
+          transform: translateX(-50%);
+          background: #4A90E2;
+          color: white;
+          padding: 4px 12px;
+          border-radius: 12px;
+          font-size: 12px;
+          font-weight: 600;
+          text-transform: uppercase;
+          letter-spacing: 0.5px;
+          z-index: 1;
+        }
+        
+        .preview-company-card {
+          background: white;
+          border: 2px solid #E5E5E5;
+          border-radius: 12px;
+          padding: 24px;
+          opacity: 0.6;
+        }
+      `}</style>
 
-      {lastRun && (
-        <div className="bg-white border border-gray-100 rounded-xl p-4">
-          <div className="flex items-center justify-between">
-            <div>
-              <p className="text-sm text-gray-500">Last Run</p>
-              <p className="font-medium">{new Date(lastRun.run_at).toLocaleString()}</p>
-            </div>
-            <div className="flex gap-6">
-              <div className="text-center">
-                <p className="text-2xl font-bold text-[#F7931E]">{lastRun.companies_found}</p>
-                <p className="text-xs text-gray-500">Companies</p>
-              </div>
-              <div className="text-center">
-                <p className="text-2xl font-bold text-emerald-600">{lastRun.jobs_found}</p>
-                <p className="text-xs text-gray-500">Jobs</p>
-              </div>
-              <div className="text-center">
-                <p className="text-2xl font-bold text-blue-600">{lastRun.career_pages_scanned}</p>
-                <p className="text-xs text-gray-500">Scanned</p>
-              </div>
-            </div>
+      <div className="max-w-7xl mx-auto">
+        <div className="flex flex-col sm:flex-row sm:items-start justify-between gap-4 mb-6">
+          <div>
+            <h1 className="text-3xl font-bold text-gray-900 mb-2">Discovery Engine</h1>
+            <p className="text-gray-600">
+              Companies found overnight matching your <strong>{targetRole}</strong> profile
+            </p>
           </div>
+          <Button
+            onClick={() => runDiscoveryMutation.mutate()}
+            disabled={runDiscoveryMutation.isPending}
+            className="bg-[#FF9E4D] hover:bg-[#E8893D] text-white rounded-xl gap-2"
+          >
+            {runDiscoveryMutation.isPending ? (
+              <><Loader2 className="w-4 h-4 animate-spin" /> Running...</>
+            ) : (
+              <><Play className="w-4 h-4" /> Run Discovery Now</>
+            )}
+          </Button>
         </div>
-      )}
 
-      <div className="flex gap-2">
-        <Button
-          variant={filter === "new" ? "default" : "outline"}
-          onClick={() => setFilter("new")}
-          className="rounded-xl"
-        >
-          New ({newCount})
-        </Button>
-        <Button
-          variant={filter === "all" ? "default" : "outline"}
-          onClick={() => setFilter("all")}
-          className="rounded-xl"
-        >
-          All ({suggestions.length})
-        </Button>
+        {lastRun && (
+          <div className="bg-white border border-gray-200 rounded-xl p-4 mb-6 flex flex-wrap items-center gap-3 text-sm">
+            <span className="text-gray-600 font-semibold">Last run:</span>
+            <span className="text-gray-900">{format(new Date(lastRun.run_at), "M/d/yyyy, h:mm:ss a")}</span>
+            <span className="text-gray-300">•</span>
+            <span className="font-semibold text-[#FF9E4D]">{lastRun.companies_found}</span>
+            <span className="text-gray-600">Companies</span>
+            <span className="text-gray-300">•</span>
+            <span className="font-semibold text-[#FF9E4D]">{lastRun.jobs_found}</span>
+            <span className="text-gray-600">Jobs</span>
+            <span className="text-gray-300">•</span>
+            <span className="font-semibold text-[#FF9E4D]">{lastRun.career_pages_scanned}</span>
+            <span className="text-gray-600">Scanned</span>
+          </div>
+        )}
+
+        <div className="filter-tabs">
+          <button
+            className={`tab ${filter === "new-companies" ? "active" : ""}`}
+            onClick={() => setFilter("new-companies")}
+          >
+            🆕 New Companies ({newCompaniesCount})
+          </button>
+          <button
+            className={`tab ${filter === "new-roles" ? "active" : ""}`}
+            onClick={() => setFilter("new-roles")}
+          >
+            🆕 New Roles ({newRolesCount})
+          </button>
+          <button
+            className={`tab ${filter === "high-match" ? "active" : ""}`}
+            onClick={() => setFilter("high-match")}
+          >
+            💎 High Match ({highMatchCount})
+          </button>
+        </div>
+
+        {isLoading ? (
+          <div className="flex items-center justify-center py-12">
+            <Loader2 className="w-8 h-8 text-[#FF9E4D] animate-spin" />
+          </div>
+        ) : suggestions.length === 0 ? (
+          <div className="max-w-xl mx-auto text-center py-12">
+            <div className="mb-6">
+              <svg width="64" height="64" viewBox="0 0 64 64" fill="none" className="mx-auto">
+                <circle cx="32" cy="32" r="30" stroke="#E5E5E5" strokeWidth="4"/>
+                <path d="M32 20v24M20 32h24" stroke="#9CA3AF" strokeWidth="4" strokeLinecap="round"/>
+              </svg>
+            </div>
+            <h3 className="text-2xl font-semibold text-gray-900 mb-3">No suggestions yet</h3>
+            <p className="text-gray-600 mb-8 leading-relaxed">
+              Every night, we scan thousands of companies matching your target profile.<br />
+              Run discovery or check back tomorrow for fresh recommendations.
+            </p>
+            
+            <div className="preview-card">
+              <div className="preview-badge">Example</div>
+              <div className="preview-company-card">
+                <div className="flex items-start gap-4 mb-5">
+                  <div className="w-12 h-12 bg-gradient-to-br from-[#FF9E4D] to-[#E8893D] rounded-lg flex items-center justify-center text-white font-bold text-lg flex-shrink-0">
+                    AC
+                  </div>
+                  <div className="flex-1 min-w-0">
+                    <h4 className="text-lg font-semibold text-gray-900 mb-1">Acme Corp</h4>
+                    <p className="text-sm text-gray-600">Series B • 150 employees • Austin, TX</p>
+                  </div>
+                  <div className="text-2xl font-bold text-[#50C878]">88%</div>
+                </div>
+                <div className="bg-gray-50 rounded-lg p-4 mb-5">
+                  <p className="text-xs font-semibold text-gray-600 uppercase mb-3">Why this matches:</p>
+                  <div className="space-y-2">
+                    <div className="flex items-center gap-2 text-sm">
+                      <Check className="w-4 h-4 text-[#50C878]" />
+                      <span>Target role open</span>
+                    </div>
+                    <div className="flex items-center gap-2 text-sm">
+                      <Check className="w-4 h-4 text-[#50C878]" />
+                      <span>{profile?.industries?.[0] || "Industry"} alignment</span>
+                    </div>
+                    <div className="flex items-center gap-2 text-sm">
+                      <Check className="w-4 h-4 text-[#50C878]" />
+                      <span>{profile?.remote_preferences?.[0] || "Location"} preference match</span>
+                    </div>
+                  </div>
+                </div>
+                <div className="flex gap-3">
+                  <Button variant="outline" className="flex-1 border-[#FF9E4D] text-[#FF9E4D] hover:bg-[#FFF9F5]">
+                    Add to Pipeline
+                  </Button>
+                  <Button variant="outline" className="flex-1">
+                    Not Interested
+                  </Button>
+                </div>
+              </div>
+            </div>
+
+            <Button
+              onClick={() => runDiscoveryMutation.mutate()}
+              disabled={runDiscoveryMutation.isPending}
+              className="bg-[#FF9E4D] hover:bg-[#E8893D] text-white rounded-xl mt-6"
+            >
+              Run Discovery to See Real Companies
+            </Button>
+          </div>
+        ) : (
+          <div className="grid gap-4">
+            {suggestions.map((suggestion) => (
+              <SuggestionCard
+                key={suggestion.id}
+                suggestion={suggestion}
+                onAddToTarget={() => manageSuggestionMutation.mutate({ 
+                  suggestion_id: suggestion.id, 
+                  action: "add_to_target" 
+                })}
+                onDismiss={() => manageSuggestionMutation.mutate({ 
+                  suggestion_id: suggestion.id, 
+                  action: "dismiss" 
+                })}
+                isLoading={manageSuggestionMutation.isPending}
+              />
+            ))}
+          </div>
+        )}
       </div>
-
-      {isLoading ? (
-        <div className="flex items-center justify-center py-12">
-          <Loader2 className="w-8 h-8 text-[#F7931E] animate-spin" />
-        </div>
-      ) : suggestions.length === 0 ? (
-        <div className="bg-white border border-gray-100 rounded-2xl p-12 text-center">
-          <Sparkles className="w-12 h-12 text-gray-300 mx-auto mb-4" />
-          <h3 className="text-lg font-semibold text-gray-900 mb-2">No suggestions yet</h3>
-          <p className="text-gray-500">Run discovery or check back tomorrow for fresh recommendations</p>
-        </div>
-      ) : (
-        <div className="grid gap-4">
-          {suggestions.map((suggestion) => (
-            <SuggestionCard
-              key={suggestion.id}
-              suggestion={suggestion}
-              onAddToTarget={() => manageSuggestionMutation.mutate({ 
-                suggestion_id: suggestion.id, 
-                action: "add_to_target" 
-              })}
-              onDismiss={() => manageSuggestionMutation.mutate({ 
-                suggestion_id: suggestion.id, 
-                action: "dismiss" 
-              })}
-              isLoading={manageSuggestionMutation.isPending}
-            />
-          ))}
-        </div>
-      )}
     </div>
   );
 }
