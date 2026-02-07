@@ -2,12 +2,15 @@ import { createClientFromRequest } from 'npm:@base44/sdk@0.8.6';
 
 Deno.serve(async (req) => {
   try {
+    console.log('=== fetchRSSFeeds started ===');
     const base44 = createClientFromRequest(req);
     const user = await base44.auth.me();
     
     if (!user) {
+      console.log('No authenticated user');
       return Response.json({ error: 'Unauthorized' }, { status: 401 });
     }
+    console.log(`Auth user: ${user.email}`);
 
     // Get user's target roles - get all profiles and filter by user email
     const allProfiles = await base44.asServiceRole.entities.CandidateProfile.list('-created_date', 100);
