@@ -10,11 +10,12 @@ import {
 } from "@/components/ui/select";
 import {
   Building2, Search, MapPin, Users, DollarSign,
-  Briefcase, Plus, Grid3X3, List, Star, ArrowUpRight, Loader2, X, Trash2
+  Briefcase, Plus, Grid3X3, List, Star, ArrowUpRight, Loader2, X, Trash2, ChevronDown, ChevronUp
 } from "lucide-react";
 import StatusBadge from "../components/shared/StatusBadge";
 import EmptyState from "../components/shared/EmptyState";
 import JobPreferencesCard from "../components/shared/JobPreferencesCard";
+import { toast } from "sonner";
 
 export default function Companies() {
   const queryClient = useQueryClient();
@@ -27,6 +28,7 @@ export default function Companies() {
   const [selectedIndustries, setSelectedIndustries] = useState([]);
   const [selectedSizes, setSelectedSizes] = useState([]);
   const [selectedFunding, setSelectedFunding] = useState([]);
+  const [showTargetList, setShowTargetList] = useState(true);
 
   const { data: companies = [], isLoading } = useQuery({
     queryKey: ["companies"],
@@ -66,8 +68,10 @@ export default function Companies() {
       queryClient.invalidateQueries({ queryKey: ["companies"] });
       // Remove from discovery results
       setDiscoveryResults(prev => prev.filter(c => c.lushaId !== companyData.lushaId));
+      toast.success(`${companyData.name} added to your target list`);
     } catch (error) {
       console.error('Add error:', error);
+      toast.error('Failed to add company');
     }
   };
 
@@ -245,29 +249,49 @@ export default function Companies() {
       {/* Your Target Companies */}
       {companies.length > 0 && (
         <div>
-          <h3 className="font-semibold text-gray-900 mb-4">Your Target Companies ({companies.length})</h3>
-          <div className="flex flex-wrap gap-3 items-center mb-4">
-            <Select value={industryFilter} onValueChange={setIndustryFilter}>
-              <SelectTrigger className="w-[180px] rounded-xl">
-                <SelectValue placeholder="Industry" />
-              </SelectTrigger>
-              <SelectContent>
-                <SelectItem value="all">All Industries</SelectItem>
-                {industries.map(ind => (
-                  <SelectItem key={ind} value={ind}>{ind}</SelectItem>
-                ))}
-              </SelectContent>
-            </Select>
-
-            <div className="ml-auto flex items-center gap-1 bg-gray-100 p-1 rounded-lg">
-              <button onClick={() => setViewMode("grid")} className={`p-1.5 rounded-md transition-colors ${viewMode === "grid" ? "bg-white shadow-sm" : ""}`}>
-                <Grid3X3 className="w-4 h-4 text-gray-600" />
-              </button>
-              <button onClick={() => setViewMode("list")} className={`p-1.5 rounded-md transition-colors ${viewMode === "list" ? "bg-white shadow-sm" : ""}`}>
-                <List className="w-4 h-4 text-gray-600" />
-              </button>
-            </div>
+          <div className="flex items-center justify-between mb-4">
+            <h3 className="font-semibold text-gray-900">Your Target Companies ({companies.length})</h3>
+            <Button
+              variant="ghost"
+              size="sm"
+              onClick={() => setShowTargetList(!showTargetList)}
+              className="gap-2"
+            >
+              {showTargetList ? (
+                <>
+                  <ChevronUp className="w-4 h-4" /> Hide
+                </>
+              ) : (
+                <>
+                  <ChevronDown className="w-4 h-4" /> Show
+                </>
+              )}
+            </Button>
           </div>
+          {showTargetList && (
+            <div className="flex flex-wrap gap-3 items-center mb-4">
+              <Select value={industryFilter} onValueChange={setIndustryFilter}>
+                <SelectTrigger className="w-[180px] rounded-xl">
+                  <SelectValue placeholder="Industry" />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="all">All Industries</SelectItem>
+                  {industries.map(ind => (
+                    <SelectItem key={ind} value={ind}>{ind}</SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
+
+              <div className="ml-auto flex items-center gap-1 bg-gray-100 p-1 rounded-lg">
+                <button onClick={() => setViewMode("grid")} className={`p-1.5 rounded-md transition-colors ${viewMode === "grid" ? "bg-white shadow-sm" : ""}`}>
+                  <Grid3X3 className="w-4 h-4 text-gray-600" />
+                </button>
+                <button onClick={() => setViewMode("list")} className={`p-1.5 rounded-md transition-colors ${viewMode === "list" ? "bg-white shadow-sm" : ""}`}>
+                  <List className="w-4 h-4 text-gray-600" />
+                </button>
+              </div>
+            </div>
+          )}
         </div>
       )}
 
@@ -278,7 +302,7 @@ export default function Companies() {
           title="No target companies yet"
           description="Use the discovery tool above to find and add companies to your target list."
         />
-      ) : viewMode === "grid" ? (
+      ) : !showTargetList ? null : viewMode === "grid" ? (
         <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-4">
           {filtered.map(company => (
             <Link
