@@ -156,10 +156,13 @@ export default function Settings() {
             <TabsTrigger value="notifications" className="rounded-lg data-[state=active]:bg-white gap-1.5">
               <Bell className="w-4 h-4" /> Notifications
             </TabsTrigger>
+            <TabsTrigger value="connected-accounts" className="rounded-lg data-[state=active]:bg-white gap-1.5">
+              <Mail className="w-4 h-4" /> Connected Accounts
+            </TabsTrigger>
             <TabsTrigger value="privacy" className="rounded-lg data-[state=active]:bg-white gap-1.5">
               <Shield className="w-4 h-4" /> Privacy
             </TabsTrigger>
-          </TabsList>
+            </TabsList>
 
           <TabsContent value="profile" className="mt-6 space-y-6">
             {/* Account Information */}
