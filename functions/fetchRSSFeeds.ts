@@ -305,6 +305,55 @@ async function fetchAdzunaJobs(targetRoles) {
   return jobs;
 }
 
+async function fetchSerpAPIJobs(targetRoles) {
+  const jobs = [];
+  try {
+    const apiKey = Deno.env.get('SERPAPI_API_KEY');
+    if (!apiKey) {
+      console.error('SERPAPI_API_KEY not set');
+      return jobs;
+    }
+
+    // Fetch jobs for each target role
+    for (const role of targetRoles.slice(0, 3)) {  // Limit to first 3 roles to avoid rate limiting
+      try {
+        const params = new URLSearchParams({
+          api_key: apiKey,
+          engine: 'google_jobs',
+          q: role,
+          location: 'United States',
+          num: '30'
+        });
+
+        const response = await fetch(`https://serpapi.com/search?${params}`);
+        if (response.ok) {
+          const data = await response.json();
+          if (data.jobs_results && Array.isArray(data.jobs_results)) {
+            jobs.push(...data.jobs_results.map(job => ({
+              title: job.title.substring(0, 200),
+              company_name: job.company_name.substring(0, 100),
+              description: job.description ? job.description.substring(0, 1000) : '',
+              location: job.location || 'United States',
+              work_type: job.employment_type || 'Full-time',
+              source: 'Google Jobs (SerpAPI)',
+              source_type: 'rss_feed',
+              source_url: job.apply_link || job.link,
+              posted_date: new Date().toISOString().split('T')[0],
+              status: 'new',
+              match_score: 0
+            })));
+          }
+        }
+      } catch (error) {
+        console.error(`Error fetching SerpAPI jobs for role "${role}":`, error.message);
+      }
+    }
+  } catch (error) {
+    console.error('Error in fetchSerpAPIJobs:', error.message);
+  }
+  return jobs;
+}
+
 function parseRSSFeed(xml, feedName, feedUrl) {
   const jobs = [];
   
