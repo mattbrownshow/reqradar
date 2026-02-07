@@ -219,16 +219,26 @@ export default function Settings() {
                         View
                       </Button>
                     </a>
-                    <label>
-                      <Button variant="outline" size="sm" className="gap-1.5 rounded-xl" disabled={isUploadingResume}>
-                        {isUploadingResume ? (
-                          <><Loader2 className="w-4 h-4 animate-spin" /> Uploading...</>
-                        ) : (
-                          <>Replace</>
-                        )}
-                      </Button>
-                      <input type="file" accept=".pdf,.docx" className="hidden" onChange={handleResumeUpload} />
-                    </label>
+                    <Button 
+                      variant="outline" 
+                      size="sm" 
+                      className="gap-1.5 rounded-xl" 
+                      disabled={isUploadingResume}
+                      onClick={() => resumeInputRef.current?.click()}
+                    >
+                      {isUploadingResume ? (
+                        <><Loader2 className="w-4 h-4 animate-spin" /> Uploading...</>
+                      ) : (
+                        <>Replace</>
+                      )}
+                    </Button>
+                    <input 
+                      ref={resumeInputRef}
+                      type="file" 
+                      accept=".pdf,.docx" 
+                      className="hidden" 
+                      onChange={handleResumeUpload} 
+                    />
                   </div>
                 </div>
               ) : (
