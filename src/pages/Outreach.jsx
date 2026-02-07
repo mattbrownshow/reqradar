@@ -90,8 +90,8 @@ export default function Outreach() {
     <div className="px-4 sm:px-6 py-8 space-y-6">
       <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
         <div>
-          <h1 className="text-2xl font-bold text-gray-900 tracking-tight">Connect with Decision Makers</h1>
-          <p className="text-sm text-gray-500 mt-2">Generate personalized outreach to executives at your target companies.</p>
+          <h1 className="text-2xl font-bold text-gray-900 tracking-tight">Outreach</h1>
+          <p className="text-sm text-gray-500 mt-2">Generate personalized messages to CEOs and decision makers at your target companies.</p>
         </div>
         <Button onClick={() => setShowCreate(true)} className="bg-[#F7931E] hover:bg-[#E07A0A] text-white rounded-xl gap-2">
           <Plus className="w-4 h-4" /> Create Outreach

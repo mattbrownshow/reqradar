@@ -61,9 +61,9 @@ export default function JobsPipeline() {
       <div className="mb-6">
         <h1 className="text-2xl font-bold text-gray-900 flex items-center gap-2">
           <Kanban className="w-6 h-6 text-[#F7931E]" />
-          Application Tracker
+          Jobs Pipeline
         </h1>
-        <p className="text-sm text-gray-500 mt-2">Move opportunities through your executive search workflow: Evaluating → Preparing → Submitted → In Process → Offer.</p>
+        <p className="text-sm text-gray-500 mt-2">Track your applications from Saved → Researching → Applied → Interviewing → Offer.</p>
       </div>
 
       <DragDropContext onDragEnd={onDragEnd}>
