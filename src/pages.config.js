@@ -51,14 +51,14 @@ import Analytics from './pages/Analytics';
 import CandidateSetup from './pages/CandidateSetup';
 import Companies from './pages/Companies';
 import CompanyDetail from './pages/CompanyDetail';
+import DailySuggestions from './pages/DailySuggestions';
 import Dashboard from './pages/Dashboard';
 import JobBoards from './pages/JobBoards';
+import JobsPipeline from './pages/JobsPipeline';
 import OpenRoles from './pages/OpenRoles';
 import Outreach from './pages/Outreach';
 import Pipeline from './pages/Pipeline';
 import Settings from './pages/Settings';
-import DailySuggestions from './pages/DailySuggestions';
-import JobsPipeline from './pages/JobsPipeline';
 import __Layout from './Layout.jsx';
 
 
@@ -67,14 +67,14 @@ export const PAGES = {
     "CandidateSetup": CandidateSetup,
     "Companies": Companies,
     "CompanyDetail": CompanyDetail,
+    "DailySuggestions": DailySuggestions,
     "Dashboard": Dashboard,
     "JobBoards": JobBoards,
+    "JobsPipeline": JobsPipeline,
     "OpenRoles": OpenRoles,
     "Outreach": Outreach,
     "Pipeline": Pipeline,
     "Settings": Settings,
-    "DailySuggestions": DailySuggestions,
-    "JobsPipeline": JobsPipeline,
 }
 
 export const pagesConfig = {
