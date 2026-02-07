@@ -123,47 +123,50 @@ export default function JobPreferencesCard() {
   }
 
   return (
-    <div className="bg-white border border-gray-100 rounded-2xl p-4 sm:p-6">
-      <div className="flex items-start justify-between mb-4">
-        <div>
-          <h3 className="font-semibold text-gray-900">Your Job Search Preferences</h3>
-          <p className="text-xs text-gray-500 mt-1">Last updated: {new Date(profile.updated_date || Date.now()).toLocaleDateString()}</p>
-        </div>
+    <div className="bg-white border border-gray-100 rounded-2xl p-4">
+      <div className="flex items-center justify-between gap-3 mb-3">
+        <h3 className="font-semibold text-gray-900 text-sm">Your Job Search Preferences</h3>
         <Link to={createPageUrl("Settings") + "?tab=job-search"}>
-          <Button variant="ghost" size="sm" className="gap-1.5 text-[#F7931E] hover:text-[#E07A0A] hover:bg-orange-50">
-            <Edit className="w-3.5 h-3.5" /> Edit in Settings
+          <Button variant="ghost" size="sm" className="gap-1.5 text-xs text-[#F7931E] hover:text-[#E07A0A] hover:bg-orange-50 h-7">
+            <Edit className="w-3 h-3" /> Edit in Settings
           </Button>
         </Link>
       </div>
 
-      <div className="space-y-2 text-sm">
+      <div className="flex flex-wrap items-center gap-x-4 gap-y-1 text-xs">
+        <p className="text-gray-400 text-[10px]">Last updated: {new Date(profile.updated_date || Date.now()).toLocaleDateString()}</p>
+        
         {profile.target_roles?.length > 0 && (
-          <div className="flex items-start gap-2">
-            <span className="text-gray-500 shrink-0">• Targeting:</span>
-            <span className="text-gray-900 font-medium">{profile.target_roles.slice(0, 2).join(", ")}{profile.target_roles.length > 2 && ` +${profile.target_roles.length - 2} more`}</span>
+          <div className="flex items-center gap-1.5">
+            <span className="text-gray-500">• Targeting:</span>
+            <span className="text-gray-900 font-medium">{profile.target_roles.join(", ")}</span>
           </div>
         )}
+        
         {profile.industries?.length > 0 && (
-          <div className="flex items-start gap-2">
-            <span className="text-gray-500 shrink-0">• Industries:</span>
-            <span className="text-gray-900">{profile.industries.slice(0, 2).join(", ")}{profile.industries.length > 2 && ` +${profile.industries.length - 2} more`}</span>
+          <div className="flex items-center gap-1.5">
+            <span className="text-gray-500">• Industries:</span>
+            <span className="text-gray-900">{profile.industries.join(", ")}</span>
           </div>
         )}
+        
         {profile.preferred_locations?.length > 0 && (
-          <div className="flex items-start gap-2">
-            <span className="text-gray-500 shrink-0">• Location:</span>
-            <span className="text-gray-900">{profile.preferred_locations.slice(0, 2).join(", ")}{profile.preferred_locations.length > 2 && ` +${profile.preferred_locations.length - 2} more`}</span>
+          <div className="flex items-center gap-1.5">
+            <span className="text-gray-500">• Locations:</span>
+            <span className="text-gray-900">{profile.preferred_locations.join(", ")}</span>
           </div>
         )}
+        
         {profile.remote_preferences?.length > 0 && (
-          <div className="flex items-start gap-2">
-            <span className="text-gray-500 shrink-0">• Remote:</span>
+          <div className="flex items-center gap-1.5">
+            <span className="text-gray-500">• Remote:</span>
             <span className="text-gray-900">{profile.remote_preferences.join(", ")}</span>
           </div>
         )}
+        
         {profile.min_salary && profile.max_salary && (
-          <div className="flex items-start gap-2">
-            <span className="text-gray-500 shrink-0">• Salary:</span>
+          <div className="flex items-center gap-1.5">
+            <span className="text-gray-500">• Salary:</span>
             <span className="text-gray-900">${profile.min_salary.toLocaleString()} - ${profile.max_salary.toLocaleString()}</span>
           </div>
         )}
