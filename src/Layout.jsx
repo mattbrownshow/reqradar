@@ -13,15 +13,17 @@ import {
   Menu,
   X,
   Search,
-  UserCircle
+  UserCircle,
+  Sparkles
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 
 const navItems = [
   { name: "Dashboard", icon: LayoutDashboard, page: "Dashboard" },
+  { name: "Suggestions", icon: Sparkles, page: "DailySuggestions" },
   { name: "Companies", icon: Building2, page: "Companies" },
   { name: "Open Roles", icon: Users, page: "OpenRoles" },
-  { name: "Pipeline", icon: Kanban, page: "Pipeline" },
+  { name: "Pipeline", icon: Kanban, page: "JobsPipeline" },
   { name: "Outreach", icon: Send, page: "Outreach" },
   { name: "Job Boards", icon: Rss, page: "JobBoards" },
   { name: "Analytics", icon: BarChart3, page: "Analytics" },

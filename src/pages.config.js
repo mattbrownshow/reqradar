@@ -57,6 +57,8 @@ import OpenRoles from './pages/OpenRoles';
 import Outreach from './pages/Outreach';
 import Pipeline from './pages/Pipeline';
 import Settings from './pages/Settings';
+import DailySuggestions from './pages/DailySuggestions';
+import JobsPipeline from './pages/JobsPipeline';
 import __Layout from './Layout.jsx';
 
 
@@ -71,6 +73,8 @@ export const PAGES = {
     "Outreach": Outreach,
     "Pipeline": Pipeline,
     "Settings": Settings,
+    "DailySuggestions": DailySuggestions,
+    "JobsPipeline": JobsPipeline,
 }
 
 export const pagesConfig = {
