@@ -83,8 +83,9 @@ export default function Settings() {
 
   const saveJobSearchMutation = useMutation({
     mutationFn: async () => {
-      if (!profile.id) throw new Error('No profile found');
-      await base44.entities.CandidateProfile.update(profile.id, jobSearchPrefs);
+      const profileToUpdate = profiles[0];
+      if (!profileToUpdate?.id) throw new Error('No profile found');
+      await base44.entities.CandidateProfile.update(profileToUpdate.id, jobSearchPrefs);
       // Sync RSS feeds with updated target roles
       await base44.functions.invoke('syncRSSFeeds', {});
     },
