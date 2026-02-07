@@ -5,10 +5,11 @@ import { base44 } from "@/api/base44Client";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { Button } from "@/components/ui/button";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { ArrowLeft, Loader2 } from "lucide-react";
+import { ArrowLeft, Loader2, Send } from "lucide-react";
 import CompanyHeader from "../components/company/CompanyHeader";
 import OverviewTab from "../components/company/OverviewTab";
 import ContactCard from "../components/company/ContactCard";
+import OutreachComposerModal from "../components/outreach/OutreachComposerModal";
 
 export default function CompanyDetail() {
   const queryClient = useQueryClient();
