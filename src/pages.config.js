@@ -51,7 +51,6 @@ import ActiveOpportunities from './pages/ActiveOpportunities';
 import Analytics from './pages/Analytics';
 import CandidateSetup from './pages/CandidateSetup';
 import Companies from './pages/Companies';
-import CompanyDetail from './pages/CompanyDetail';
 import DailySuggestions from './pages/DailySuggestions';
 import Dashboard from './pages/Dashboard';
 import Discover from './pages/Discover';
@@ -64,6 +63,7 @@ import OutlookCallback from './pages/OutlookCallback';
 import Outreach from './pages/Outreach';
 import Pipeline from './pages/Pipeline';
 import Settings from './pages/Settings';
+import CompanyDetail from './pages/CompanyDetail';
 import __Layout from './Layout.jsx';
 
 
@@ -72,7 +72,6 @@ export const PAGES = {
     "Analytics": Analytics,
     "CandidateSetup": CandidateSetup,
     "Companies": Companies,
-    "CompanyDetail": CompanyDetail,
     "DailySuggestions": DailySuggestions,
     "Dashboard": Dashboard,
     "Discover": Discover,
@@ -85,6 +84,7 @@ export const PAGES = {
     "Outreach": Outreach,
     "Pipeline": Pipeline,
     "Settings": Settings,
+    "CompanyDetail": CompanyDetail,
 }
 
 export const pagesConfig = {
