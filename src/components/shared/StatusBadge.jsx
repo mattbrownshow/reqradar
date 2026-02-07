@@ -8,6 +8,7 @@ const statusStyles = {
   partnership: "bg-emerald-50 text-emerald-700",
   closed: "bg-green-50 text-green-700",
   applied: "bg-blue-50 text-blue-700",
+  activated: "bg-blue-50 text-blue-700",
   screening: "bg-indigo-50 text-indigo-700",
   interview: "bg-purple-50 text-purple-700",
   offer: "bg-emerald-50 text-emerald-700",
@@ -30,7 +31,14 @@ const statusStyles = {
 
 export default function StatusBadge({ status }) {
   const style = statusStyles[status] || "bg-gray-100 text-gray-600";
-  const label = status?.replace(/_/g, " ").replace(/\b\w/g, (l) => l.toUpperCase());
+  
+  // Custom label mapping for specific statuses
+  const customLabels = {
+    applied: "Activated",
+    activated: "Activated"
+  };
+  
+  const label = customLabels[status] || status?.replace(/_/g, " ").replace(/\b\w/g, (l) => l.toUpperCase());
 
   return (
     <span className={`inline-flex items-center px-2.5 py-1 rounded-full text-xs font-semibold ${style}`}>
