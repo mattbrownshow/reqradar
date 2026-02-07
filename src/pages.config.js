@@ -56,9 +56,12 @@ import Dashboard from './pages/Dashboard';
 import JobBoards from './pages/JobBoards';
 import JobsPipeline from './pages/JobsPipeline';
 import OpenRoles from './pages/OpenRoles';
+import Outreach from './pages/Outreach';
 import Pipeline from './pages/Pipeline';
 import Settings from './pages/Settings';
-import Outreach from './pages/Outreach';
+import Discover from './pages/Discover';
+import DiscoverySources from './pages/DiscoverySources';
+import ActiveOpportunities from './pages/ActiveOpportunities';
 import __Layout from './Layout.jsx';
 
 
@@ -72,9 +75,12 @@ export const PAGES = {
     "JobBoards": JobBoards,
     "JobsPipeline": JobsPipeline,
     "OpenRoles": OpenRoles,
+    "Outreach": Outreach,
     "Pipeline": Pipeline,
     "Settings": Settings,
-    "Outreach": Outreach,
+    "Discover": Discover,
+    "DiscoverySources": DiscoverySources,
+    "ActiveOpportunities": ActiveOpportunities,
 }
 
 export const pagesConfig = {

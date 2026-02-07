@@ -7,10 +7,9 @@ export default function Layout({ children, currentPageName }) {
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
 
   const phaseMap = {
-    "DailySuggestions": 'discover',
-    "Companies": 'discover',
-    "JobBoards": 'discover',
-    "OpenRoles": 'qualify',
+    "Discover": 'discover',
+    "DiscoverySources": 'discover',
+    "ActiveOpportunities": 'qualify',
     "JobsPipeline": 'pursue',
     "Outreach": 'pursue',
     "Analytics": 'analyze'
@@ -137,19 +136,17 @@ export default function Layout({ children, currentPageName }) {
                 <div className={`phase-group ${currentPhase === 'discover' ? 'active' : ''}`} data-phase="discover">
                   <div className="phase-label">Discover</div>
                   <div className="phase-links">
-                    <Link to={createPageUrl("DailySuggestions")}>Discovery Engine</Link>
-                    <Link to={createPageUrl("Companies")}>Target Companies</Link>
-                    <Link to={createPageUrl("JobBoards")}>Auto-Monitoring</Link>
+                    <Link to={createPageUrl("Discover")}>Discovery Engine</Link>
                   </div>
                 </div>
-                
+
                 <div className="phase-separator">→</div>
-                
+
                 {/* Qualify Phase */}
                 <div className={`phase-group ${currentPhase === 'qualify' ? 'active' : ''}`} data-phase="qualify">
                   <div className="phase-label">Qualify</div>
                   <div className="phase-links">
-                    <Link to={createPageUrl("OpenRoles")}>Open Roles</Link>
+                    <Link to={createPageUrl("ActiveOpportunities")}>Active Opportunities</Link>
                   </div>
                 </div>
                 
@@ -203,10 +200,8 @@ export default function Layout({ children, currentPageName }) {
             <div className="lg:hidden border-t border-gray-100 bg-white">
               <div className="px-4 py-3 space-y-1">
                 <Link to={createPageUrl("Dashboard")} onClick={() => setMobileMenuOpen(false)} className="block px-3 py-2 rounded-lg text-sm font-medium text-gray-600 hover:bg-gray-50">Dashboard</Link>
-                <Link to={createPageUrl("DailySuggestions")} onClick={() => setMobileMenuOpen(false)} className="block px-3 py-2 rounded-lg text-sm font-medium text-gray-600 hover:bg-gray-50">Discovery Engine</Link>
-                <Link to={createPageUrl("Companies")} onClick={() => setMobileMenuOpen(false)} className="block px-3 py-2 rounded-lg text-sm font-medium text-gray-600 hover:bg-gray-50">Target Companies</Link>
-                <Link to={createPageUrl("JobBoards")} onClick={() => setMobileMenuOpen(false)} className="block px-3 py-2 rounded-lg text-sm font-medium text-gray-600 hover:bg-gray-50">Auto-Monitoring</Link>
-                <Link to={createPageUrl("OpenRoles")} onClick={() => setMobileMenuOpen(false)} className="block px-3 py-2 rounded-lg text-sm font-medium text-gray-600 hover:bg-gray-50">Open Roles</Link>
+                <Link to={createPageUrl("Discover")} onClick={() => setMobileMenuOpen(false)} className="block px-3 py-2 rounded-lg text-sm font-medium text-gray-600 hover:bg-gray-50">Discover</Link>
+                <Link to={createPageUrl("ActiveOpportunities")} onClick={() => setMobileMenuOpen(false)} className="block px-3 py-2 rounded-lg text-sm font-medium text-gray-600 hover:bg-gray-50">Active Opportunities</Link>
                 <Link to={createPageUrl("JobsPipeline")} onClick={() => setMobileMenuOpen(false)} className="block px-3 py-2 rounded-lg text-sm font-medium text-gray-600 hover:bg-gray-50">Pipeline</Link>
                 <Link to={createPageUrl("Outreach")} onClick={() => setMobileMenuOpen(false)} className="block px-3 py-2 rounded-lg text-sm font-medium text-gray-600 hover:bg-gray-50">Outreach</Link>
                 <Link to={createPageUrl("Analytics")} onClick={() => setMobileMenuOpen(false)} className="block px-3 py-2 rounded-lg text-sm font-medium text-gray-600 hover:bg-gray-50">Analytics</Link>
