@@ -204,7 +204,7 @@ export default function OutreachComposerModal({ company, contacts, roles, user, 
                   {[
                     { value: 'linkedin_connection', label: 'LinkedIn Connection Request (300 char)' },
                     { value: 'linkedin_inmail', label: 'LinkedIn InMail (2000 char)' },
-                    { value: 'email', label: 'Email (no limit)' }
+                    { value: 'email', label: `Email ${emailConnected ? '(direct send)' : '(copy & paste)'}` }
                   ].map(option => (
                     <label key={option.value} className="flex items-center gap-2 cursor-pointer">
                       <input
@@ -220,6 +220,20 @@ export default function OutreachComposerModal({ company, contacts, roles, user, 
                   ))}
                 </div>
               </div>
+
+              {/* Email Subject (shown when email selected) */}
+              {messageType === 'email' && (
+                <div>
+                  <label className="block text-sm font-semibold text-gray-900 mb-2">Email Subject</label>
+                  <input
+                    type="text"
+                    value={subjectLine}
+                    onChange={(e) => setSubjectLine(e.target.value)}
+                    placeholder="Email subject line"
+                    className="w-full px-3 py-2 border border-gray-200 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-orange-500"
+                  />
+                </div>
+              )}
 
               {/* Tone */}
               <div>
