@@ -75,11 +75,7 @@ export default function JobBoards() {
       <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
         <div>
           <h1 className="text-2xl font-bold text-gray-900 tracking-tight">Job Boards</h1>
-          <p className="text-sm text-gray-500 mt-1">
-            {feeds.length === 0 && !feedsLoading 
-              ? "No RSS feeds configured yet" 
-              : `Monitoring ${feeds.length} RSS feed${feeds.length !== 1 ? 's' : ''} for executive opportunities`}
-          </p>
+          <p className="text-sm text-gray-600 mt-2 max-w-3xl">Configure and manage external job board feeds to automatically pull relevant job postings into your "Open Roles" list.</p>
         </div>
         <div className="flex gap-2">
           <JobPreferencesCard />
