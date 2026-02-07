@@ -17,9 +17,12 @@ Deno.serve(async (req) => {
     console.log(`User: ${user.email}, Target Roles: ${targetRoles.join(', ') || 'NONE'}`);
 
     // Get all active RSS feeds
-    const feeds = await base44.entities.RSSFeed.filter({ status: 'active' });
+    const feeds = await base44.asServiceRole.entities.RSSFeed.filter({ status: 'active' });
+    
+    console.log(`Found ${feeds.length} active feeds`);
     
     if (!feeds || feeds.length === 0) {
+      console.log('No active feeds found');
       return Response.json({ 
         success: true,
         message: 'No active feeds to sync',
