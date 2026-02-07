@@ -22,6 +22,7 @@ export default function Settings() {
   const queryClient = useQueryClient();
   const [user, setUser] = useState(null);
   const [isUploadingResume, setIsUploadingResume] = useState(false);
+  const resumeInputRef = React.useRef(null);
   const [autoApplySettings, setAutoApplySettings] = useState({
     daily_limit: 10,
     match_threshold: 70,
