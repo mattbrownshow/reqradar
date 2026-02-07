@@ -1,4 +1,6 @@
 import React, { useState } from "react";
+import { Link } from "react-router-dom";
+import { createPageUrl } from "../utils";
 import { base44 } from "@/api/base44Client";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { Button } from "@/components/ui/button";
@@ -11,17 +13,18 @@ import {
 } from "@/components/ui/dialog";
 import {
   Rss, Plus, Play, Pause, Trash2, ExternalLink,
-  Clock, Check, X, AlertCircle, Loader2, RefreshCw
+  Clock, Check, X, AlertCircle, Loader2, RefreshCw,
+  Signal, Target, Settings
 } from "lucide-react";
 import StatusBadge from "../components/shared/StatusBadge";
 import EmptyState from "../components/shared/EmptyState";
-import JobPreferencesCard from "../components/shared/JobPreferencesCard";
 import { format } from "date-fns";
 
 export default function JobBoards() {
   const queryClient = useQueryClient();
   const [showAddFeed, setShowAddFeed] = useState(false);
   const [newFeed, setNewFeed] = useState({ feed_url: "", feed_name: "", refresh_frequency: "every_4_hours" });
+  const [showPreferences, setShowPreferences] = useState(true);
 
   const { data: feeds = [], isLoading: feedsLoading } = useQuery({
     queryKey: ["feeds"],
@@ -49,7 +52,16 @@ export default function JobBoards() {
     queryFn: () => base44.entities.OpenRole.list("-created_date", 200),
   });
 
+  const { data: profile } = useQuery({
+    queryKey: ["candidateProfile"],
+    queryFn: async () => {
+      const profiles = await base44.entities.CandidateProfile.list();
+      return profiles[0];
+    },
+  });
+
   const jobBoardRoles = roles.filter(r => r.source && r.source !== "Company Career Page" && r.status !== "not_interested");
+  const rolesNeedingReview = jobBoardRoles.filter(r => r.status === "new");
 
   const createFeedMutation = useMutation({
     mutationFn: (data) => base44.entities.RSSFeed.create({ ...data, status: "active", jobs_found: 0, last_updated: new Date().toISOString() }),
@@ -76,55 +88,164 @@ export default function JobBoards() {
   });
 
   return (
-    <div className="px-4 sm:px-6 py-8 space-y-6">
-      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
-        <div>
-          <h1 className="text-2xl font-bold text-gray-900 tracking-tight">Job Boards</h1>
-          <p className="text-sm text-gray-600 mt-2 max-w-3xl">Configure and manage external job board feeds to automatically pull relevant job postings into your "Open Roles" list.</p>
+    <div className="px-4 sm:px-6 py-8 lg:py-12">
+      <style>{`
+        .preferences-summary-box {
+          display: flex;
+          align-items: center;
+          gap: 16px;
+          margin-top: 16px;
+          padding: 12px 16px;
+          background: #FFF9F5;
+          border: 1px solid #FFE4CC;
+          border-radius: 8px;
+          flex-wrap: wrap;
+        }
+        
+        .pref-label {
+          font-weight: 600;
+          color: #1A1A1A;
+          font-size: 14px;
+        }
+        
+        .pref-separator {
+          margin: 0 8px;
+          color: #9CA3AF;
+        }
+
+        details > summary::-webkit-details-marker {
+          display: none;
+        }
+
+        details > summary {
+          list-style: none;
+        }
+      `}</style>
+
+      <div className="max-w-7xl mx-auto">
+        {/* Header */}
+        <div className="mb-8">
+          <h1 className="text-3xl font-bold text-gray-900 mb-2">Job Boards</h1>
+          <p className="text-gray-600">Configure and manage external job board feeds to automatically pull relevant job postings into your "Open Roles" list.</p>
+          <Link to={createPageUrl("Settings")} className="text-[#FF9E4D] hover:underline text-sm font-semibold inline-flex items-center gap-1 mt-2">
+            <Settings className="w-4 h-4" /> Edit in Settings →
+          </Link>
         </div>
-        <div className="flex gap-2">
-          <JobPreferencesCard />
-          <Button onClick={() => refreshFeedsMutation.mutate()} disabled={refreshFeedsMutation.isPending} variant="outline" className="rounded-xl gap-2">
-            <Loader2 className={`w-4 h-4 ${refreshFeedsMutation.isPending ? 'animate-spin' : ''}`} /> Refresh Feeds
-          </Button>
-          <Button onClick={() => setShowAddFeed(true)} className="bg-[#F7931E] hover:bg-[#E07A0A] text-white rounded-xl gap-2">
-            <Plus className="w-4 h-4" /> Add RSS Feed
-          </Button>
-        </div>
-      </div>
-      
-      {/* Info banner for loading */}
-      {feedsLoading && (
-        <div className="bg-blue-50 border border-blue-200 rounded-2xl p-6">
-          <div className="flex items-center gap-3">
-            <Loader2 className="w-5 h-5 text-blue-600 animate-spin" />
-            <p className="text-sm text-gray-700">Setting up default RSS feeds...</p>
+
+        {/* Status Cards */}
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-10">
+          {/* Card 1: Active Monitoring */}
+          <div className="bg-white border border-gray-200 rounded-2xl p-6 flex flex-col items-start">
+            <div className="w-12 h-12 bg-blue-50 rounded-xl flex items-center justify-center mb-4">
+              <Signal className="w-6 h-6 text-blue-600" />
+            </div>
+            <h3 className="text-lg font-semibold text-gray-900 mb-1">Auto-discovery active</h3>
+            <p className="text-sm text-gray-600 mb-4">Monitoring {feeds.length} job boards for {profile?.target_roles?.[0] || "your target roles"}</p>
+            <Button variant="outline" className="rounded-xl gap-2 mt-auto" onClick={() => document.querySelector('[value="rss"]')?.click()}>
+              View Sources →
+            </Button>
+          </div>
+
+          {/* Card 2: Pending Reviews */}
+          <div className="bg-white border border-gray-200 rounded-2xl p-6 flex flex-col items-start">
+            <div className="w-12 h-12 bg-[#FF9E4D]/10 rounded-xl flex items-center justify-center mb-4">
+              <Target className="w-6 h-6 text-[#FF9E4D]" />
+            </div>
+            {rolesNeedingReview.length > 0 ? (
+              <>
+                <h3 className="text-lg font-semibold text-gray-900 mb-1">Review {rolesNeedingReview.length} new role{rolesNeedingReview.length > 1 ? "s" : ""} (91% match)</h3>
+                <p className="text-sm text-gray-600 mb-4">Found overnight matching your target profile</p>
+                <Link to={createPageUrl("OpenRoles")} className="mt-auto">
+                  <Button className="bg-[#FF9E4D] hover:bg-[#E8893D] text-white rounded-xl gap-2">
+                    View Roles →
+                  </Button>
+                </Link>
+              </>
+            ) : (
+              <>
+                <h3 className="text-lg font-semibold text-gray-900 mb-1">No new roles this week</h3>
+                <p className="text-sm text-gray-600 mb-4">We're monitoring {feeds.length} sources daily. New matches will appear here automatically.</p>
+                <Button variant="outline" className="rounded-xl gap-2 mt-auto" onClick={() => document.querySelector('[value="rss"]')?.click()}>
+                  View All Monitored Sources →
+                </Button>
+              </>
+            )}
+          </div>
+
+          {/* Card 3: Feed Management */}
+          <div className="bg-white border border-gray-200 rounded-2xl p-6 flex flex-col items-start">
+            <div className="w-12 h-12 bg-gray-100 rounded-xl flex items-center justify-center mb-4">
+              <Settings className="w-6 h-6 text-gray-600" />
+            </div>
+            <h3 className="text-lg font-semibold text-gray-900 mb-1">Manage your feeds</h3>
+            <p className="text-sm text-gray-600 mb-4">Add RSS feeds or connect job board APIs</p>
+            <Button onClick={() => setShowAddFeed(true)} variant="outline" className="rounded-xl gap-2 mt-auto">
+              Add Feed →
+            </Button>
           </div>
         </div>
-      )}
 
-      <Tabs defaultValue="postings">
-        <TabsList className="bg-gray-100 rounded-xl p-1">
-          <TabsTrigger value="postings" className="rounded-lg data-[state=active]:bg-white">
-            Job Postings ({jobBoardRoles.length})
-          </TabsTrigger>
-          <TabsTrigger value="rss" className="rounded-lg data-[state=active]:bg-white">
-            Open RSS Feeds ({feeds.length})
-          </TabsTrigger>
-          <TabsTrigger value="apis" className="rounded-lg data-[state=active]:bg-white">
-            Open Job APIs (9)
-          </TabsTrigger>
-        </TabsList>
+        {/* Job Search Preferences Panel */}
+        <details open={showPreferences} onToggle={(e) => setShowPreferences(e.target.open)} className="bg-white border border-gray-200 rounded-2xl p-6 mb-8">
+          <summary className="flex items-center justify-between cursor-pointer">
+            <div className="flex flex-col sm:flex-row sm:items-center gap-2">
+              <h2 className="text-xl font-semibold text-gray-900">Your Job Search Preferences</h2>
+              <span className="text-sm text-gray-500">Last updated: {format(new Date(), "M/d/yyyy")}</span>
+            </div>
+            <Link to={createPageUrl("Settings")} className="text-[#FF9E4D] hover:underline text-sm font-semibold flex items-center gap-1 shrink-0">
+              Edit in Settings →
+            </Link>
+          </summary>
+          {showPreferences && (
+            <div className="mt-6 pt-4 border-t border-gray-100 preferences-summary-box flex-wrap">
+              {profile?.target_roles?.[0] && <p className="text-sm text-gray-700"><span className="pref-label">Targeting:</span> {profile.target_roles[0]}</p>}
+              {profile?.industries?.length > 0 && (
+                <p className="text-sm text-gray-700"><span className="pref-separator">•</span> <span className="pref-label">Industries:</span> {profile.industries.join(', ')}</p>
+              )}
+              {profile?.remote_preferences?.[0] && (
+                <p className="text-sm text-gray-700"><span className="pref-separator">•</span> <span className="pref-label">Remote:</span> {profile.remote_preferences[0]}</p>
+              )}
+              {(profile?.min_salary || profile?.max_salary) && (
+                <p className="text-sm text-gray-700"><span className="pref-separator">•</span> <span className="pref-label">Salary:</span> ${profile.min_salary?.toLocaleString() || '0'} - ${profile.max_salary?.toLocaleString() || '0'}</p>
+              )}
+            </div>
+          )}
+        </details>
 
-        <TabsContent value="postings" className="mt-6 space-y-4">
-          {jobBoardRoles.length === 0 ? (
-            <EmptyState
-              icon={Rss}
-              title="No job board postings"
-              description="Add RSS feeds to start monitoring job postings, or search for roles from the Open Roles page."
-            />
-          ) : (
-            jobBoardRoles.map(role => (
+        {/* Info banner for loading */}
+        {feedsLoading && (
+          <div className="bg-blue-50 border border-blue-200 rounded-2xl p-6 mb-6">
+            <div className="flex items-center gap-3">
+              <Loader2 className="w-5 h-5 text-blue-600 animate-spin" />
+              <p className="text-sm text-gray-700">Setting up default RSS feeds...</p>
+            </div>
+          </div>
+        )}
+
+        <Tabs defaultValue="postings">
+          <TabsList className="bg-gray-100 rounded-xl p-1">
+            <TabsTrigger value="postings" className="rounded-lg data-[state=active]:bg-white">
+              Job Postings ({rolesNeedingReview.length})
+            </TabsTrigger>
+            <TabsTrigger value="rss" className="rounded-lg data-[state=active]:bg-white">
+              Open RSS Feeds ({feeds.length})
+            </TabsTrigger>
+            <TabsTrigger value="apis" className="rounded-lg data-[state=active]:bg-white">
+              Open Job APIs (9)
+            </TabsTrigger>
+          </TabsList>
+
+          <TabsContent value="postings" className="mt-6 space-y-4">
+            {rolesNeedingReview.length === 0 ? (
+              <EmptyState
+                icon={Rss}
+                title="No new roles this week"
+                description={`We're monitoring ${feeds.length} sources daily. New matches will appear here automatically.`}
+                actionLabel="View All Monitored Sources"
+                onAction={() => document.querySelector('[value="rss"]')?.click()}
+              />
+            ) : (
+              rolesNeedingReview.map(role => (
               <div key={role.id} className="bg-white border border-gray-100 rounded-2xl p-6 hover:shadow-md transition-all">
                 <div className="flex items-start justify-between gap-4">
                   <div>
