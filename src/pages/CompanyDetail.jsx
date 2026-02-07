@@ -88,10 +88,20 @@ export default function CompanyDetail() {
     enabled: !!companyId || !!companyName,
   });
 
+  // Load roles by company ID, and also search by company name if no ID-based roles found
   const { data: roles = [] } = useQuery({
-    queryKey: ["roles", companyId],
-    queryFn: () => base44.entities.OpenRole.filter({ company_id: companyId }),
-    enabled: !!companyId,
+    queryKey: ["roles", companyId, companyName],
+    queryFn: async () => {
+      if (companyId) {
+        return base44.entities.OpenRole.filter({ company_id: companyId });
+      } else if (companyName) {
+        // Fallback: search by company name
+        const decodedName = decodeURIComponent(companyName);
+        return base44.entities.OpenRole.filter({ company_name: decodedName });
+      }
+      return [];
+    },
+    enabled: !!companyId || !!companyName,
   });
 
   const addContactMutation = useMutation({
