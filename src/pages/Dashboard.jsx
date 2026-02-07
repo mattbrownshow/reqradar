@@ -6,7 +6,7 @@ import { useQuery } from "@tanstack/react-query";
 import {
   Building2, FileText, Handshake, CalendarDays,
   ArrowUpRight, Search, Target, Clock, CheckCircle2,
-  Send, MessageSquare, TrendingUp, ChevronRight, MapPin, Users
+  Send, MessageSquare, TrendingUp, ChevronRight, MapPin, Users, ChevronDown
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import MetricCard from "../components/shared/MetricCard";
@@ -14,9 +14,20 @@ import StatusBadge from "../components/shared/StatusBadge";
 import { format } from "date-fns";
 
 export default function Dashboard() {
+  const [userName, setUserName] = useState("User");
   const { data: companies = [] } = useQuery({
     queryKey: ["companies"],
     queryFn: () => base44.entities.Company.list("-created_date", 100),
+  });
+
+  const { data: openRoles = [] } = useQuery({
+    queryKey: ["openRoles"],
+    queryFn: () => base44.entities.OpenRole.list("-created_date", 100),
+  });
+
+  const { data: jobPipeline = [] } = useQuery({
+    queryKey: ["jobPipeline"],
+    queryFn: () => base44.entities.JobPipeline.list("-created_date", 100),
   });
 
   const { data: applications = [] } = useQuery({
@@ -34,9 +45,38 @@ export default function Dashboard() {
     queryFn: () => base44.entities.ActivityLog.list("-created_date", 20),
   });
 
+  const { data: rssFeeds = [] } = useQuery({
+    queryKey: ["rssFeeds"],
+    queryFn: () => base44.entities.RSSFeed.list(),
+  });
+
+  useEffect(() => {
+    const fetchUser = async () => {
+      try {
+        const user = await base44.auth.me();
+        setUserName(user?.full_name?.split(' ')[0] || 'User');
+      } catch (error) {
+        console.error("Failed to fetch user:", error);
+      }
+    };
+    fetchUser();
+  }, []);
+
   const interviews = applications.filter(a => a.status === "interview");
   const sentOutreach = outreach.filter(o => o.status !== "draft");
   const responses = outreach.filter(o => o.status === "responded");
+  
+  // Calculate dashboard data
+  const newRoles = openRoles.filter(r => r.status === 'new').length;
+  const highestMatch = newRoles > 0 ? Math.max(...openRoles.filter(r => r.status === 'new').map(r => r.match_score || 0)) : 0;
+  const applicationsInProgress = jobPipeline.filter(j => !['rejected', 'not_interested', 'offer'].includes(j.stage)).length;
+  const activeMonitors = rssFeeds.filter(f => f.status === 'active').length;
+  
+  // Weekly stats - last 7 days
+  const weekAgo = new Date(Date.now() - 7 * 24 * 60 * 60 * 1000);
+  const weeklyDiscovered = openRoles.filter(r => new Date(r.created_date) > weekAgo).length;
+  const weeklyApplied = jobPipeline.filter(j => j.applied_at && new Date(j.applied_at) > weekAgo).length;
+  const weeklyInterviews = jobPipeline.filter(j => j.interview_date && new Date(j.interview_date) > weekAgo).length;
 
   const activityIcons = {
     application: <FileText className="w-4 h-4 text-blue-500" />,
@@ -47,75 +87,298 @@ export default function Dashboard() {
     company_added: <Building2 className="w-4 h-4 text-gray-500" />,
   };
 
+  // Determine status message
+  let statusMessage = '';
+  if (newRoles > 0) {
+    statusMessage = `${newRoles} high-match ${newRoles === 1 ? 'role needs' : 'roles need'} your attention`;
+  } else if (applicationsInProgress > 0) {
+    statusMessage = `You have ${applicationsInProgress} ${applicationsInProgress === 1 ? 'application' : 'applications'} in progress`;
+  } else {
+    statusMessage = `Ready to discover opportunities`;
+  }
+
+  // Determine action cards
+  let primaryCard, secondaryCard, tertiaryCard;
+  
+  if (newRoles > 0) {
+    primaryCard = {
+      icon: '🎯',
+      title: `Review ${newRoles} new ${newRoles === 1 ? 'role' : 'roles'}${highestMatch > 0 ? ` (${highestMatch}% match)` : ''}`,
+      description: 'Found overnight matching your target profile',
+      ctaText: 'View Roles →',
+      ctaLink: createPageUrl('OpenRoles')
+    };
+  } else if (companies.length < 5) {
+    primaryCard = {
+      icon: '🎯',
+      title: 'Discover new opportunities',
+      description: 'Search thousands of companies hiring for your target role',
+      ctaText: 'Start Searching →',
+      ctaLink: createPageUrl('Companies')
+    };
+  } else {
+    primaryCard = {
+      icon: '🎯',
+      title: 'Check daily suggestions',
+      description: 'AI discovers new matching companies overnight',
+      ctaText: 'View Suggestions →',
+      ctaLink: createPageUrl('DailySuggestions')
+    };
+  }
+  
+  if (applicationsInProgress > 0) {
+    secondaryCard = {
+      icon: '📊',
+      title: `${applicationsInProgress} ${applicationsInProgress === 1 ? 'application' : 'applications'} in progress`,
+      description: 'Continue with next steps',
+      ctaText: 'Continue →',
+      ctaLink: createPageUrl('JobsPipeline')
+    };
+  } else {
+    secondaryCard = {
+      icon: '📊',
+      title: 'Manage your pipeline',
+      description: 'Track applications and interviews',
+      ctaText: 'View Pipeline →',
+      ctaLink: createPageUrl('JobsPipeline')
+    };
+  }
+  
+  tertiaryCard = {
+    icon: '💼',
+    title: 'Auto-monitoring active',
+    description: `Checking ${activeMonitors} ${activeMonitors === 1 ? 'source' : 'sources'} for new roles daily`,
+    ctaText: 'Manage Sources →',
+    ctaLink: createPageUrl('JobBoards')
+  };
+
   return (
-    <div className="px-4 sm:px-6 py-8 space-y-8">
-      {/* Hero */}
-      <div className="relative overflow-hidden bg-gradient-to-br from-[#FEF3E2] via-white to-orange-50 rounded-3xl p-8 sm:p-12">
-        <div className="absolute top-0 right-0 w-64 h-64 bg-[#F7931E] opacity-5 rounded-full -translate-y-32 translate-x-32" />
-        <div className="relative">
-          <h1 className="text-3xl sm:text-4xl font-bold text-gray-900 tracking-tight">
-            Welcome to <span style={{ color: "#F7931E" }}>Flowzyn</span>
-          </h1>
-          <p className="mt-3 text-gray-500 text-lg max-w-xl">
-            Executive job search excellence powered by AI automation
-          </p>
-          <div className="mt-6 flex flex-wrap gap-3">
-            <Link to={createPageUrl("Companies")}>
-              <Button className="bg-[#F7931E] hover:bg-[#E07A0A] text-white rounded-xl gap-2">
-                <Building2 className="w-4 h-4" />
-                View All Companies
-              </Button>
-            </Link>
-            <Link to={createPageUrl("OpenRoles")}>
-              <Button variant="outline" className="rounded-xl gap-2 border-gray-200">
-                <FileText className="w-4 h-4" />
-                View All Roles
-              </Button>
-            </Link>
+    <div className="px-4 sm:px-6 py-8 lg:py-12 space-y-8">
+      <style>{`
+        .dashboard-header h1 {
+          font-size: 32px;
+          font-weight: 700;
+          color: #1A1A1A;
+          margin-bottom: 8px;
+        }
+        
+        .status-message {
+          font-size: 18px;
+          color: #6B7280;
+        }
+        
+        .action-card {
+          background: white;
+          border: 2px solid #E5E5E5;
+          border-radius: 12px;
+          padding: 24px;
+          display: flex;
+          flex-direction: column;
+          gap: 16px;
+          transition: all 0.2s;
+        }
+        
+        .action-card:hover {
+          border-color: #FF9E4D;
+          box-shadow: 0 4px 12px rgba(255, 158, 77, 0.1);
+        }
+        
+        .action-card.priority {
+          border-color: #FF9E4D;
+          background: linear-gradient(135deg, #FFF9F5 0%, #FFFFFF 100%);
+        }
+        
+        .card-icon {
+          font-size: 32px;
+          line-height: 1;
+        }
+        
+        .card-title {
+          font-size: 18px;
+          font-weight: 600;
+          color: #1A1A1A;
+          margin-bottom: 8px;
+        }
+        
+        .card-description {
+          font-size: 14px;
+          color: #6B7280;
+          line-height: 1.5;
+        }
+        
+        .card-cta {
+          background: #FF9E4D;
+          color: white;
+          border: none;
+          padding: 12px 24px;
+          border-radius: 8px;
+          font-weight: 600;
+          cursor: pointer;
+          transition: background 0.2s;
+        }
+        
+        .card-cta:hover {
+          background: #E8893D;
+        }
+        
+        .action-card:not(.priority) .card-cta {
+          background: transparent;
+          color: #FF9E4D;
+          border: 2px solid #FF9E4D;
+        }
+        
+        .action-card:not(.priority) .card-cta:hover {
+          background: #FFF9F5;
+        }
+        
+        .weekly-summary {
+          background: white;
+          border: 1px solid #E5E5E5;
+          border-radius: 12px;
+          padding: 24px;
+        }
+        
+        .weekly-summary summary {
+          display: flex;
+          justify-content: space-between;
+          align-items: center;
+          cursor: pointer;
+          list-style: none;
+          font-weight: 600;
+          color: #1A1A1A;
+        }
+        
+        .weekly-summary summary::-webkit-details-marker {
+          display: none;
+        }
+        
+        .weekly-summary[open] .chevron-icon {
+          transform: rotate(180deg);
+        }
+        
+        .stat-row {
+          display: flex;
+          justify-content: space-between;
+          padding: 12px 0;
+          border-bottom: 1px solid #F3F4F6;
+        }
+        
+        .stat-label {
+          color: #6B7280;
+          font-size: 14px;
+        }
+        
+        .stat-value {
+          color: #1A1A1A;
+          font-weight: 600;
+          font-size: 16px;
+        }
+      `}</style>
+
+      {/* Dashboard Header */}
+      <div className="dashboard-header">
+        <h1>Good morning, {userName}</h1>
+        <p className="status-message">{statusMessage}</p>
+      </div>
+
+      {/* Action Cards */}
+      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+        {/* Primary Card */}
+        <div className="action-card priority">
+          <div className="card-icon">{primaryCard.icon}</div>
+          <div>
+            <h3 className="card-title">{primaryCard.title}</h3>
+            <p className="card-description">{primaryCard.description}</p>
           </div>
+          <button className="card-cta" onClick={() => window.location.href = primaryCard.ctaLink}>{primaryCard.ctaText}</button>
+        </div>
+
+        {/* Secondary Card */}
+        <div className="action-card">
+          <div className="card-icon">{secondaryCard.icon}</div>
+          <div>
+            <h3 className="card-title">{secondaryCard.title}</h3>
+            <p className="card-description">{secondaryCard.description}</p>
+          </div>
+          <button className="card-cta" onClick={() => window.location.href = secondaryCard.ctaLink}>{secondaryCard.ctaText}</button>
+        </div>
+
+        {/* Tertiary Card */}
+        <div className="action-card">
+          <div className="card-icon">{tertiaryCard.icon}</div>
+          <div>
+            <h3 className="card-title">{tertiaryCard.title}</h3>
+            <p className="card-description">{tertiaryCard.description}</p>
+          </div>
+          <button className="card-cta" onClick={() => window.location.href = tertiaryCard.ctaLink}>{tertiaryCard.ctaText}</button>
         </div>
       </div>
 
-      {/* Metrics */}
-      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
-        <MetricCard
-          icon={Building2}
-          title="Total Companies"
-          value={companies.length}
-          subtitle="In your target list"
-          trend={companies.length > 0 ? `${companies.length} tracked` : "Start adding companies"}
-        />
-        <MetricCard
-          icon={FileText}
-          title="Applications"
-          value={applications.length}
-          subtitle="Submitted"
-          trend={applications.filter(a => {
-            const d = new Date(a.created_date);
-            const now = new Date();
-            return d > new Date(now - 7 * 24 * 60 * 60 * 1000);
-          }).length + " this week"}
-          bgColor="bg-blue-50"
-          iconColor="text-blue-500"
-        />
-        <MetricCard
-          icon={Handshake}
-          title="Outreach Sent"
-          value={sentOutreach.length}
-          subtitle="To decision makers"
-          trend={responses.length + " responses"}
-          bgColor="bg-purple-50"
-          iconColor="text-purple-500"
-        />
-        <MetricCard
-          icon={CalendarDays}
-          title="Interviews"
-          value={interviews.length}
-          subtitle={interviews.length > 0 ? "Active interviews" : "No upcoming interviews"}
-          bgColor="bg-emerald-50"
-          iconColor="text-emerald-500"
-        />
-      </div>
+      {/* Weekly Summary */}
+      <details className="weekly-summary">
+        <summary>
+          <span>This week: {weeklyDiscovered} roles discovered, {weeklyApplied} applied, {weeklyInterviews} interviews</span>
+          <ChevronDown className="w-4 h-4 transition-transform chevron-icon" />
+        </summary>
+        <div className="mt-6 pt-6 border-t border-gray-200">
+          <div className="stat-row">
+            <span className="stat-label">Roles discovered</span>
+            <span className="stat-value">{weeklyDiscovered}</span>
+          </div>
+          <div className="stat-row">
+            <span className="stat-label">Applications submitted</span>
+            <span className="stat-value">{weeklyApplied}</span>
+          </div>
+          <div className="stat-row">
+            <span className="stat-label">Interviews scheduled</span>
+            <span className="stat-value">{weeklyInterviews}</span>
+          </div>
+          <Link to={createPageUrl("Analytics")} className="inline-block mt-4 text-[#FF9E4D] font-semibold text-sm hover:underline">
+            View full analytics →
+          </Link>
+        </div>
+      </details>
+
+      {/* All Metrics Collapsible */}
+      <details className="bg-white border border-gray-100 rounded-2xl p-6">
+        <summary className="cursor-pointer text-gray-600 text-sm font-medium">View all metrics</summary>
+        <div className="mt-6 grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
+
+          <MetricCard
+            icon={Building2}
+            title="Total Companies"
+            value={companies.length}
+            subtitle="In your target list"
+            trend={companies.length > 0 ? `${companies.length} tracked` : "Start adding companies"}
+          />
+          <MetricCard
+            icon={FileText}
+            title="Applications"
+            value={applications.length}
+            subtitle="Submitted"
+            trend={weeklyApplied + " this week"}
+            bgColor="bg-blue-50"
+            iconColor="text-blue-500"
+          />
+          <MetricCard
+            icon={Handshake}
+            title="Outreach Sent"
+            value={sentOutreach.length}
+            subtitle="To decision makers"
+            trend={responses.length + " responses"}
+            bgColor="bg-purple-50"
+            iconColor="text-purple-500"
+          />
+          <MetricCard
+            icon={CalendarDays}
+            title="Interviews"
+            value={interviews.length}
+            subtitle={interviews.length > 0 ? "Active interviews" : "No upcoming interviews"}
+            bgColor="bg-emerald-50"
+            iconColor="text-emerald-500"
+          />
+        </div>
+      </details>
 
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
         {/* Recent Activity */}
