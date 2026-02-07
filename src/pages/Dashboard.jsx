@@ -6,7 +6,8 @@ import { useQuery } from "@tanstack/react-query";
 import {
   Building2, FileText, Handshake, CalendarDays,
   ArrowUpRight, Search, Target, Clock, CheckCircle2,
-  Send, MessageSquare, TrendingUp, ChevronRight, MapPin, Users, ChevronDown
+  Send, MessageSquare, TrendingUp, ChevronRight, MapPin, Users, ChevronDown,
+  BarChart3, Briefcase
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import MetricCard from "../components/shared/MetricCard";
@@ -102,7 +103,7 @@ export default function Dashboard() {
   
   if (newRoles > 0) {
     primaryCard = {
-      icon: '🎯',
+      icon: Target,
       title: `Review ${newRoles} new ${newRoles === 1 ? 'role' : 'roles'}${highestMatch > 0 ? ` (${highestMatch}% match)` : ''}`,
       description: 'Found overnight matching your target profile',
       ctaText: 'View Roles →',
@@ -110,7 +111,7 @@ export default function Dashboard() {
     };
   } else if (companies.length < 5) {
     primaryCard = {
-      icon: '🎯',
+      icon: Target,
       title: 'Discover new opportunities',
       description: 'Search thousands of companies hiring for your target role',
       ctaText: 'Start Searching →',
@@ -118,7 +119,7 @@ export default function Dashboard() {
     };
   } else {
     primaryCard = {
-      icon: '🎯',
+      icon: Target,
       title: 'Check daily suggestions',
       description: 'AI discovers new matching companies overnight',
       ctaText: 'View Suggestions →',
@@ -128,7 +129,7 @@ export default function Dashboard() {
   
   if (applicationsInProgress > 0) {
     secondaryCard = {
-      icon: '📊',
+      icon: BarChart3,
       title: `${applicationsInProgress} ${applicationsInProgress === 1 ? 'application' : 'applications'} in progress`,
       description: 'Continue with next steps',
       ctaText: 'Continue →',
@@ -136,7 +137,7 @@ export default function Dashboard() {
     };
   } else {
     secondaryCard = {
-      icon: '📊',
+      icon: BarChart3,
       title: 'Manage your pipeline',
       description: 'Track applications and interviews',
       ctaText: 'View Pipeline →',
@@ -145,7 +146,7 @@ export default function Dashboard() {
   }
   
   tertiaryCard = {
-    icon: '💼',
+    icon: Briefcase,
     title: 'Auto-monitoring active',
     description: `Checking ${activeMonitors} ${activeMonitors === 1 ? 'source' : 'sources'} for new roles daily`,
     ctaText: 'Manage Sources →',
@@ -189,8 +190,19 @@ export default function Dashboard() {
         }
         
         .card-icon {
-          font-size: 32px;
-          line-height: 1;
+          width: 48px;
+          height: 48px;
+          display: flex;
+          align-items: center;
+          justify-content: center;
+          background: rgba(255, 158, 77, 0.1);
+          border-radius: 12px;
+        }
+        
+        .card-icon svg {
+          width: 24px;
+          height: 24px;
+          color: #FF9E4D;
         }
         
         .card-title {
@@ -285,7 +297,9 @@ export default function Dashboard() {
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
         {/* Primary Card */}
         <div className="action-card priority">
-          <div className="card-icon">{primaryCard.icon}</div>
+          <div className="card-icon">
+            <primaryCard.icon />
+          </div>
           <div>
             <h3 className="card-title">{primaryCard.title}</h3>
             <p className="card-description">{primaryCard.description}</p>
@@ -295,7 +309,9 @@ export default function Dashboard() {
 
         {/* Secondary Card */}
         <div className="action-card">
-          <div className="card-icon">{secondaryCard.icon}</div>
+          <div className="card-icon">
+            <secondaryCard.icon />
+          </div>
           <div>
             <h3 className="card-title">{secondaryCard.title}</h3>
             <p className="card-description">{secondaryCard.description}</p>
@@ -305,7 +321,9 @@ export default function Dashboard() {
 
         {/* Tertiary Card */}
         <div className="action-card">
-          <div className="card-icon">{tertiaryCard.icon}</div>
+          <div className="card-icon">
+            <tertiaryCard.icon />
+          </div>
           <div>
             <h3 className="card-title">{tertiaryCard.title}</h3>
             <p className="card-description">{tertiaryCard.description}</p>
