@@ -358,28 +358,7 @@ export default function Settings() {
             </div>
 
             {/* Connected Accounts */}
-            <details className="bg-white border border-gray-200 rounded-2xl p-6">
-              <summary className="font-bold text-gray-900 text-lg flex items-center justify-between cursor-pointer">
-                Connected Accounts
-                <span className="text-[#FF9E4D] hover:underline text-sm font-semibold flex items-center gap-1">
-                  Manage <ChevronRight className="w-4 h-4" />
-                </span>
-              </summary>
-              <div className="mt-4 space-y-3">
-                <div className="flex items-center justify-between p-3 border border-gray-200 rounded-xl">
-                  <span className="text-sm font-medium text-gray-900">LinkedIn:</span>
-                  <Button variant="outline" size="sm" className="rounded-lg">Connect</Button>
-                </div>
-                <div className="flex items-center justify-between p-3 border border-gray-200 rounded-xl">
-                  <span className="text-sm font-medium text-gray-900">Google Calendar:</span>
-                  <Button variant="outline" size="sm" className="rounded-lg text-red-600 hover:text-red-700">Disconnect</Button>
-                </div>
-                <div className="flex items-center justify-between p-3 border border-gray-200 rounded-xl">
-                  <span className="text-sm font-medium text-gray-900">Email:</span>
-                  <span className="text-sm text-gray-600">{user?.email || "—"}</span>
-                </div>
-              </div>
-            </details>
+            <ConnectedAccountsSection user={user} />
 
             {/* Danger Zone */}
             <div className="bg-red-50 border border-red-200 rounded-2xl p-6 space-y-4">
