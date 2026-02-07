@@ -63,6 +63,7 @@ import Outreach from './pages/Outreach';
 import Pipeline from './pages/Pipeline';
 import Settings from './pages/Settings';
 import GmailCallback from './pages/GmailCallback';
+import OutlookCallback from './pages/OutlookCallback';
 import __Layout from './Layout.jsx';
 
 
@@ -83,6 +84,7 @@ export const PAGES = {
     "Pipeline": Pipeline,
     "Settings": Settings,
     "GmailCallback": GmailCallback,
+    "OutlookCallback": OutlookCallback,
 }
 
 export const pagesConfig = {
