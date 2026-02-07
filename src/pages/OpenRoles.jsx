@@ -22,6 +22,14 @@ export default function OpenRoles() {
   const [sourceFilter, setSourceFilter] = useState("all");
   const [isSearching, setIsSearching] = useState(false);
 
+  const saveJobMutation = useMutation({
+    mutationFn: (job_id) => 
+      base44.functions.invoke("manageJobPipeline", { action: "save", job_id }),
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ["jobPipeline"] });
+    }
+  });
+
   const { data: roles = [], isLoading } = useQuery({
     queryKey: ["openRoles"],
     queryFn: () => base44.entities.OpenRole.list("-match_score", 200),
@@ -291,9 +299,10 @@ export default function OpenRoles() {
                   size="sm"
                   variant="outline"
                   className="rounded-lg gap-1.5 text-xs"
-                  onClick={() => updateRoleMutation.mutate({ id: role.id, data: { status: "saved" } })}
+                  onClick={() => saveJobMutation.mutate(role.id)}
+                  disabled={saveJobMutation.isPending}
                 >
-                  <Bookmark className="w-3 h-3" /> Save
+                  <Bookmark className="w-3 h-3" /> {saveJobMutation.isPending ? "Saving..." : "Save to Pipeline"}
                 </Button>
                 <Button
                   size="sm"
