@@ -49,32 +49,32 @@
  */
 import Analytics from './pages/Analytics';
 import CandidateSetup from './pages/CandidateSetup';
-import CompanyDetail from './pages/CompanyDetail';
-import JobBoards from './pages/JobBoards';
-import Pipeline from './pages/Pipeline';
-import Settings from './pages/Settings';
 import Companies from './pages/Companies';
+import CompanyDetail from './pages/CompanyDetail';
 import DailySuggestions from './pages/DailySuggestions';
 import Dashboard from './pages/Dashboard';
+import JobBoards from './pages/JobBoards';
 import JobsPipeline from './pages/JobsPipeline';
-import Outreach from './pages/Outreach';
 import OpenRoles from './pages/OpenRoles';
+import Pipeline from './pages/Pipeline';
+import Settings from './pages/Settings';
+import Outreach from './pages/Outreach';
 import __Layout from './Layout.jsx';
 
 
 export const PAGES = {
     "Analytics": Analytics,
     "CandidateSetup": CandidateSetup,
-    "CompanyDetail": CompanyDetail,
-    "JobBoards": JobBoards,
-    "Pipeline": Pipeline,
-    "Settings": Settings,
     "Companies": Companies,
+    "CompanyDetail": CompanyDetail,
     "DailySuggestions": DailySuggestions,
     "Dashboard": Dashboard,
+    "JobBoards": JobBoards,
     "JobsPipeline": JobsPipeline,
-    "Outreach": Outreach,
     "OpenRoles": OpenRoles,
+    "Pipeline": Pipeline,
+    "Settings": Settings,
+    "Outreach": Outreach,
 }
 
 export const pagesConfig = {

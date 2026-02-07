@@ -10,7 +10,7 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Checkbox } from "@/components/ui/checkbox";
 import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
 import {
-  User, Bell, Sliders, Shield, Save, Loader2, LogOut, Briefcase, Upload, FileText, ExternalLink
+  User, Bell, Sliders, Shield, Save, Loader2, LogOut, Briefcase, Upload, FileText, ExternalLink, ChevronRight, Trash2
 } from "lucide-react";
 import SearchableMultiSelect from "../components/shared/SearchableMultiSelect";
 import { Link } from "react-router-dom";
@@ -24,6 +24,13 @@ export default function Settings() {
     daily_limit: 10,
     match_threshold: 70,
     email_signature: ""
+  });
+
+  const [profileVisibility, setProfileVisibility] = useState("private");
+  const [considerOptions, setConsiderOptions] = useState({
+    hybrid: true,
+    contract: true,
+    parttime: false
   });
 
   const [jobSearchPrefs, setJobSearchPrefs] = useState({
@@ -123,77 +130,82 @@ export default function Settings() {
   };
 
   return (
-    <div className="px-4 sm:px-6 py-8 space-y-6">
-      <div>
-        <h1 className="text-2xl font-bold text-gray-900 tracking-tight">Settings</h1>
-        <p className="text-sm text-gray-500 mt-2">Update your target roles, industries, salary range, and company preferences.</p>
-      </div>
+    <div className="px-4 sm:px-6 py-8 lg:py-12">
+      <div className="max-w-7xl mx-auto">
+        <div className="mb-6">
+          <h1 className="text-3xl font-bold text-gray-900 mb-2">Settings</h1>
+          <p className="text-gray-600">Update your target roles, industries, salary range, and company preferences.</p>
+        </div>
 
-      <Tabs defaultValue="profile">
-        <TabsList className="bg-gray-100 rounded-xl p-1">
-          <TabsTrigger value="profile" className="rounded-lg data-[state=active]:bg-white gap-1.5">
-            <User className="w-4 h-4" /> Profile
-          </TabsTrigger>
-          <TabsTrigger value="job-search" className="rounded-lg data-[state=active]:bg-white gap-1.5">
-            <Briefcase className="w-4 h-4" /> Job Search
-          </TabsTrigger>
-          <TabsTrigger value="preferences" className="rounded-lg data-[state=active]:bg-white gap-1.5">
-            <Sliders className="w-4 h-4" /> Preferences
-          </TabsTrigger>
-          <TabsTrigger value="notifications" className="rounded-lg data-[state=active]:bg-white gap-1.5">
-            <Bell className="w-4 h-4" /> Notifications
-          </TabsTrigger>
-          <TabsTrigger value="privacy" className="rounded-lg data-[state=active]:bg-white gap-1.5">
-            <Shield className="w-4 h-4" /> Privacy
-          </TabsTrigger>
-        </TabsList>
+        <Tabs defaultValue="profile">
+          <TabsList className="bg-gray-100 rounded-xl p-1">
+            <TabsTrigger value="profile" className="rounded-lg data-[state=active]:bg-white gap-1.5">
+              👤 Profile
+            </TabsTrigger>
+            <TabsTrigger value="job-search" className="rounded-lg data-[state=active]:bg-white gap-1.5">
+              🔍 Job Search
+            </TabsTrigger>
+            <TabsTrigger value="preferences" className="rounded-lg data-[state=active]:bg-white gap-1.5">
+              🎛️ Preferences
+            </TabsTrigger>
+            <TabsTrigger value="notifications" className="rounded-lg data-[state=active]:bg-white gap-1.5">
+              🔔 Notifications
+            </TabsTrigger>
+            <TabsTrigger value="privacy" className="rounded-lg data-[state=active]:bg-white gap-1.5">
+              🔒 Privacy
+            </TabsTrigger>
+          </TabsList>
 
-        <TabsContent value="profile" className="mt-6">
-          <div className="bg-white border border-gray-100 rounded-2xl p-6 sm:p-8 space-y-6 max-w-2xl">
-            <h3 className="font-semibold text-gray-900">Account Information</h3>
-            <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-              <div>
-                <Label className="text-gray-500">Name</Label>
-                <p className="font-medium mt-1">{user?.full_name || profile.full_name || "—"}</p>
-              </div>
-              <div>
-                <Label className="text-gray-500">Email</Label>
-                <p className="font-medium mt-1">{user?.email || profile.email || "—"}</p>
-              </div>
-              <div>
-                <Label className="text-gray-500">Phone</Label>
-                <p className="font-medium mt-1">{profile.phone || "—"}</p>
-              </div>
-              <div>
-                <Label className="text-gray-500">Current Title</Label>
-                <p className="font-medium mt-1">{profile.current_title || "—"}</p>
+          <TabsContent value="profile" className="mt-6 space-y-6">
+            {/* Account Information */}
+            <div className="bg-white border border-gray-200 rounded-2xl p-6 space-y-4">
+              <h3 className="font-bold text-gray-900 text-lg">Account Information</h3>
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-6">
+                <div>
+                  <Label className="text-sm text-gray-500">Name</Label>
+                  <p className="text-gray-900 mt-1 font-medium">{user?.full_name || profile.full_name || "—"}</p>
+                </div>
+                <div>
+                  <Label className="text-sm text-gray-500">Email</Label>
+                  <p className="text-gray-900 mt-1 font-medium">{user?.email || profile.email || "—"}</p>
+                </div>
+                <div>
+                  <Label className="text-sm text-gray-500">Phone</Label>
+                  <p className="text-gray-900 mt-1 font-medium">{profile.phone || "—"}</p>
+                </div>
+                <div>
+                  <Label className="text-sm text-gray-500">Current Title</Label>
+                  <p className="text-gray-900 mt-1 font-medium">{profile.current_title || "—"}</p>
+                </div>
               </div>
             </div>
-            <div className="pt-6 border-t border-gray-100">
-              <h4 className="font-semibold text-gray-900 mb-4">Resume</h4>
+
+            {/* Resume Section */}
+            <div className="bg-white border border-gray-200 rounded-2xl p-6 space-y-4">
+              <h3 className="font-bold text-gray-900 text-lg">Resume</h3>
               {profile.resume_url ? (
-                <div className="flex items-center justify-between p-4 bg-gray-50 rounded-xl">
+                <div className="flex items-center justify-between p-4 bg-gray-50 rounded-xl border border-gray-200">
                   <div className="flex items-center gap-3">
-                    <div className="w-10 h-10 bg-emerald-50 rounded-lg flex items-center justify-center">
-                      <FileText className="w-5 h-5 text-emerald-500" />
+                    <div className="w-12 h-12 bg-blue-50 rounded-xl flex items-center justify-center">
+                      <FileText className="w-6 h-6 text-blue-600" />
                     </div>
                     <div>
-                      <p className="text-sm font-medium text-gray-900">Resume uploaded</p>
-                      <p className="text-xs text-gray-500">Last updated: {new Date(profile.updated_date || Date.now()).toLocaleDateString()}</p>
+                      <p className="text-sm font-semibold text-gray-900">📄 Resume uploaded</p>
+                      <p className="text-xs text-gray-500 mt-0.5">Last updated: {new Date(profile.updated_date || Date.now()).toLocaleDateString('en-US', { month: 'numeric', day: 'numeric', year: 'numeric' })}</p>
                     </div>
                   </div>
                   <div className="flex items-center gap-2">
                     <a href={profile.resume_url} target="_blank" rel="noopener noreferrer">
-                      <Button variant="ghost" size="sm" className="gap-1.5 rounded-lg">
-                        <ExternalLink className="w-4 h-4" /> View
+                      <Button variant="outline" size="sm" className="gap-1.5 rounded-xl">
+                        View
                       </Button>
                     </a>
                     <label>
-                      <Button variant="outline" size="sm" className="gap-1.5 rounded-lg" disabled={isUploadingResume}>
+                      <Button variant="outline" size="sm" className="gap-1.5 rounded-xl" disabled={isUploadingResume}>
                         {isUploadingResume ? (
                           <><Loader2 className="w-4 h-4 animate-spin" /> Uploading...</>
                         ) : (
-                          <><Upload className="w-4 h-4" /> Replace</>
+                          <>Replace</>
                         )}
                       </Button>
                       <input type="file" accept=".pdf,.docx" className="hidden" onChange={handleResumeUpload} />
@@ -201,12 +213,12 @@ export default function Settings() {
                   </div>
                 </div>
               ) : (
-                <label className="flex flex-col items-center justify-center p-8 border-2 border-dashed border-gray-200 rounded-xl cursor-pointer hover:border-[#F7931E] transition-colors">
+                <label className="flex flex-col items-center justify-center p-8 border-2 border-dashed border-gray-300 rounded-xl cursor-pointer hover:border-[#FF9E4D] transition-colors">
                   {isUploadingResume ? (
-                    <Loader2 className="w-8 h-8 text-[#F7931E] animate-spin mb-3" />
+                    <Loader2 className="w-8 h-8 text-[#FF9E4D] animate-spin mb-3" />
                   ) : (
                     <div className="w-12 h-12 bg-orange-50 rounded-xl flex items-center justify-center mb-3">
-                      <Upload className="w-6 h-6 text-[#F7931E]" />
+                      <Upload className="w-6 h-6 text-[#FF9E4D]" />
                     </div>
                   )}
                   <span className="text-sm font-medium text-gray-700">
@@ -215,14 +227,168 @@ export default function Settings() {
                   <input type="file" accept=".pdf,.docx" className="hidden" onChange={handleResumeUpload} />
                 </label>
               )}
+              <Link to={createPageUrl("CandidateSetup")}>
+                <Button variant="outline" className="rounded-xl gap-2">
+                  Edit Full Profile
+                </Button>
+              </Link>
             </div>
-            <Link to={createPageUrl("CandidateSetup")}>
-              <Button variant="outline" className="rounded-xl gap-2 mt-4">
-                Edit Full Profile
+
+            {/* Professional Profile */}
+            <details className="bg-white border border-gray-200 rounded-2xl p-6">
+              <summary className="font-bold text-gray-900 text-lg flex items-center justify-between cursor-pointer">
+                Professional Profile
+                <Link to={createPageUrl("CandidateSetup")} onClick={(e) => e.stopPropagation()} className="text-[#FF9E4D] hover:underline text-sm font-semibold flex items-center gap-1">
+                  Edit <ChevronRight className="w-4 h-4" />
+                </Link>
+              </summary>
+              <div className="mt-4 space-y-3 text-sm">
+                <div className="grid grid-cols-2 gap-4">
+                  <div>
+                    <span className="text-gray-500">Current Company:</span>
+                    <p className="font-medium text-gray-900">{profile.previous_employers?.[0] || "—"}</p>
+                  </div>
+                  <div>
+                    <span className="text-gray-500">Years of Experience:</span>
+                    <p className="font-medium text-gray-900">{profile.years_experience ? `${profile.years_experience}+` : "—"}</p>
+                  </div>
+                </div>
+                <div>
+                  <span className="text-gray-500">LinkedIn:</span>
+                  <p className="font-medium text-gray-900">{profile.linkedin_url ? <a href={profile.linkedin_url} target="_blank" rel="noopener noreferrer" className="text-blue-600 hover:underline">Connected</a> : "Not connected"}</p>
+                </div>
+                {profile.skills && profile.skills.length > 0 && (
+                  <div>
+                    <p className="text-gray-500 mb-2">Key Skills:</p>
+                    <div className="flex flex-wrap gap-2">
+                      {profile.skills.slice(0, 6).map((skill, idx) => (
+                        <span key={idx} className="px-3 py-1 bg-gray-100 text-gray-700 rounded-lg text-xs font-medium">
+                          {skill}
+                        </span>
+                      ))}
+                    </div>
+                  </div>
+                )}
+              </div>
+            </details>
+
+            {/* Career Objectives */}
+            <details className="bg-white border border-gray-200 rounded-2xl p-6">
+              <summary className="font-bold text-gray-900 text-lg flex items-center justify-between cursor-pointer">
+                Career Objectives
+                <Link to={createPageUrl("Settings")} onClick={(e) => { e.stopPropagation(); document.querySelector('[value="job-search"]')?.click(); }} className="text-[#FF9E4D] hover:underline text-sm font-semibold flex items-center gap-1">
+                  Edit <ChevronRight className="w-4 h-4" />
+                </Link>
+              </summary>
+              <div className="mt-4 space-y-3 text-sm">
+                <div className="grid grid-cols-2 gap-4">
+                  <div>
+                    <span className="text-gray-500">Target Role:</span>
+                    <p className="font-medium text-gray-900">{jobSearchPrefs.target_roles?.[0] || "—"}</p>
+                  </div>
+                  <div>
+                    <span className="text-gray-500">Preferred Industries:</span>
+                    <p className="font-medium text-gray-900">{jobSearchPrefs.industries?.join(", ") || "—"}</p>
+                  </div>
+                  <div>
+                    <span className="text-gray-500">Remote Preference:</span>
+                    <p className="font-medium text-gray-900">{jobSearchPrefs.remote_preferences?.[0] || "—"}</p>
+                  </div>
+                  <div>
+                    <span className="text-gray-500">Salary Range:</span>
+                    <p className="font-medium text-gray-900">
+                      ${jobSearchPrefs.min_salary?.toLocaleString() || "—"} - ${jobSearchPrefs.max_salary?.toLocaleString() || "—"}
+                    </p>
+                  </div>
+                  <div>
+                    <span className="text-gray-500">Location:</span>
+                    <p className="font-medium text-gray-900">{jobSearchPrefs.preferred_locations?.[0] || "Open to relocation"}</p>
+                  </div>
+                </div>
+                <div className="pt-3 border-t border-gray-100">
+                  <p className="text-gray-500 mb-2">Willing to consider:</p>
+                  <div className="space-y-1.5">
+                    <label className="flex items-center gap-2 cursor-pointer">
+                      <Checkbox checked={considerOptions.hybrid} onCheckedChange={(c) => setConsiderOptions(p => ({ ...p, hybrid: c }))} />
+                      <span className="text-sm">Hybrid roles</span>
+                    </label>
+                    <label className="flex items-center gap-2 cursor-pointer">
+                      <Checkbox checked={considerOptions.contract} onCheckedChange={(c) => setConsiderOptions(p => ({ ...p, contract: c }))} />
+                      <span className="text-sm">Contract-to-hire</span>
+                    </label>
+                    <label className="flex items-center gap-2 cursor-pointer">
+                      <Checkbox checked={considerOptions.parttime} onCheckedChange={(c) => setConsiderOptions(p => ({ ...p, parttime: c }))} />
+                      <span className="text-sm">Part-time/fractional roles</span>
+                    </label>
+                  </div>
+                </div>
+              </div>
+            </details>
+
+            {/* Profile Visibility */}
+            <div className="bg-white border border-gray-200 rounded-2xl p-6 space-y-4">
+              <h3 className="font-bold text-gray-900 text-lg">Profile Visibility</h3>
+              <RadioGroup value={profileVisibility} onValueChange={setProfileVisibility}>
+                <label className="flex items-start gap-3 p-4 border border-gray-200 rounded-xl cursor-pointer hover:bg-gray-50">
+                  <RadioGroupItem value="public" />
+                  <div>
+                    <p className="font-medium text-gray-900">Public</p>
+                    <p className="text-xs text-gray-500 mt-0.5">Visible to recruiters and hiring managers</p>
+                  </div>
+                </label>
+                <label className="flex items-start gap-3 p-4 border border-gray-200 rounded-xl cursor-pointer hover:bg-gray-50">
+                  <RadioGroupItem value="private" />
+                  <div>
+                    <p className="font-medium text-gray-900">Private</p>
+                    <p className="text-xs text-gray-500 mt-0.5">Only visible when you apply or reach out</p>
+                  </div>
+                </label>
+                <label className="flex items-start gap-3 p-4 border border-gray-200 rounded-xl cursor-pointer hover:bg-gray-50">
+                  <RadioGroupItem value="stealth" />
+                  <div>
+                    <p className="font-medium text-gray-900">Stealth</p>
+                    <p className="text-xs text-gray-500 mt-0.5">Completely hidden (use for passive searches)</p>
+                  </div>
+                </label>
+              </RadioGroup>
+            </div>
+
+            {/* Connected Accounts */}
+            <details className="bg-white border border-gray-200 rounded-2xl p-6">
+              <summary className="font-bold text-gray-900 text-lg flex items-center justify-between cursor-pointer">
+                Connected Accounts
+                <span className="text-[#FF9E4D] hover:underline text-sm font-semibold flex items-center gap-1">
+                  Manage <ChevronRight className="w-4 h-4" />
+                </span>
+              </summary>
+              <div className="mt-4 space-y-3">
+                <div className="flex items-center justify-between p-3 border border-gray-200 rounded-xl">
+                  <span className="text-sm font-medium text-gray-900">LinkedIn:</span>
+                  <Button variant="outline" size="sm" className="rounded-lg">Connect</Button>
+                </div>
+                <div className="flex items-center justify-between p-3 border border-gray-200 rounded-xl">
+                  <span className="text-sm font-medium text-gray-900">Google Calendar:</span>
+                  <Button variant="outline" size="sm" className="rounded-lg text-red-600 hover:text-red-700">Disconnect</Button>
+                </div>
+                <div className="flex items-center justify-between p-3 border border-gray-200 rounded-xl">
+                  <span className="text-sm font-medium text-gray-900">Email:</span>
+                  <span className="text-sm text-gray-600">{user?.email || "—"}</span>
+                </div>
+              </div>
+            </details>
+
+            {/* Danger Zone */}
+            <div className="bg-red-50 border border-red-200 rounded-2xl p-6 space-y-4">
+              <h3 className="font-bold text-gray-900 text-lg">Danger Zone</h3>
+              <p className="text-sm text-gray-600">
+                Warning: This will permanently delete all your data including saved jobs, applications, and outreach campaigns.
+              </p>
+              <Button variant="outline" className="border-red-300 text-red-600 hover:bg-red-100 hover:text-red-700 rounded-xl gap-2">
+                <Trash2 className="w-4 h-4" />
+                Delete Account
               </Button>
-            </Link>
-          </div>
-        </TabsContent>
+            </div>
+          </TabsContent>
 
         <TabsContent value="job-search" className="mt-6">
           <div className="bg-white border border-gray-100 rounded-2xl p-6 sm:p-8 space-y-8 max-w-4xl">
@@ -506,8 +672,9 @@ export default function Settings() {
               </Button>
             </div>
           </div>
-        </TabsContent>
-      </Tabs>
+          </TabsContent>
+        </Tabs>
+      </div>
     </div>
   );
 }
