@@ -80,6 +80,9 @@ export default function CompanyDetail() {
     enabled: !!companyId || !!companyName,
   });
 
+  const [generatedMessages, setGeneratedMessages] = useState({});
+  const [generatingFor, setGeneratingFor] = useState(null);
+
   const { data: roles = [] } = useQuery({
     queryKey: ["roles", companyId, companyName],
     queryFn: async () => {
@@ -95,7 +98,7 @@ export default function CompanyDetail() {
   });
 
   const handleGenerateMessage = async (contact) => {
-    setGeneratingContactId(contact.id);
+    setGeneratingFor(contact.id);
     try {
       const response = await base44.functions.invoke('generateOutreachMessage', {
         role_title: roles[0]?.title || 'Executive Role',
@@ -119,7 +122,17 @@ export default function CompanyDetail() {
       console.error('Failed to generate message:', error);
       alert('Failed to generate message');
     } finally {
-      setGeneratingContactId(null);
+      setGeneratingFor(null);
+    }
+  };
+
+  const handleSendEmail = async (contact, message) => {
+    try {
+      // Could integrate with email service here if needed
+      alert(`Email ready to send to ${contact.full_name}:\n\n${message.subject}\n\n${message.email_body}`);
+    } catch (error) {
+      console.error('Send email error:', error);
+      alert('Failed to send email');
     }
   };
 
@@ -232,15 +245,81 @@ export default function CompanyDetail() {
                 </Button>
               </div>
             ) : (
-              <div className="space-y-4">
+              <div className="grid gap-4">
                 {contacts.map(contact => (
-                  <ContactCard
-                    key={contact.id}
-                    contact={contact}
-                    generatedMessage={generatedMessages[contact.id]}
-                    onGenerateMessage={() => handleGenerateMessage(contact)}
-                    onManualApply={handleManualApply}
-                  />
+                  <div key={contact.id} className="bg-white border-2 border-gray-200 rounded-xl p-6 hover:border-orange-500 hover:shadow-lg transition-all">
+                    {/* Contact Header */}
+                    <div className="flex gap-4 mb-4 pb-4 border-b-2 border-gray-100">
+                      <div className="w-16 h-16 rounded-full bg-orange-500 text-white flex items-center justify-center text-xl font-bold flex-shrink-0">
+                        {contact.first_name?.[0] || contact.full_name?.[0] || '?'}
+                      </div>
+                      <div>
+                        <h3 className="text-lg font-semibold text-gray-900">{contact.full_name}</h3>
+                        <p className="text-sm text-gray-600">{contact.title}</p>
+                        {contact.data_quality_score && (
+                          <span className="inline-block mt-2 px-3 py-1 bg-green-100 text-green-800 rounded-full text-xs font-medium">
+                            {contact.data_quality_score}% Match
+                          </span>
+                        )}
+                      </div>
+                    </div>
+
+                    {/* Contact Details */}
+                    <div className="space-y-2 mb-4">
+                      {contact.email && (
+                        <div className="flex items-center gap-2 text-sm">
+                          <span className="text-gray-600 min-w-20">📧 Email:</span>
+                          <a href={`mailto:${contact.email}`} className="text-orange-600 hover:underline">{contact.email}</a>
+                          {contact.email_verified && <span className="text-green-600 font-semibold">✓</span>}
+                        </div>
+                      )}
+                      {contact.phone && (
+                        <div className="flex items-center gap-2 text-sm">
+                          <span className="text-gray-600 min-w-20">📞 Phone:</span>
+                          <a href={`tel:${contact.phone}`} className="text-orange-600 hover:underline">{contact.phone}</a>
+                        </div>
+                      )}
+                      {contact.linkedin_url && (
+                        <div className="flex items-center gap-2 text-sm">
+                          <span className="text-gray-600 min-w-20">💼 LinkedIn:</span>
+                          <a href={contact.linkedin_url} target="_blank" rel="noopener noreferrer" className="text-orange-600 hover:underline">View Profile →</a>
+                        </div>
+                      )}
+                    </div>
+
+                    {/* Generated Message Section */}
+                    {generatedMessages[contact.id] ? (
+                      <div className="mt-4 pt-4 border-t-2 border-gray-100 space-y-3">
+                        <h4 className="font-semibold text-gray-900">Auto-Generated Outreach</h4>
+                        <div className="bg-gray-50 p-4 rounded-lg space-y-2">
+                          <div className="text-sm">
+                            <strong className="block text-gray-600 mb-1">Subject:</strong>
+                            <p className="text-gray-800">{generatedMessages[contact.id].subject || 'N/A'}</p>
+                          </div>
+                          <div className="text-sm">
+                            <strong className="block text-gray-600 mb-1">Message:</strong>
+                            <p className="text-gray-800 whitespace-pre-wrap">{generatedMessages[contact.id].email_body || 'N/A'}</p>
+                          </div>
+                        </div>
+                        <Button 
+                          className="w-full bg-orange-600 hover:bg-orange-700 text-white"
+                          onClick={() => handleSendEmail(contact, generatedMessages[contact.id])}
+                        >
+                          Send Email
+                        </Button>
+                      </div>
+                    ) : (
+                      <div className="mt-4 pt-4 border-t-2 border-gray-100">
+                        <Button 
+                          className="w-full bg-gray-200 hover:bg-gray-300 text-gray-700"
+                          onClick={() => handleGenerateMessage(contact)}
+                          disabled={generatingFor === contact.id}
+                        >
+                          {generatingFor === contact.id ? 'Generating...' : 'Generate Message'}
+                        </Button>
+                      </div>
+                    )}
+                  </div>
                 ))}
               </div>
             )}
