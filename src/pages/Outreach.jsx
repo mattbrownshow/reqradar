@@ -248,9 +248,6 @@ export default function Outreach() {
             ))}
           </div>
         )}
-      </div>
-    </div>
-  );
 
         {/* Create Modal */}
         <Dialog open={showCreate} onOpenChange={setShowCreate}>
