@@ -43,11 +43,12 @@ export default function Layout({ children, currentPageName }) {
         }
 
         .phase-group {
-          position: relative;
           padding: 8px 16px;
           border-radius: 8px;
           transition: background 0.2s;
           cursor: pointer;
+          text-decoration: none;
+          display: block;
         }
 
         .phase-group:hover { background: rgba(0,0,0,0.05); }
@@ -62,45 +63,8 @@ export default function Layout({ children, currentPageName }) {
           text-transform: uppercase;
           letter-spacing: 0.5px;
           color: var(--text-secondary);
-          margin-bottom: 4px;
           text-align: center;
         }
-
-        .phase-links {
-          opacity: 0;
-          visibility: hidden;
-          pointer-events: none;
-          position: absolute;
-          top: 100%;
-          left: 0;
-          background: var(--card-bg);
-          border: 1px solid var(--border);
-          border-radius: 8px;
-          padding: 8px;
-          box-shadow: 0 4px 12px rgba(0,0,0,0.1);
-          min-width: 200px;
-          z-index: 1000;
-          margin-top: 4px;
-          transition: opacity 0.15s ease-in-out, visibility 0.15s ease-in-out;
-        }
-
-        .phase-group:hover .phase-links { 
-          opacity: 1;
-          visibility: visible;
-          pointer-events: auto;
-          transition-delay: 0.1s;
-        }
-
-        .phase-links a {
-          display: block;
-          padding: 8px 12px;
-          color: var(--text-primary);
-          text-decoration: none;
-          border-radius: 4px;
-          font-size: 14px;
-        }
-
-        .phase-links a:hover { background: #F3F4F6; }
 
         .phase-separator {
           color: var(--text-muted);
@@ -133,43 +97,30 @@ export default function Layout({ children, currentPageName }) {
               {/* Desktop Workflow Nav */}
               <div className="hidden lg:flex workflow-nav">
                 {/* Discover Phase */}
-                <div className={`phase-group ${currentPhase === 'discover' ? 'active' : ''}`} data-phase="discover">
+                <Link to={createPageUrl("Discover")} className={`phase-group ${currentPhase === 'discover' ? 'active' : ''}`} data-phase="discover">
                   <div className="phase-label">Discover</div>
-                  <div className="phase-links">
-                    <Link to={createPageUrl("Discover")}>Discovery Engine</Link>
-                  </div>
-                </div>
+                </Link>
 
                 <div className="phase-separator">→</div>
 
                 {/* Qualify Phase */}
-                <div className={`phase-group ${currentPhase === 'qualify' ? 'active' : ''}`} data-phase="qualify">
+                <Link to={createPageUrl("ActiveOpportunities")} className={`phase-group ${currentPhase === 'qualify' ? 'active' : ''}`} data-phase="qualify">
                   <div className="phase-label">Qualify</div>
-                  <div className="phase-links">
-                    <Link to={createPageUrl("ActiveOpportunities")}>Active Opportunities</Link>
-                  </div>
-                </div>
+                </Link>
                 
                 <div className="phase-separator">→</div>
                 
                 {/* Pursue Phase */}
-                <div className={`phase-group ${currentPhase === 'pursue' ? 'active' : ''}`} data-phase="pursue">
+                <Link to={createPageUrl("JobsPipeline")} className={`phase-group ${currentPhase === 'pursue' ? 'active' : ''}`} data-phase="pursue">
                   <div className="phase-label">Pursue</div>
-                  <div className="phase-links">
-                    <Link to={createPageUrl("JobsPipeline")}>Pipeline</Link>
-                    <Link to={createPageUrl("Outreach")}>Outreach</Link>
-                  </div>
-                </div>
-                
+                </Link>
+
                 <div className="phase-separator">→</div>
-                
+
                 {/* Analyze Phase */}
-                <div className={`phase-group ${currentPhase === 'analyze' ? 'active' : ''}`} data-phase="analyze">
+                <Link to={createPageUrl("Analytics")} className={`phase-group ${currentPhase === 'analyze' ? 'active' : ''}`} data-phase="analyze">
                   <div className="phase-label">Analyze</div>
-                  <div className="phase-links">
-                    <Link to={createPageUrl("Analytics")}>Analytics</Link>
-                  </div>
-                </div>
+                </Link>
               </div>
 
               {/* Right side */}
