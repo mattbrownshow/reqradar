@@ -35,13 +35,18 @@ Deno.serve(async (req) => {
         const feedUrl = feed.feed_url;
         let jobs = [];
 
+        console.log(`Processing feed: ${feed.feed_name}`);
+
         // Handle API endpoints with role filtering
         if (feedUrl.includes('remotive.com/api')) {
           jobs = await fetchRemotiveJobs(targetRoles);
+          console.log(`Remotive jobs found: ${jobs.length}`);
         } else if (feedUrl.includes('arbeitnow.com/api')) {
           jobs = await fetchArbeitnowJobs(targetRoles);
-        } else if (feedUrl.includes('themuse.com/developers/api')) {
+          console.log(`Arbeitnow jobs found: ${jobs.length}`);
+        } else if (feedUrl.includes('themuse.com/developers/api') || feedUrl.includes('themuse.com')) {
           jobs = await fetchTheMuseJobs(targetRoles);
+          console.log(`The Muse jobs found: ${jobs.length}`);
         } else {
           // Handle RSS feeds
           const response = await fetch(feedUrl, {
@@ -57,6 +62,7 @@ Deno.serve(async (req) => {
 
           const feedContent = await response.text();
           jobs = parseRSSFeed(feedContent, feed.feed_name, feedUrl);
+          console.log(`${feed.feed_name} jobs found: ${jobs.length}`);
         }
         
         if (jobs.length === 0) {
@@ -65,6 +71,7 @@ Deno.serve(async (req) => {
 
         // Filter out duplicates
         const newJobs = jobs.filter(j => !existingUrls.has(j.source_url));
+        console.log(`New jobs after dedup: ${newJobs.length}`);
         
         if (newJobs.length > 0) {
           // Create OpenRole records for new jobs
