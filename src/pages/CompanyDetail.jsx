@@ -17,16 +17,9 @@ export default function CompanyDetail() {
   const companyIdParam = params.get("id");
   
   const [companyId, setCompanyId] = useState(companyIdParam);
-  const [enriching, setEnriching] = useState(!companyIdParam); // Auto-enrich if no ID
-  
-  console.log('=== COMPANY DETAIL PAGE ===');
-  console.log('Company name from URL:', companyName);
-  console.log('Company ID from URL:', companyIdParam);
-
-  const [showAddContact, setShowAddContact] = useState(false);
-  const [newContact, setNewContact] = useState({ full_name: "", title: "", email: "", phone: "", linkedin_url: "" });
-  const [generatingOutreach, setGeneratingOutreach] = useState(false);
-  const [generatedMessage, setGeneratedMessage] = useState(null);
+  const [enriching, setEnriching] = useState(!companyIdParam);
+  const [generatedMessages, setGeneratedMessages] = useState({});
+  const [generatingContactId, setGeneratingContactId] = useState(null);
 
   // Load or create company from name
   useEffect(() => {
