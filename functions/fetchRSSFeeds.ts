@@ -65,7 +65,7 @@ Deno.serve(async (req) => {
         const roleKeywords = new Set();
         targetRoles.forEach(role => {
           role.toLowerCase().split(' ').forEach(word => {
-            if (word.length > 3) roleKeywords.add(word);
+            if (word.length > 2) roleKeywords.add(word);  // Lower threshold to 2 chars
           });
         });
 
@@ -73,6 +73,8 @@ Deno.serve(async (req) => {
           const titleDesc = (job.title + ' ' + job.description).toLowerCase();
           return Array.from(roleKeywords).some(keyword => titleDesc.includes(keyword));
         });
+        
+        console.log(`Feed: ${feed.feed_name}, Jobs: ${jobs.length}, Matched: ${matchedJobs.length}, Keywords: ${Array.from(roleKeywords).join(',')}`);
 
         // Filter out duplicates
         const newJobs = matchedJobs.filter(j => !existingUrls.has(j.source_url));
