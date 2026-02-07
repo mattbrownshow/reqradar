@@ -67,8 +67,8 @@ Deno.serve(async (req) => {
     }
 
     // Transition to intel_gathering after enrichment
-    if (createdContacts.length > 0 && jobPipeline.stage === 'saved') {
-      await base44.asServiceRole.entities.JobPipeline.update(jobPipeline.id, { stage: 'intel_gathering' });
+    if (createdContacts.length > 0) {
+      await base44.asServiceRole.entities.JobPipeline.update(pipeline_id, { stage: 'intel_gathering' });
     }
 
     console.log(`Enrichment completed: ${createdContacts.length} contacts created for ${company_name}`);
