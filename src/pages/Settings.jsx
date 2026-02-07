@@ -10,7 +10,7 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Checkbox } from "@/components/ui/checkbox";
 import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
 import {
-  User, Bell, Sliders, Shield, Save, Loader2, LogOut, Briefcase, Upload, FileText, ExternalLink, ChevronRight, Trash2, Sparkles, Play, Rss
+  User, Bell, Sliders, Shield, Save, Loader2, LogOut, Briefcase, Upload, FileText, ExternalLink, ChevronRight, Trash2, Sparkles, Play, Rss, Mail
 } from "lucide-react";
 import SearchableMultiSelect from "../components/shared/SearchableMultiSelect";
 import DiscoverySettings from "../components/settings/DiscoverySettings";
