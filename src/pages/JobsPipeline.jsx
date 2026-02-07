@@ -13,7 +13,18 @@ export default function JobsPipeline() {
 
   const { data: pipelineItems = [], isLoading } = useQuery({
     queryKey: ["jobPipeline"],
-    queryFn: () => base44.entities.JobPipeline.list("-created_date")
+    queryFn: async () => {
+      const results = await base44.entities.JobPipeline.list("-created_date");
+      console.log('=== PIPELINE DATA LOADED ===');
+      console.log('Total items:', results.length);
+      if (results.length > 0) {
+        console.log('Sample item:', results[0]);
+        console.log('Has job_id?', !!results[0].job_id);
+        console.log('Has company_id?', !!results[0].company_id);
+        console.log('company_id value:', results[0].company_id);
+      }
+      return results;
+    }
   });
 
   const { data: jobs = [] } = useQuery({
