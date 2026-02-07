@@ -160,7 +160,7 @@ export default function ActiveOpportunities() {
         {/* Weekly Stats */}
         <details open className="bg-blue-50 border border-blue-200 rounded-2xl p-4 mb-6">
           <summary className="cursor-pointer text-sm font-semibold text-gray-900">
-            This week: {weekStats.discovered} opportunities discovered, {weekStats.applied} applied, {weekStats.interviews} interviews
+            This week: {weekStats.discovered} opportunities discovered, {weekStats.applied} activated, {weekStats.interviews} interviews
           </summary>
         </details>
 
@@ -371,7 +371,7 @@ export default function ActiveOpportunities() {
                     onClick={() => applyMutation.mutate(role)}
                     disabled={applyMutation.isPending}
                   >
-                    Apply Now
+                    Activate Opportunity
                   </Button>
                 )}
                 <Button

@@ -76,7 +76,7 @@ export default function Dashboard() {
   // Weekly stats - last 7 days
   const weekAgo = new Date(Date.now() - 7 * 24 * 60 * 60 * 1000);
   const weeklyDiscovered = openRoles.filter(r => new Date(r.created_date) > weekAgo).length;
-  const weeklyApplied = jobPipeline.filter(j => j.applied_at && new Date(j.applied_at) > weekAgo).length;
+  const weeklyActivated = jobPipeline.filter(j => j.applied_at && new Date(j.applied_at) > weekAgo).length;
   const weeklyInterviews = jobPipeline.filter(j => j.interview_date && new Date(j.interview_date) > weekAgo).length;
 
   const activityIcons = {
@@ -130,7 +130,7 @@ export default function Dashboard() {
   if (applicationsInProgress > 0) {
     secondaryCard = {
       icon: BarChart3,
-      title: `${applicationsInProgress} ${applicationsInProgress === 1 ? 'application' : 'applications'} in progress`,
+      title: `${applicationsInProgress} ${applicationsInProgress === 1 ? 'opportunity' : 'opportunities'} in progress`,
       description: 'Continue with next steps',
       ctaText: 'Continue →',
       ctaLink: createPageUrl('JobsPipeline')
@@ -139,7 +139,7 @@ export default function Dashboard() {
     secondaryCard = {
       icon: BarChart3,
       title: 'Manage your pipeline',
-      description: 'Track applications and interviews',
+      description: 'Track activated opportunities and interviews',
       ctaText: 'View Pipeline →',
       ctaLink: createPageUrl('JobsPipeline')
     };
@@ -335,17 +335,17 @@ export default function Dashboard() {
       {/* Weekly Summary */}
       <details className="weekly-summary">
         <summary>
-          <span>This week: {weeklyDiscovered} roles discovered, {weeklyApplied} applied, {weeklyInterviews} interviews</span>
+          <span>This week: {weeklyDiscovered} opportunities discovered, {weeklyActivated} activated, {weeklyInterviews} interviews</span>
           <ChevronDown className="w-4 h-4 transition-transform chevron-icon" />
         </summary>
         <div className="mt-6 pt-6 border-t border-gray-200">
           <div className="stat-row">
-            <span className="stat-label">Roles discovered</span>
+            <span className="stat-label">Opportunities discovered</span>
             <span className="stat-value">{weeklyDiscovered}</span>
           </div>
           <div className="stat-row">
-            <span className="stat-label">Applications submitted</span>
-            <span className="stat-value">{weeklyApplied}</span>
+            <span className="stat-label">Opportunities activated</span>
+            <span className="stat-value">{weeklyActivated}</span>
           </div>
           <div className="stat-row">
             <span className="stat-label">Interviews scheduled</span>
@@ -371,10 +371,10 @@ export default function Dashboard() {
           />
           <MetricCard
             icon={FileText}
-            title="Applications"
+            title="Opportunities Activated"
             value={applications.length}
-            subtitle="Submitted"
-            trend={weeklyApplied + " this week"}
+            subtitle="In progress"
+            trend={weeklyActivated + " this week"}
             bgColor="bg-blue-50"
             iconColor="text-blue-500"
           />
@@ -407,7 +407,7 @@ export default function Dashboard() {
           <div className="divide-y divide-gray-50">
             {activities.length === 0 ? (
               <div className="p-8 text-center text-sm text-gray-500">
-                Your activity feed will show your job search actions here - applications submitted, companies added, outreach sent, interview updates, and status changes.
+                Your activity feed will show your job search actions here - opportunities activated, companies added, outreach sent, interview updates, and status changes.
               </div>
             ) : (
               activities.slice(0, 8).map((activity) => (
