@@ -195,10 +195,10 @@ export default function EnhancedPipelineCard({ item, job, onStatusChange, onLaun
           {/* Actions */}
           <div className="flex flex-col gap-2 pt-2 border-t border-gray-200">
             {(() => {
-              const companyId = item.company_id || job?.company_id;
+              const companyName = job?.company_name;
               return (
                 <>
-                  <Link to={createPageUrl("CompanyDetail") + `?id=${companyId}`}>
+                  <Link to={createPageUrl("CompanyDetail") + `?name=${encodeURIComponent(companyName)}`}>
                     <Button variant="outline" size="sm" className="w-full text-xs rounded-lg">
                       View Company Intelligence →
                     </Button>
