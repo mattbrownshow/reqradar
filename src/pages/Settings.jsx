@@ -361,8 +361,7 @@ export default function Settings() {
               </RadioGroup>
             </div>
 
-            {/* Connected Accounts */}
-            <ConnectedAccountsSection user={user} />
+
 
             {/* Danger Zone */}
             <div className="bg-red-50 border border-red-200 rounded-2xl p-6 space-y-4">
