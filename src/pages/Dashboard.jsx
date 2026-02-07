@@ -569,7 +569,7 @@ export default function Dashboard() {
                           {company.name}
                         </span>
                         {company.match_score && (
-                          <span className="text-xs font-bold text-[#F7931E] shrink-0">{company.match_score}%</span>
+                          <span className="text-xs font-bold text-[#F7931E] shrink-0">{Math.round(company.match_score * 100)}%</span>
                         )}
                       </div>
                       {company.industry && (
