@@ -66,14 +66,12 @@ export default function CompanyDetail() {
     enabled: !!companyId,
   });
 
-  // Load contacts by company ID, and also search by company name if no ID-based contacts found
   const { data: contacts = [] } = useQuery({
     queryKey: ["contacts", companyId, companyName],
     queryFn: async () => {
       if (companyId) {
         return base44.entities.Contact.filter({ company_id: companyId });
       } else if (companyName) {
-        // Fallback: search by company name
         const decodedName = decodeURIComponent(companyName);
         return base44.entities.Contact.filter({ company_name: decodedName });
       }
@@ -82,14 +80,12 @@ export default function CompanyDetail() {
     enabled: !!companyId || !!companyName,
   });
 
-  // Load roles by company ID, and also search by company name if no ID-based roles found
   const { data: roles = [] } = useQuery({
     queryKey: ["roles", companyId, companyName],
     queryFn: async () => {
       if (companyId) {
         return base44.entities.OpenRole.filter({ company_id: companyId });
       } else if (companyName) {
-        // Fallback: search by company name
         const decodedName = decodeURIComponent(companyName);
         return base44.entities.OpenRole.filter({ company_name: decodedName });
       }
@@ -98,47 +94,38 @@ export default function CompanyDetail() {
     enabled: !!companyId || !!companyName,
   });
 
-  const addContactMutation = useMutation({
-    mutationFn: (data) => base44.entities.Contact.create({ ...data, company_id: companyId, company_name: company?.name }),
-    onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ["contacts", companyId] });
-      setShowAddContact(false);
-      setNewContact({ full_name: "", title: "", email: "", phone: "", linkedin_url: "" });
-    }
-  });
-
-  const handleGenerateOutreach = async (contact) => {
-    setGeneratingOutreach(true);
+  const handleGenerateMessage = async (contact) => {
+    setGeneratingContactId(contact.id);
     try {
-      const result = await base44.functions.invoke('generateOutreach', {
-        contactId: contact.id,
-        companyId: companyId,
-        angle: company.intelligence_signals?.[0] || "Hiring Pain Point"
+      const response = await base44.functions.invoke('generateOutreachMessage', {
+        role_title: roles[0]?.title || 'Executive Role',
+        role_description: roles[0]?.description || '',
+        role_salary_min: roles[0]?.salary_min,
+        role_salary_max: roles[0]?.salary_max,
+        company_name: company.name,
+        company_industry: company.industry,
+        company_description: company.description,
+        contact_name: contact.full_name,
+        contact_title: contact.title,
+        contact_seniority: contact.seniority,
+        user_background: 'Experienced executive professional'
       });
-      
-      setGeneratedMessage({ 
-        subject: result.subject, 
-        body: result.body, 
-        contact,
-        messageId: result.messageId 
+
+      setGeneratedMessages({
+        ...generatedMessages,
+        [contact.id]: response.data
       });
     } catch (error) {
-      console.error('Failed to generate outreach:', error);
-      alert('Failed to generate outreach message');
+      console.error('Failed to generate message:', error);
+      alert('Failed to generate message');
+    } finally {
+      setGeneratingContactId(null);
     }
-    setGeneratingOutreach(false);
   };
 
-  const saveOutreach = async () => {
-    if (!generatedMessage) return;
-    
-    // Message is already saved in "draft" status by the backend function
-    // Just need to navigate to outreach page to view it
-    queryClient.invalidateQueries({ queryKey: ["outreach"] });
-    
-    // Show success message
-    alert(`Outreach message saved! View it in the Outreach page.`);
-    setGeneratedMessage(null);
+  const handleManualApply = (contact, message) => {
+    // TODO: Implement manual apply modal
+    alert('Manual apply functionality coming soon');
   };
 
   if (!companyName && !companyId) {
