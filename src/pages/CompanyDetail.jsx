@@ -43,10 +43,11 @@ export default function CompanyDetail() {
   const loadOrCreateCompany = async () => {
     try {
       setEnriching(true);
-      console.log('🔍 Looking for company:', companyName);
+      const decodedName = decodeURIComponent(companyName);
+      console.log('🔍 Looking for company:', decodedName);
       
       // Try to find company by name
-      const companies = await base44.entities.Company.filter({ name: companyName });
+      const companies = await base44.entities.Company.filter({ name: decodedName });
       
       if (companies.length > 0) {
         console.log('✅ Found existing company:', companies[0].id);
@@ -54,20 +55,9 @@ export default function CompanyDetail() {
       } else {
         console.log('⚠️ Company not found, creating new...');
         // Create company record
-        const newCompany = await base44.entities.Company.create({ name: companyName });
+        const newCompany = await base44.entities.Company.create({ name: decodedName });
         console.log('✅ Company created:', newCompany.id);
         setCompanyId(newCompany.id);
-        
-        // Run enrichment
-        try {
-          await base44.functions.invoke('enrichCompanyIntelligence', {
-            company_id: newCompany.id,
-            company_name: companyName
-          });
-          queryClient.invalidateQueries({ queryKey: ["company", newCompany.id] });
-        } catch (error) {
-          console.error('Enrichment failed:', error);
-        }
       }
     } catch (error) {
       console.error('Error:', error);
