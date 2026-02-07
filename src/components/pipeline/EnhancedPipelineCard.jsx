@@ -65,7 +65,7 @@ export default function EnhancedPipelineCard({ item, job, onStatusChange, onLaun
             </div>
             {job.match_score && (
               <div className="px-2 py-1 bg-orange-50 text-[#FF9E4D] rounded text-xs font-bold shrink-0">
-                {job.match_score}%
+                {Math.round(job.match_score)}%
               </div>
             )}
           </div>
