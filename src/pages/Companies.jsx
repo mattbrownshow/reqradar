@@ -364,7 +364,7 @@ export default function Companies() {
             <div>
               <h3 className="font-semibold text-gray-900">Your Target Companies ({companies.length})</h3>
               <p className="text-xs text-gray-500 mt-0.5">
-                {companiesWithJobs} {companiesWithJobs === 1 ? "company has" : "companies have"} open roles
+                {companiesWithJobsCount} {companiesWithJobsCount === 1 ? "company has" : "companies have"} open roles
               </p>
             </div>
           </div>
