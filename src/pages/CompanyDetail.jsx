@@ -4,16 +4,11 @@ import { createPageUrl } from "../utils";
 import { base44 } from "@/api/base44Client";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { Button } from "@/components/ui/button";
-import { Input } from "@/components/ui/input";
-import { Textarea } from "@/components/ui/textarea";
-import { Badge } from "@/components/ui/badge";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import {
-  Building2, MapPin, Users, DollarSign, Globe, ArrowLeft,
-  Star, TrendingUp, Mail, Phone, Linkedin, Copy, Plus,
-  Zap, Briefcase, Check, Loader2, Send, ExternalLink, Search
-} from "lucide-react";
-import StatusBadge from "../components/shared/StatusBadge";
+import { ArrowLeft, Loader2 } from "lucide-react";
+import CompanyHeader from "../components/company/CompanyHeader";
+import OverviewTab from "../components/company/OverviewTab";
+import ContactCard from "../components/company/ContactCard";
 
 export default function CompanyDetail() {
   const queryClient = useQueryClient();
