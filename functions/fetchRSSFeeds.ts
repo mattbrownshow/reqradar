@@ -58,6 +58,24 @@ Deno.serve(async (req) => {
       console.error('Error fetching Adzuna jobs:', error);
     }
 
+    // Fetch from SerpAPI (Google Jobs)
+    try {
+      console.log('Fetching jobs from SerpAPI (Google Jobs)...');
+      const serpJobs = await fetchSerpAPIJobs(targetRoles);
+      console.log(`Fetched ${serpJobs.length} jobs from SerpAPI`);
+      
+      if (serpJobs.length > 0) {
+        const newSerpJobs = serpJobs.filter(j => !existingUrls.has(j.source_url));
+        if (newSerpJobs.length > 0) {
+          await base44.asServiceRole.entities.OpenRole.bulkCreate(newSerpJobs);
+          totalJobsCreated += newSerpJobs.length;
+          console.log(`Created ${newSerpJobs.length} new jobs from SerpAPI`);
+        }
+      }
+    } catch (error) {
+      console.error('Error fetching SerpAPI jobs:', error);
+    }
+
     // Fetch and parse each feed
     for (const feed of feeds) {
       try {
