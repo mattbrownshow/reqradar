@@ -21,6 +21,8 @@ export default function CompanyDetail() {
   const [enriching, setEnriching] = useState(!companyIdParam);
   const [generatedMessages, setGeneratedMessages] = useState({});
   const [generatingContactId, setGeneratingContactId] = useState(null);
+  const [showOutreachModal, setShowOutreachModal] = useState(false);
+  const [user, setUser] = useState(null);
 
   useEffect(() => {
     if (companyName && !companyId) {
