@@ -16,7 +16,7 @@ import SearchableMultiSelect from "../components/shared/SearchableMultiSelect";
 import DiscoverySettings from "../components/settings/DiscoverySettings";
 import { Link } from "react-router-dom";
 import { createPageUrl } from "../utils";
-import ConnectedAccountsSection from "../components/settings/ConnectedAccountsSection.js";
+import ConnectedAccountsSection from "../components/settings/ConnectedAccountsSection";
 
 export default function Settings() {
   const queryClient = useQueryClient();
