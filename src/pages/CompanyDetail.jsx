@@ -178,8 +178,19 @@ export default function CompanyDetail() {
         </div>
       </div>
 
-      {/* Header */}
-      <CompanyHeader company={company} enriching={enriching} />
+      {/* Header with Outreach Button */}
+      <div className="px-6 py-4 bg-white border-b border-gray-200 flex items-center justify-between">
+        <CompanyHeader company={company} enriching={enriching} />
+        {contacts.length > 0 && (
+          <Button
+            onClick={() => setShowOutreachModal(true)}
+            className="bg-orange-600 hover:bg-orange-700 text-white gap-2"
+          >
+            <Send className="w-4 h-4" />
+            Draft Outreach
+          </Button>
+        )}
+      </div>
 
       {/* Tabs */}
       <div className="px-6 py-6">
