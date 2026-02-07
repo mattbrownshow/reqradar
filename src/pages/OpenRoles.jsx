@@ -137,197 +137,271 @@ export default function OpenRoles() {
     targetCompanies: roles.filter(r => r.source?.toLowerCase().includes("career") || r.source?.toLowerCase().includes("company")).length,
   };
 
+  const weekStats = {
+    discovered: roles.filter(r => {
+      const createdDate = new Date(r.created_date);
+      const weekAgo = new Date();
+      weekAgo.setDate(weekAgo.getDate() - 7);
+      return createdDate >= weekAgo;
+    }).length,
+    applied: roles.filter(r => r.status === "applied").length,
+    interviews: 0
+  };
+
   return (
-    <div className="px-4 sm:px-6 py-8 space-y-6">
-      <div>
-        <h1 className="text-2xl font-bold text-gray-900 tracking-tight">Open Roles</h1>
-        <p className="text-sm text-gray-500 mt-2">All matching jobs from target companies, job boards, and daily discoveries.</p>
-      </div>
+    <div className="px-4 sm:px-6 py-8 lg:py-12">
+      <div className="max-w-7xl mx-auto">
+        {/* Header */}
+        <div className="mb-6">
+          <h1 className="text-3xl font-bold text-gray-900 mb-2">Open Roles</h1>
+          <p className="text-gray-600">All matching jobs from target companies, job boards, and daily discoveries.</p>
+        </div>
 
-      {/* Search */}
-      <div className="bg-white border border-gray-100 rounded-2xl p-6 space-y-4">
-        <div className="flex flex-col sm:flex-row gap-3">
-          <div className="flex-1 relative">
-            <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-400" />
-            <Input
-              value={searchTerm}
-              onChange={e => setSearchTerm(e.target.value)}
-              onKeyDown={e => e.key === "Enter" && handleAISearch()}
-              placeholder="Search roles, companies..."
-              className="pl-10 rounded-xl"
-            />
+        {/* Weekly Stats */}
+        <details open className="bg-blue-50 border border-blue-200 rounded-2xl p-4 mb-6">
+          <summary className="cursor-pointer text-sm font-semibold text-gray-900">
+            This week: {weekStats.discovered} roles discovered, {weekStats.applied} applied, {weekStats.interviews} interviews
+          </summary>
+        </details>
+
+        {/* Search & Filter Bar */}
+        <div className="bg-white border border-gray-100 rounded-2xl p-6 space-y-4">
+          <div className="flex flex-col sm:flex-row gap-3">
+            <div className="flex-1 relative">
+              <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-400" />
+              <Input
+                value={searchTerm}
+                onChange={e => setSearchTerm(e.target.value)}
+                onKeyDown={e => e.key === "Enter" && handleAISearch()}
+                placeholder="Search roles, companies..."
+                className="pl-10 rounded-xl"
+              />
+            </div>
+            <Button
+              onClick={handleAISearch}
+              disabled={isSearching}
+              className="bg-[#FF9E4D] hover:bg-[#E8893D] text-white rounded-xl gap-2"
+            >
+              {isSearching ? <Loader2 className="w-4 h-4 animate-spin" /> : <Search className="w-4 h-4" />}
+              {isSearching ? "Searching..." : "Find Roles"}
+            </Button>
+            <Select value={statusFilter} onValueChange={setStatusFilter}>
+              <SelectTrigger className="w-[160px] rounded-xl">
+                <SelectValue placeholder="Status" />
+              </SelectTrigger>
+              <SelectContent>
+                <SelectItem value="all">All Status</SelectItem>
+                <SelectItem value="new">New (unreviewed)</SelectItem>
+                <SelectItem value="saved">Saved</SelectItem>
+                <SelectItem value="applied">Applied</SelectItem>
+                <SelectItem value="not_interested">Not Interested</SelectItem>
+                <SelectItem value="closed">Closed</SelectItem>
+              </SelectContent>
+            </Select>
           </div>
-          <Button
-            onClick={handleAISearch}
-            disabled={isSearching}
-            className="bg-[#F7931E] hover:bg-[#E07A0A] text-white rounded-xl gap-2"
-          >
-            {isSearching ? <Loader2 className="w-4 h-4 animate-spin" /> : <Search className="w-4 h-4" />}
-            {isSearching ? "Searching..." : "Find Roles"}
-          </Button>
+
+          {/* Source Filter Tabs */}
+          <div className="flex flex-wrap gap-2 border-b border-gray-200 pb-px">
+            <button
+              onClick={() => setSourceFilter("all")}
+              className={`px-5 py-2.5 text-sm font-semibold rounded-t-lg transition-all ${
+                sourceFilter === "all"
+                  ? "text-[#FF9E4D] bg-[#FFF9F5] border-b-2 border-[#FF9E4D]"
+                  : "text-gray-600 hover:text-gray-900 hover:bg-gray-50"
+              }`}
+            >
+              All Sources ({sourceCounts.all})
+            </button>
+            <button
+              onClick={() => setSourceFilter("job-boards")}
+              className={`px-5 py-2.5 text-sm font-semibold rounded-t-lg transition-all ${
+                sourceFilter === "job-boards"
+                  ? "text-[#FF9E4D] bg-[#FFF9F5] border-b-2 border-[#FF9E4D]"
+                  : "text-gray-600 hover:text-gray-900 hover:bg-gray-50"
+              }`}
+            >
+              Job Boards ({sourceCounts.jobBoards})
+            </button>
+            <button
+              onClick={() => setSourceFilter("target-companies")}
+              className={`px-5 py-2.5 text-sm font-semibold rounded-t-lg transition-all ${
+                sourceFilter === "target-companies"
+                  ? "text-[#FF9E4D] bg-[#FFF9F5] border-b-2 border-[#FF9E4D]"
+                  : "text-gray-600 hover:text-gray-900 hover:bg-gray-50"
+              }`}
+            >
+              Target Companies ({sourceCounts.targetCompanies})
+            </button>
+            <button
+              onClick={() => setSourceFilter("discoveries")}
+              className={`px-5 py-2.5 text-sm font-semibold rounded-t-lg transition-all ${
+                sourceFilter === "discoveries"
+                  ? "text-[#FF9E4D] bg-[#FFF9F5] border-b-2 border-[#FF9E4D]"
+                  : "text-gray-600 hover:text-gray-900 hover:bg-gray-50"
+              }`}
+            >
+              Daily Discoveries
+            </button>
+          </div>
         </div>
 
-        {/* Source Tabs */}
-        <div className="flex gap-2 border-b-2 border-gray-200 -mb-px">
-          <button
-            onClick={() => setSourceFilter("all")}
-            className={`px-5 py-3 text-sm font-medium transition-all -mb-0.5 border-b-3 ${
-              sourceFilter === "all"
-                ? "text-[#F7931E] border-b-[#F7931E]"
-                : "text-gray-600 border-b-transparent hover:text-gray-900 hover:bg-gray-50"
-            }`}
-          >
-            All Sources ({sourceCounts.all})
-          </button>
-          <button
-            onClick={() => setSourceFilter("job-boards")}
-            className={`px-5 py-3 text-sm font-medium transition-all -mb-0.5 border-b-3 ${
-              sourceFilter === "job-boards"
-                ? "text-[#F7931E] border-b-[#F7931E]"
-                : "text-gray-600 border-b-transparent hover:text-gray-900 hover:bg-gray-50"
-            }`}
-          >
-            Job Boards ({sourceCounts.jobBoards})
-          </button>
-          <button
-            onClick={() => setSourceFilter("target-companies")}
-            className={`px-5 py-3 text-sm font-medium transition-all -mb-0.5 border-b-3 ${
-              sourceFilter === "target-companies"
-                ? "text-[#F7931E] border-b-[#F7931E]"
-                : "text-gray-600 border-b-transparent hover:text-gray-900 hover:bg-gray-50"
-            }`}
-          >
-            Target Companies ({sourceCounts.targetCompanies})
-          </button>
-        </div>
-
-        <div className="flex gap-3">
-          <Select value={statusFilter} onValueChange={setStatusFilter}>
-            <SelectTrigger className="w-[160px] rounded-xl">
-              <SelectValue placeholder="Status" />
-            </SelectTrigger>
-            <SelectContent>
-              <SelectItem value="all">All Status</SelectItem>
-              <SelectItem value="new">New</SelectItem>
-              <SelectItem value="saved">Saved</SelectItem>
-              <SelectItem value="applied">Applied</SelectItem>
-              <SelectItem value="not_interested">Not Interested</SelectItem>
-            </SelectContent>
-          </Select>
-        </div>
-      </div>
-
-      {/* Roles List */}
-      {filtered.length === 0 && !isLoading ? (
-        <EmptyState
-          icon={Briefcase}
-          title="No roles found"
-          description="Search for executive opportunities above to discover matching roles."
-        />
-      ) : (
-        <div className="space-y-4">
-          {filtered.map(role => (
-            <div key={role.id} className="bg-white border border-gray-100 rounded-2xl p-6 hover:shadow-md transition-all">
-              <div className="flex flex-col sm:flex-row sm:items-start justify-between gap-4">
-                <div className="flex-1">
-                  <div className="flex items-start gap-3">
-                    {role.match_score && (
-                      <div className="w-12 h-12 bg-orange-50 rounded-xl flex items-center justify-center text-sm font-bold text-[#F7931E] shrink-0">
-                        {role.match_score}%
-                      </div>
-                    )}
-                    <div>
-                      <h3 className="font-semibold text-gray-900 text-lg">{role.title}</h3>
-                      <div className="flex flex-wrap items-center gap-2 mt-1 text-sm text-gray-500">
-                        <span className="flex items-center gap-1"><Building2 className="w-3.5 h-3.5" /> {role.company_name}</span>
-                        {role.industry && <span>• {role.industry}</span>}
-                        {role.location && <span className="flex items-center gap-1"><MapPin className="w-3.5 h-3.5" /> {role.location}</span>}
-                      </div>
-                      {(role.salary_min || role.salary_max) && (
-                        <p className="flex items-center gap-1 mt-2 text-sm font-medium text-gray-700">
-                          <DollarSign className="w-3.5 h-3.5" />
-                          ${role.salary_min?.toLocaleString()} - ${role.salary_max?.toLocaleString()}
-                          {role.work_type && <span className="text-gray-400 font-normal ml-2">• {role.work_type}</span>}
-                          {role.reports_to && <span className="text-gray-400 font-normal ml-2">• Reports to {role.reports_to}</span>}
-                        </p>
-                      )}
-                      {(role.match_reasons || []).length > 0 && (
-                       <div className="mt-3 p-3 bg-emerald-50 rounded-lg">
-                         <p className="text-xs font-semibold text-emerald-900 mb-1.5">Why it matches:</p>
-                         <ul className="space-y-1">
-                           {role.match_reasons.slice(0, 3).map((reason, idx) => (
-                             <li key={idx} className="text-xs text-emerald-700 flex items-start gap-1.5">
-                               <span className="text-emerald-500 mt-0.5">✓</span>
-                               <span>{reason}</span>
-                             </li>
-                           ))}
-                         </ul>
-                       </div>
-                      )}
-                      {role.source && (
-                        <div className="flex items-center gap-2 mt-3 text-xs">
-                          <span className="font-semibold text-gray-600">Source:</span>
-                          <span className={`px-2.5 py-1 rounded font-medium ${
-                            role.source?.toLowerCase().includes("rss") || role.source?.toLowerCase().includes("feed") || role.source?.toLowerCase().includes("indeed") || role.source?.toLowerCase().includes("linkedin")
-                              ? "bg-amber-50 text-amber-800"
-                              : "bg-blue-50 text-blue-800"
-                          }`}>
-                            {role.source}
-                          </span>
-                          {role.posted_date && (
-                            <span className="text-gray-500 ml-auto">
-                              Posted: {new Date(role.posted_date).toLocaleDateString()}
-                            </span>
-                          )}
-                        </div>
-                      )}
-                    </div>
-                  </div>
-                </div>
-                <div className="flex items-center gap-2 shrink-0">
-                  <StatusBadge status={role.status || "new"} />
-                </div>
+        {/* Roles List */}
+        {filtered.length === 0 && !isLoading ? (
+          sourceFilter === "all" ? (
+            <div className="bg-white border border-gray-200 rounded-2xl p-12 text-center">
+              <Briefcase className="w-16 h-16 text-gray-300 mx-auto mb-4" />
+              <h3 className="text-xl font-semibold text-gray-900 mb-2">No open roles yet</h3>
+              <p className="text-gray-600 mb-6">Start by adding target companies or connecting job boards to begin discovering opportunities.</p>
+              <div className="flex justify-center gap-3">
+                <Link to={createPageUrl("Companies")}>
+                  <Button className="bg-[#FF9E4D] hover:bg-[#E8893D] text-white rounded-xl">
+                    Find Companies →
+                  </Button>
+                </Link>
+                <Link to={createPageUrl("JobBoards")}>
+                  <Button variant="outline" className="rounded-xl">
+                    Add Job Boards →
+                  </Button>
+                </Link>
               </div>
-              <div className="flex flex-wrap gap-2 mt-4 pt-4 border-t border-gray-100">
+            </div>
+          ) : (
+            <div className="bg-white border border-gray-200 rounded-2xl p-12 text-center">
+              <Briefcase className="w-16 h-16 text-gray-300 mx-auto mb-4" />
+              <h3 className="text-xl font-semibold text-gray-900 mb-2">No roles from {sourceFilter === "job-boards" ? "job boards" : "target companies"} yet</h3>
+              <p className="text-gray-600 mb-6">Your {sourceFilter === "job-boards" ? "job board feeds haven't" : "target companies haven't"} found matching roles. Try expanding your search criteria or adding more {sourceFilter === "job-boards" ? "feeds" : "companies"}.</p>
+              <Link to={createPageUrl("Settings")}>
+                <Button variant="outline" className="rounded-xl">
+                  Edit Job Search Preferences →
+                </Button>
+              </Link>
+            </div>
+          )
+        ) : (
+          <div className="space-y-4">
+            {filtered.map(role => (
+            <div key={role.id} className="bg-white border border-gray-100 rounded-2xl p-6 hover:shadow-md transition-all">
+              {/* Card Header */}
+              <div className="flex items-start justify-between gap-4 mb-4">
+                <div className="flex items-start gap-3 flex-1">
+                  {role.match_score && (
+                    <div className="px-3 py-1.5 bg-[#FF9E4D]/10 text-[#FF9E4D] rounded-lg text-sm font-bold shrink-0">
+                      {role.match_score}% Match
+                    </div>
+                  )}
+                  {role.status === "new" && (
+                    <div className="px-3 py-1.5 bg-blue-50 text-blue-700 rounded-lg text-sm font-semibold">
+                      New
+                    </div>
+                  )}
+                </div>
+                {role.status === "not_interested" && (
+                  <span className="text-sm text-gray-400 font-medium">Not Interested</span>
+                )}
+              </div>
+
+              {/* Role Info */}
+              <div className="mb-4">
+                <Link to={createPageUrl("CompanyDetail") + `?id=${role.company_id || role.company_name}`} className="hover:underline">
+                  <h3 className="font-bold text-gray-900 text-xl mb-2">{role.title}</h3>
+                </Link>
+                <div className="flex flex-wrap items-center gap-x-3 gap-y-1 text-sm text-gray-600">
+                  <span className="flex items-center gap-1">
+                    <Building2 className="w-4 h-4" />
+                    <Link to={createPageUrl("CompanyDetail") + `?id=${role.company_id || role.company_name}`} className="hover:underline font-medium">
+                      {role.company_name}
+                    </Link>
+                  </span>
+                  {role.industry && <span>• {role.industry}</span>}
+                  {role.location && (
+                    <span className="flex items-center gap-1">
+                      <MapPin className="w-4 h-4" />
+                      {role.location}
+                    </span>
+                  )}
+                </div>
+                {(role.salary_min || role.salary_max || role.work_type || role.reports_to) && (
+                  <div className="flex flex-wrap items-center gap-x-3 gap-y-1 mt-2 text-sm text-gray-700">
+                    {(role.salary_min || role.salary_max) && (
+                      <span className="flex items-center gap-1 font-medium">
+                        <DollarSign className="w-4 h-4" />
+                        ${role.salary_min?.toLocaleString()} - ${role.salary_max?.toLocaleString()}
+                      </span>
+                    )}
+                    {role.work_type && <span>• {role.work_type}</span>}
+                    {role.reports_to && <span>• Reports to {role.reports_to}</span>}
+                  </div>
+                )}
+              </div>
+
+              {/* Match Explanation */}
+              {(role.match_reasons || []).length > 0 && role.match_score >= 80 && (
+                <details open className="mb-4">
+                  <summary className="cursor-pointer text-sm font-semibold text-gray-900 flex items-center justify-between mb-2">
+                    Why it matches:
+                    <span className="text-gray-400">▲</span>
+                  </summary>
+                  <div className="p-3 bg-emerald-50 rounded-lg">
+                    <ul className="space-y-1.5">
+                      {role.match_reasons.slice(0, 3).map((reason, idx) => (
+                        <li key={idx} className="text-sm text-emerald-700 flex items-start gap-2">
+                          <span className="text-emerald-500 mt-0.5">✓</span>
+                          <span>{reason}</span>
+                        </li>
+                      ))}
+                    </ul>
+                  </div>
+                </details>
+              )}
+
+              {/* Metadata Footer */}
+              {(role.source || role.posted_date) && (
+                <div className="flex items-center justify-between text-xs text-gray-500 mb-4 pb-4 border-b border-gray-100">
+                  {role.source && (
+                    <span>
+                      <span className="font-semibold">Source:</span> {role.source}
+                    </span>
+                  )}
+                  {role.posted_date && (
+                    <span>Posted: {new Date(role.posted_date).toLocaleDateString()}</span>
+                  )}
+                </div>
+              )}
+              {/* Action Buttons */}
+              <div className="flex flex-wrap gap-2">
                 {role.status !== "applied" && (
                   <Button
                     size="sm"
-                    className="bg-[#F7931E] hover:bg-[#E07A0A] text-white rounded-lg gap-1.5 text-xs"
+                    className="bg-[#FF9E4D] hover:bg-[#E8893D] text-white rounded-xl gap-1.5"
                     onClick={() => applyMutation.mutate(role)}
                     disabled={applyMutation.isPending}
                   >
-                    <Check className="w-3 h-3" /> Apply Now
+                    Apply Now
                   </Button>
                 )}
                 <Button
                   size="sm"
                   variant="outline"
-                  className="rounded-lg gap-1.5 text-xs"
+                  className="rounded-xl gap-1.5"
                   onClick={() => saveJobMutation.mutate(role.id)}
                   disabled={saveJobMutation.isPending}
                 >
-                  <Bookmark className="w-3 h-3" /> {saveJobMutation.isPending ? "Saving..." : "Save to Pipeline"}
+                  <Bookmark className="w-4 h-4" /> {saveJobMutation.isPending ? "Saving..." : "Save to Pipeline"}
                 </Button>
                 <Button
                   size="sm"
                   variant="ghost"
-                  className="rounded-lg gap-1.5 text-xs text-gray-400"
+                  className="rounded-xl gap-1.5 text-gray-400 hover:text-red-500"
                   onClick={() => updateRoleMutation.mutate({ id: role.id, data: { status: "not_interested" } })}
                 >
-                  <X className="w-3 h-3" /> Not Interested
+                  <X className="w-4 h-4" /> Not Interested
                 </Button>
-                {role.source_url && (
-                  <a href={role.source_url} target="_blank" rel="noopener noreferrer">
-                    <Button size="sm" variant="ghost" className="rounded-lg gap-1.5 text-xs">
-                      <ExternalLink className="w-3 h-3" /> View Posting
-                    </Button>
-                  </a>
-                )}
               </div>
             </div>
-          ))}
-        </div>
-      )}
+            ))}
+          </div>
+        )}
+      </div>
     </div>
   );
 }
