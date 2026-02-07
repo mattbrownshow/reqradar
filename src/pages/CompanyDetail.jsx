@@ -33,6 +33,49 @@ export default function CompanyDetail() {
   const [generatingOutreach, setGeneratingOutreach] = useState(false);
   const [generatedMessage, setGeneratedMessage] = useState(null);
 
+  // Load or create company from name
+  useEffect(() => {
+    if (companyName && !companyId) {
+      loadOrCreateCompany();
+    }
+  }, [companyName, companyId]);
+
+  const loadOrCreateCompany = async () => {
+    try {
+      setEnriching(true);
+      console.log('🔍 Looking for company:', companyName);
+      
+      // Try to find company by name
+      const companies = await base44.entities.Company.filter({ name: companyName });
+      
+      if (companies.length > 0) {
+        console.log('✅ Found existing company:', companies[0].id);
+        setCompanyId(companies[0].id);
+      } else {
+        console.log('⚠️ Company not found, creating new...');
+        // Create company record
+        const newCompany = await base44.entities.Company.create({ name: companyName });
+        console.log('✅ Company created:', newCompany.id);
+        setCompanyId(newCompany.id);
+        
+        // Run enrichment
+        try {
+          await base44.functions.invoke('enrichCompanyIntelligence', {
+            company_id: newCompany.id,
+            company_name: companyName
+          });
+          queryClient.invalidateQueries({ queryKey: ["company", newCompany.id] });
+        } catch (error) {
+          console.error('Enrichment failed:', error);
+        }
+      }
+    } catch (error) {
+      console.error('Error:', error);
+    } finally {
+      setEnriching(false);
+    }
+  };
+
   const { data: company, isLoading, error } = useQuery({
     queryKey: ["company", companyId],
     queryFn: () => base44.entities.Company.get(companyId),
