@@ -31,36 +31,7 @@ export default function EnhancedPipelineCard({ item, job, onStatusChange, onLaun
     queryFn: () => base44.entities.OutreachMessage.list("-created_date", 500)
   });
 
-  // Auto-trigger enrichment on mount if needed
-  const enrichMutation = useMutation({
-    mutationFn: async () => {
-      const result = await base44.functions.invoke('enrichOpportunityContacts', {
-        job_id: item.job_id,
-        pipeline_id: item.id,
-        company_id: job.company_id,
-        company_name: job.company_name,
-        company_domain: job.company_domain || ''
-      });
-      return result.data;
-    },
-    onSuccess: (data) => {
-      if (data.status === 'success') {
-        setEnrichedAt(new Date().toISOString());
-        queryClient.invalidateQueries({ queryKey: ["contacts"] });
-        // Auto-transition to Intel Gathering if contacts found
-        if (data.contacts_created > 0 && item.stage === "saved") {
-          onStatusChange(item.id, "intel_gathering");
-        }
-      }
-    }
-  });
-
-  // Auto-enrich on first render if in saved stage and no enrichment yet
-  useEffect(() => {
-    if (item.stage === "saved" && !enrichedAt && contacts.length === 0) {
-      enrichMutation.mutate();
-    }
-  }, []);
+  // Enrichment removed - now happens on-demand on CompanyDetail page
 
   if (!job) {
     return (
