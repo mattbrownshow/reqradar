@@ -54,7 +54,11 @@ export default function Settings() {
 
   const { data: profiles = [] } = useQuery({
     queryKey: ["candidateProfile"],
-    queryFn: () => base44.entities.CandidateProfile.list("-created_date", 1),
+    queryFn: async () => {
+      const result = await base44.entities.CandidateProfile.list("-created_date", 1);
+      return result || [];
+    },
+    initialData: []
   });
 
   const profile = profiles[0] || {};
