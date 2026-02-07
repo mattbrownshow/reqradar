@@ -299,7 +299,7 @@ export default function OutreachComposerModal({ company, contacts, roles, user, 
                       <RefreshCw className="w-4 h-4" />
                       Regenerate
                     </Button>
-                    {messageType === 'email' && emailConnected ? (
+                    {messageType === 'email' ? (
                       <Button
                         onClick={() => setShowConfirmation(true)}
                         disabled={sending || !subjectLine}
