@@ -42,6 +42,7 @@ export default function ConnectedAccountsSection({ user }) {
       console.error('Failed to initiate Gmail connection:', error);
       alert('Failed to connect Gmail. Please try again.');
       setLoading(false);
+      loadConnectionStatus();
     }
   }
 
@@ -57,6 +58,7 @@ export default function ConnectedAccountsSection({ user }) {
       console.error('Failed to initiate Outlook connection:', error);
       alert('Failed to connect Outlook. Please try again.');
       setLoading(false);
+      loadConnectionStatus();
     }
   }
 
