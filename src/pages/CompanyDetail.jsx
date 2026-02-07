@@ -207,17 +207,23 @@ export default function CompanyDetail() {
                         titles: ['CEO', 'CTO', 'COO', 'CFO', 'VP', 'Director']
                       });
                       
-                      for (const contact of result.data.contacts) {
-                        await base44.entities.Contact.create({
-                          ...contact,
-                          company_id: companyId,
-                          company_name: company.name
-                        });
-                      }
+                      const contacts = Array.isArray(result.data) ? result.data : (result.data?.contacts || []);
                       
-                      queryClient.invalidateQueries({ queryKey: ["contacts", companyId] });
+                      if (contacts.length > 0) {
+                        for (const contact of contacts) {
+                          await base44.entities.Contact.create({
+                            ...contact,
+                            company_id: companyId,
+                            company_name: company.name
+                          });
+                        }
+                        queryClient.invalidateQueries({ queryKey: ["contacts", companyId] });
+                      } else {
+                        alert('No decision makers found for this company');
+                      }
                     } catch (error) {
                       console.error('Error:', error);
+                      alert('Failed to find decision makers. Please try again.');
                     }
                   }}
                   className="bg-orange-600 hover:bg-orange-700 text-white"
