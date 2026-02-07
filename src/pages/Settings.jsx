@@ -67,12 +67,15 @@ export default function Settings() {
     }
   }, [profile.id]);
 
-  const saveJobSearchPrefs = async () => {
-    if (profile.id) {
+  const saveJobSearchMutation = useMutation({
+    mutationFn: async () => {
+      if (!profile.id) throw new Error('No profile found');
       await base44.entities.CandidateProfile.update(profile.id, jobSearchPrefs);
+    },
+    onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["candidateProfile"] });
     }
-  };
+  });
 
   const ROLES_DB = {
     'C-Suite': [
@@ -411,8 +414,16 @@ export default function Settings() {
             </div>
 
             <div className="flex justify-end pt-4 border-t">
-              <Button onClick={saveJobSearchPrefs} className="bg-[#F7931E] hover:bg-[#E07A0A] text-white rounded-xl gap-2">
-                <Save className="w-4 h-4" /> Save Preferences
+              <Button 
+                onClick={() => saveJobSearchMutation.mutate()} 
+                disabled={saveJobSearchMutation.isPending || !profile.id}
+                className="bg-[#F7931E] hover:bg-[#E07A0A] text-white rounded-xl gap-2"
+              >
+                {saveJobSearchMutation.isPending ? (
+                  <><Loader2 className="w-4 h-4 animate-spin" /> Saving...</>
+                ) : (
+                  <><Save className="w-4 h-4" /> Save Preferences</>
+                )}
               </Button>
             </div>
           </div>
