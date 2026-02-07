@@ -34,6 +34,8 @@ Deno.serve(async (req) => {
     let totalJobsCreated = 0;
     const existingJobs = await base44.asServiceRole.entities.OpenRole.list('-created_date', 500);
     const existingUrls = new Set(existingJobs.map(j => j.source_url));
+    
+    console.log(`Target roles for filtering: ${targetRoles.join(', ')}, Existing jobs: ${existingUrls.size}`);
 
     // Fetch and parse each feed
     for (const feed of feeds) {
