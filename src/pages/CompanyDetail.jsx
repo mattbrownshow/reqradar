@@ -19,6 +19,12 @@ export default function CompanyDetail() {
   const queryClient = useQueryClient();
   const params = new URLSearchParams(window.location.search);
   const companyId = params.get("id");
+  
+  console.log('=== COMPANY DETAIL PAGE ===');
+  console.log('Full URL:', window.location.href);
+  console.log('URL params:', window.location.search);
+  console.log('Company ID from URL:', companyId);
+  console.log('Company ID type:', typeof companyId);
 
   const [showAddContact, setShowAddContact] = useState(false);
   const [newContact, setNewContact] = useState({ full_name: "", title: "", email: "", phone: "", linkedin_url: "" });
