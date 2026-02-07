@@ -40,6 +40,24 @@ Deno.serve(async (req) => {
     
     console.log(`Target roles for filtering: ${targetRoles.join(', ')}, Existing jobs: ${existingUrls.size}`);
 
+    // Fetch from Adzuna API
+    try {
+      console.log('Fetching jobs from Adzuna API...');
+      const adzunaJobs = await fetchAdzunaJobs(targetRoles);
+      console.log(`Fetched ${adzunaJobs.length} jobs from Adzuna`);
+      
+      if (adzunaJobs.length > 0) {
+        const newAdzunaJobs = adzunaJobs.filter(j => !existingUrls.has(j.source_url));
+        if (newAdzunaJobs.length > 0) {
+          await base44.asServiceRole.entities.OpenRole.bulkCreate(newAdzunaJobs);
+          totalJobsCreated += newAdzunaJobs.length;
+          console.log(`Created ${newAdzunaJobs.length} new jobs from Adzuna`);
+        }
+      }
+    } catch (error) {
+      console.error('Error fetching Adzuna jobs:', error);
+    }
+
     // Fetch and parse each feed
     for (const feed of feeds) {
       try {
