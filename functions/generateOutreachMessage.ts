@@ -3,71 +3,99 @@ import { createClientFromRequest } from 'npm:@base44/sdk@0.8.6';
 Deno.serve(async (req) => {
   try {
     const base44 = createClientFromRequest(req);
+    const user = await base44.auth.me();
+
+    if (!user) {
+      return Response.json({ error: 'Unauthorized' }, { status: 401 });
+    }
+
+    const body = await req.json();
     const {
-      role_title,
-      role_description,
-      role_salary_min,
-      role_salary_max,
-      company_name,
-      company_industry,
-      company_description,
       contact_name,
       contact_title,
       contact_seniority,
+      company_name,
+      company_industry,
+      company_description,
+      role_title,
+      role_description,
       user_background
-    } = await req.json();
+    } = body;
 
-    const anthropicKey = Deno.env.get('ANTHROPIC_API_KEY');
-    if (!anthropicKey) {
-      return Response.json({ error: 'ANTHROPIC_API_KEY not set' }, { status: 500 });
+    const apiKey = Deno.env.get('ANTHROPIC_API_KEY');
+    if (!apiKey) {
+      return Response.json({ error: 'Claude API not configured' }, { status: 500 });
     }
 
-    const prompt = `You are an executive recruiter helping a qualified candidate reach out to decision makers.
+    const prompt = `You are an expert executive recruiter crafting personalized outreach messages.
 
-CANDIDATE BACKGROUND:
-${user_background || 'Experienced professional looking for new opportunities'}
+Generate 4 different outreach templates for:
+- Contact: ${contact_name}, ${contact_title} (${contact_seniority})
+- Company: ${company_name} (${company_industry})
+- Company description: ${company_description || 'Not provided'}
+- Open role: ${role_title}
+- Role details: ${role_description || 'Not provided'}
 
-TARGET ROLE:
-Title: ${role_title}
-Company: ${company_name}
-Industry: ${company_industry}
-Salary Range: $${role_salary_min?.toLocaleString() || '0'} - $${role_salary_max?.toLocaleString() || '0'}
-Description: ${role_description || 'N/A'}
-
-DECISION MAKER:
-Name: ${contact_name}
-Title: ${contact_title}
-Seniority: ${contact_seniority}
-
-Generate personalized outreach messaging in the following formats:
-
-1. EMAIL SUBJECT LINE (10 words max)
-2. EMAIL BODY (150-200 words, professional but warm tone)
-3. LINKEDIN CONNECTION REQUEST (300 characters max)
-4. LINKEDIN FIRST MESSAGE (if they accept connection, 200 words)
-5. LINKEDIN SECOND FOLLOW-UP (if no response after 5 days, 150 words)
-
-Make it highly personalized based on the candidate's background and the specific role. Highlight relevant experience. Be confident but not arrogant. Include a clear call to action.
-
-Output ONLY valid JSON in this exact format:
+Create messages in this exact JSON format (no markdown, pure JSON):
 {
-  "email_subject": "...",
-  "email_body": "...",
-  "linkedin_connection": "...",
-  "linkedin_message_1": "...",
-  "linkedin_message_2": "..."
-}`;
+  "email_subject": "subject line here",
+  "email_body": "personalized email body here",
+  "linkedin_connection": "concise connection request message here",
+  "linkedin_message_1": "first personalized LinkedIn message here",
+  "linkedin_message_2": "follow-up message here"
+}
 
-    const response = await fetch('https://api.anthropic.com/v1/messages', {
+Requirements:
+- Email subject: Compelling, specific to their role/company (under 60 chars)
+- Email body: Professional, personalized, 150-250 words, specific value prop
+- LinkedIn connection: Friendly, concise, references their role or company
+- LinkedIn message 1: More detailed than connection request, 100-150 words
+- LinkedIn message 2: Follow-up message, reference mutual connections or recent news if possible
+
+Make each message feel authentic and tailored to ${contact_name}'s specific role and seniority level.`;
+
+    const response = await fetch('https://api.anthropic.com/v1/messages/batch/requests', {
       method: 'POST',
       headers: {
-        'Content-Type': 'application/json',
-        'x-api-key': anthropicKey,
-        'anthropic-version': '2023-06-01'
+        'x-api-key': apiKey,
+        'anthropic-version': '2023-06-01',
+        'content-type': 'application/json'
       },
       body: JSON.stringify({
-        model: 'claude-opus-4-1-20250805',
-        max_tokens: 2000,
+        requests: [{
+          custom_id: 'outreach-msg-1',
+          params: {
+            model: 'claude-3-5-sonnet-20241022',
+            max_tokens: 1024,
+            messages: [{
+              role: 'user',
+              content: prompt
+            }]
+          }
+        }]
+      })
+    });
+
+    if (!response.ok) {
+      const error = await response.text();
+      console.error('Anthropic API error:', error);
+      return Response.json({ error: 'Failed to generate message' }, { status: 500 });
+    }
+
+    const data = await response.json();
+    
+    // For batch API, we need to poll or handle async
+    // For now, use synchronous message API instead
+    const syncResponse = await fetch('https://api.anthropic.com/v1/messages', {
+      method: 'POST',
+      headers: {
+        'x-api-key': apiKey,
+        'anthropic-version': '2023-06-01',
+        'content-type': 'application/json'
+      },
+      body: JSON.stringify({
+        model: 'claude-3-5-sonnet-20241022',
+        max_tokens: 1024,
         messages: [{
           role: 'user',
           content: prompt
@@ -75,35 +103,32 @@ Output ONLY valid JSON in this exact format:
       })
     });
 
-    const data = await response.json();
-
-    if (!data.content || !data.content[0]) {
-      return Response.json({ error: 'No response from Claude' }, { status: 500 });
+    if (!syncResponse.ok) {
+      const error = await syncResponse.json();
+      console.error('Claude error:', error);
+      return Response.json({ error: 'Failed to generate message' }, { status: 500 });
     }
 
-    const messageText = data.content[0].text;
-    const jsonMatch = messageText.match(/\{[\s\S]*\}/);
+    const result = await syncResponse.json();
+    const content = result.content[0].text;
 
+    // Parse JSON from response
+    const jsonMatch = content.match(/\{[\s\S]*\}/);
     if (!jsonMatch) {
-      console.error('Failed to extract JSON:', messageText);
-      return Response.json({ error: 'Failed to parse AI response' }, { status: 500 });
+      return Response.json({ error: 'Invalid response format' }, { status: 500 });
     }
 
-    const parsed = JSON.parse(jsonMatch[0]);
+    const messages = JSON.parse(jsonMatch[0]);
 
     return Response.json({
-      success: true,
-      data: {
-        email_subject: parsed.email_subject,
-        email_body: parsed.email_body,
-        linkedin_connection: parsed.linkedin_connection,
-        linkedin_message_1: parsed.linkedin_message_1,
-        linkedin_message_2: parsed.linkedin_message_2
-      }
+      email_subject: messages.email_subject,
+      email_body: messages.email_body,
+      linkedin_connection: messages.linkedin_connection,
+      linkedin_message_1: messages.linkedin_message_1,
+      linkedin_message_2: messages.linkedin_message_2
     });
-
   } catch (error) {
-    console.error('Outreach generation error:', error);
+    console.error('Error:', error);
     return Response.json({ error: error.message }, { status: 500 });
   }
 });
