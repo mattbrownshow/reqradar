@@ -3,158 +3,117 @@ import { createClientFromRequest } from 'npm:@base44/sdk@0.8.6';
 Deno.serve(async (req) => {
   try {
     const base44 = createClientFromRequest(req);
-    const user = await base44.auth.me();
-    
-    if (!user) {
-      return Response.json({ error: 'Unauthorized' }, { status: 401 });
-    }
-
     const { companyDomain, companyName, titles } = await req.json();
-    
+
     if (!companyDomain && !companyName) {
-      return Response.json({ error: 'Company domain or name required' }, { status: 400 });
+      return Response.json({ error: 'Missing companyDomain or companyName' }, { status: 400 });
     }
 
-    const LUSHA_API_KEY = Deno.env.get('LUSHA_API_KEY');
-    const AMPLEMARKET_API_KEY = Deno.env.get('AMPLEMARKET_API_KEY');
-    const APOLLO_API_KEY = Deno.env.get('APOLLO_API_KEY');
+    const jobTitles = titles || [
+      'CEO', 'CTO', 'VP Engineering', 'VP Technology', 'Head of Engineering',
+      'Chief Technology Officer', 'VP Sales', 'VP Business Development'
+    ];
 
-    let allContacts = [];
+    // Get contacts from Apollo
+    const apolloContacts = await getApolloContacts(companyName, jobTitles);
 
-    // Try Lusha API
-    if (LUSHA_API_KEY) {
-      try {
-        const lushaContacts = await fetchLushaContacts(LUSHA_API_KEY, { companyDomain, titles });
-        allContacts.push(...lushaContacts);
-      } catch (error) {
-        console.error('Lusha API error:', error);
-      }
+    const enrichedContacts = [];
+
+    // Enrich each with Lusha
+    for (const contact of apolloContacts) {
+      let enriched = contact;
+
+      enriched = await enrichWithLusha(enriched, companyName);
+      enrichedContacts.push(enriched);
     }
-
-    // Try Amplemarket API
-    if (AMPLEMARKET_API_KEY && allContacts.length < 10) {
-      try {
-        const ampleContacts = await fetchAmplemarketContacts(AMPLEMARKET_API_KEY, { companyDomain, companyName, titles });
-        allContacts.push(...ampleContacts);
-      } catch (error) {
-        console.error('Amplemarket API error:', error);
-      }
-    }
-
-    // Try Apollo API
-    if (APOLLO_API_KEY && allContacts.length < 10) {
-      try {
-        const apolloContacts = await fetchApolloContacts(APOLLO_API_KEY, { companyDomain, companyName, titles });
-        allContacts.push(...apolloContacts);
-      } catch (error) {
-        console.error('Apollo API error:', error);
-      }
-    }
-
-    // Deduplicate by email
-    const uniqueContacts = new Map();
-    allContacts.forEach(contact => {
-      const key = contact.email || `${contact.full_name}-${contact.title}`;
-      if (!uniqueContacts.has(key)) {
-        uniqueContacts.set(key, contact);
-      }
-    });
-
-    const contacts = Array.from(uniqueContacts.values());
 
     return Response.json({
-      contacts,
-      count: contacts.length,
-      sources: {
-        lusha: LUSHA_API_KEY ? true : false,
-        amplemarket: AMPLEMARKET_API_KEY ? true : false,
-        apollo: APOLLO_API_KEY ? true : false
+      success: true,
+      data: {
+        contacts: enrichedContacts
       }
     });
 
   } catch (error) {
-    console.error('Error finding contacts:', error);
+    console.error('Find contacts error:', error);
     return Response.json({ error: error.message }, { status: 500 });
   }
 });
 
-async function fetchLushaContacts(apiKey, { companyDomain, titles }) {
-  const searchParams = new URLSearchParams();
-  if (companyDomain) searchParams.append('companyDomain', companyDomain);
-  if (titles?.length > 0) searchParams.append('title', titles.join(','));
-  searchParams.append('limit', '20');
+async function getApolloContacts(companyName, jobTitles) {
+  const apiKey = Deno.env.get('APOLLO_API_KEY');
+  if (!apiKey) throw new Error('APOLLO_API_KEY not set');
 
-  const response = await fetch(`https://api.lusha.com/person?${searchParams.toString()}`, {
-    method: 'GET',
-    headers: { 'api_key': apiKey, 'Content-Type': 'application/json' }
-  });
-
-  if (!response.ok) throw new Error(`Lusha API error: ${response.status}`);
-
-  const data = await response.json();
-  return (data.data || []).map(person => ({
-    full_name: `${person.firstName || ''} ${person.lastName || ''}`.trim(),
-    title: person.title,
-    email: person.emailAddresses?.[0],
-    phone: person.phoneNumbers?.[0],
-    linkedin_url: person.linkedInUrl,
-    verified: person.emailAddresses?.[0] ? true : false,
-    data_source: 'lusha'
-  })).filter(c => c.full_name);
-}
-
-async function fetchAmplemarketContacts(apiKey, { companyDomain, companyName, titles }) {
-  const filters = {};
-  if (companyDomain) filters.company_domain = companyDomain;
-  if (companyName) filters.company_name = companyName;
-  if (titles?.length > 0) filters.title = titles;
-
-  const response = await fetch('https://api.amplemarket.com/api/v1/contacts/search', {
+  const response = await fetch('https://api.apollo.io/v1/people/search', {
     method: 'POST',
-    headers: { 'Authorization': `Bearer ${apiKey}`, 'Content-Type': 'application/json' },
-    body: JSON.stringify({ filters, limit: 20 })
+    headers: {
+      'Content-Type': 'application/json',
+      'X-Api-Key': apiKey
+    },
+    body: JSON.stringify({
+      q_organization_name: companyName,
+      person_titles: jobTitles,
+      page: 1,
+      per_page: 25
+    })
   });
 
-  if (!response.ok) throw new Error(`Amplemarket API error: ${response.status}`);
-
   const data = await response.json();
-  return (data.contacts || []).map(contact => ({
-    full_name: contact.full_name || `${contact.first_name || ''} ${contact.last_name || ''}`.trim(),
-    title: contact.title,
-    email: contact.email,
-    phone: contact.phone,
-    linkedin_url: contact.linkedin_url,
-    verified: contact.email_verified || false,
-    data_source: 'amplemarket'
-  })).filter(c => c.full_name);
-}
 
-async function fetchApolloContacts(apiKey, { companyDomain, companyName, titles }) {
-  const body = {
-    page: 1,
-    per_page: 20,
-    person_titles: titles || []
-  };
-  
-  if (companyDomain) body.organization_domains = [companyDomain];
-  if (companyName) body.q_organization_name = companyName;
+  if (!data.people) {
+    return [];
+  }
 
-  const response = await fetch('https://api.apollo.io/v1/mixed_people/search', {
-    method: 'POST',
-    headers: { 'Content-Type': 'application/json', 'Cache-Control': 'no-cache', 'X-Api-Key': apiKey },
-    body: JSON.stringify(body)
-  });
-
-  if (!response.ok) throw new Error(`Apollo API error: ${response.status}`);
-
-  const data = await response.json();
-  return (data.people || []).map(person => ({
-    full_name: person.name || `${person.first_name || ''} ${person.last_name || ''}`.trim(),
+  return data.people.map(person => ({
+    full_name: person.name,
+    first_name: person.first_name,
+    last_name: person.last_name,
     title: person.title,
     email: person.email,
-    phone: person.phone_numbers?.[0],
+    email_verified: person.email_status === 'verified',
+    phone: person.phone_numbers?.[0]?.raw_number,
     linkedin_url: person.linkedin_url,
-    verified: person.email_status === 'verified',
-    data_source: 'apollo'
-  })).filter(c => c.full_name);
+    seniority: person.seniority,
+    department: person.departments?.[0],
+    source: 'apollo'
+  }));
+}
+
+async function enrichWithLusha(contact, companyName) {
+  const apiKey = Deno.env.get('LUSHA_API_KEY');
+  if (!apiKey) return contact;
+
+  try {
+    const response = await fetch('https://api.lusha.com/person', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        'api_key': apiKey
+      },
+      body: JSON.stringify({
+        firstName: contact.first_name,
+        lastName: contact.last_name,
+        company: companyName,
+        ...(contact.linkedin_url && { linkedinUrl: contact.linkedin_url })
+      })
+    });
+
+    const data = await response.json();
+
+    return {
+      ...contact,
+      email: data.emailAddresses?.[0]?.email || contact.email,
+      email_verified: data.emailAddresses?.[0]?.verified || contact.email_verified,
+      phone: data.phoneNumbers?.[0]?.internationalNumber || contact.phone,
+      linkedin_url: data.linkedinUrl || contact.linkedin_url,
+      title: data.currentPositions?.[0]?.title || contact.title,
+      data_sources: ['apollo', 'lusha']
+    };
+  } catch (error) {
+    console.error('Lusha enrichment failed:', error);
+    return {
+      ...contact,
+      data_sources: ['apollo']
+    };
+  }
 }
