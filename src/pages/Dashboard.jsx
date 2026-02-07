@@ -487,41 +487,64 @@ export default function Dashboard() {
           </div>
         </div>
 
-        {/* Quick Actions */}
+        {/* Activation Widgets */}
         <div className="space-y-4">
-          <div className="bg-gradient-to-br from-[#FEF3E2] to-orange-50 rounded-2xl p-6 border border-orange-100">
-            <div className="flex items-center gap-3 mb-3">
-              <div className="w-10 h-10 bg-white rounded-xl flex items-center justify-center shadow-sm">
-                <Search className="w-5 h-5 text-[#F7931E]" />
+          {companiesWithoutOutreach > 0 && (
+            <div className="bg-gradient-to-br from-[#FEF3E2] to-orange-50 rounded-2xl p-6 border border-orange-100">
+              <div className="flex items-center gap-3 mb-3">
+                <div className="w-10 h-10 bg-white rounded-xl flex items-center justify-center shadow-sm">
+                  <Send className="w-5 h-5 text-[#F7931E]" />
+                </div>
+                <h3 className="font-semibold text-gray-900">Decision Makers Ready</h3>
               </div>
-              <h3 className="font-semibold text-gray-900">Find Companies</h3>
+              <p className="text-sm text-gray-600 mb-4">
+                {companiesWithoutOutreach} decision {companiesWithoutOutreach === 1 ? 'maker' : 'makers'} mapped and ready for outreach
+              </p>
+              <Link to={createPageUrl("Outreach")}>
+                <Button className="w-full bg-[#F7931E] hover:bg-[#E07A0A] text-white rounded-xl gap-2">
+                  Launch Outreach <ArrowUpRight className="w-4 h-4" />
+                </Button>
+              </Link>
             </div>
-            <p className="text-sm text-gray-600 mb-4">
-              Discover target companies matching your executive profile
-            </p>
-            <Link to={createPageUrl("Companies")}>
-              <Button className="w-full bg-[#F7931E] hover:bg-[#E07A0A] text-white rounded-xl gap-2">
-                Start Searching <ArrowUpRight className="w-4 h-4" />
-              </Button>
-            </Link>
-          </div>
+          )}
 
-          <div className="bg-gradient-to-br from-blue-50 to-indigo-50 rounded-2xl p-6 border border-blue-100">
-            <div className="flex items-center gap-3 mb-3">
-              <div className="w-10 h-10 bg-white rounded-xl flex items-center justify-center shadow-sm">
-                <Target className="w-5 h-5 text-blue-500" />
+          {repliesAwaitingResponse > 0 && (
+            <div className="bg-gradient-to-br from-emerald-50 to-teal-50 rounded-2xl p-6 border border-emerald-100">
+              <div className="flex items-center gap-3 mb-3">
+                <div className="w-10 h-10 bg-white rounded-xl flex items-center justify-center shadow-sm">
+                  <MessageSquare className="w-5 h-5 text-emerald-600" />
+                </div>
+                <h3 className="font-semibold text-gray-900">Replies Awaiting Response</h3>
               </div>
-              <h3 className="font-semibold text-gray-900">Search Job Boards</h3>
+              <p className="text-sm text-gray-600 mb-4">
+                {repliesAwaitingResponse} executive {repliesAwaitingResponse === 1 ? 'reply' : 'replies'} ready for follow-up
+              </p>
+              <Link to={createPageUrl("Outreach")}>
+                <Button variant="outline" className="w-full rounded-xl gap-2 border-emerald-200 text-emerald-700 hover:bg-emerald-50">
+                  Open Conversation <ArrowUpRight className="w-4 h-4" />
+                </Button>
+              </Link>
             </div>
-            <p className="text-sm text-gray-600 mb-4">
-              Aggregate executive roles from Indeed, LinkedIn, and more
-            </p>
-            <Link to={createPageUrl("JobBoards")}>
-              <Button variant="outline" className="w-full rounded-xl gap-2 border-blue-200 text-blue-700 hover:bg-blue-50">
-                Search Now <ArrowUpRight className="w-4 h-4" />
-              </Button>
-            </Link>
-          </div>
+          )}
+
+          {savedNotActivated > 0 && (
+            <div className="bg-gradient-to-br from-blue-50 to-indigo-50 rounded-2xl p-6 border border-blue-100">
+              <div className="flex items-center gap-3 mb-3">
+                <div className="w-10 h-10 bg-white rounded-xl flex items-center justify-center shadow-sm">
+                  <Target className="w-5 h-5 text-blue-500" />
+                </div>
+                <h3 className="font-semibold text-gray-900">Opportunities Awaiting Activation</h3>
+              </div>
+              <p className="text-sm text-gray-600 mb-4">
+                {savedNotActivated} {savedNotActivated === 1 ? 'opportunity is' : 'opportunities are'} saved but not activated
+              </p>
+              <Link to={createPageUrl("ActiveOpportunities")}>
+                <Button variant="outline" className="w-full rounded-xl gap-2 border-blue-200 text-blue-700 hover:bg-blue-50">
+                  Activate Opportunities <ArrowUpRight className="w-4 h-4" />
+                </Button>
+              </Link>
+            </div>
+          )}
 
           <div className="bg-white border border-gray-100 rounded-2xl p-6">
             <h3 className="font-semibold text-gray-900 mb-3">Top Companies</h3>
