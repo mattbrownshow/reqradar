@@ -353,10 +353,20 @@ export default function Dashboard() {
         </div>
       </div>
 
-      {/* Weekly Summary */}
+      {/* Weekly Summary - Momentum Messaging */}
       <details className="weekly-summary">
         <summary>
-          <span>This week: {weeklyDiscovered} opportunities discovered, {weeklyActivated} activated, {weeklyInterviews} interviews</span>
+          <span>
+            {weeklyInterviews > 0 ? (
+              `${weeklyInterviews} ${weeklyInterviews === 1 ? 'interview was' : 'interviews were'} scheduled this week.`
+            ) : weeklyActivated > 0 ? (
+              `You activated ${weeklyActivated} ${weeklyActivated === 1 ? 'opportunity' : 'opportunities'} this week. Outreach is underway.`
+            ) : weeklyDiscovered > 0 ? (
+              `You surfaced ${weeklyDiscovered} new ${weeklyDiscovered === 1 ? 'opportunity' : 'opportunities'} this week. Activation hasn't started yet.`
+            ) : (
+              `Stay tuned for new discovery. Automation is monitoring for opportunities.`
+            )}
+          </span>
           <ChevronDown className="w-4 h-4 transition-transform chevron-icon" />
         </summary>
         <div className="mt-6 pt-6 border-t border-gray-200">
@@ -373,7 +383,7 @@ export default function Dashboard() {
             <span className="stat-value">{weeklyInterviews}</span>
           </div>
           <Link to={createPageUrl("Analytics")} className="inline-block mt-4 text-[#FF9E4D] font-semibold text-sm hover:underline">
-            View full analytics →
+            View full momentum metrics →
           </Link>
         </div>
       </details>
