@@ -100,8 +100,6 @@ export default function CompanyDetail() {
       const response = await base44.functions.invoke('generateOutreachMessage', {
         role_title: roles[0]?.title || 'Executive Role',
         role_description: roles[0]?.description || '',
-        role_salary_min: roles[0]?.salary_min,
-        role_salary_max: roles[0]?.salary_max,
         company_name: company.name,
         company_industry: company.industry,
         company_description: company.description,
@@ -123,9 +121,29 @@ export default function CompanyDetail() {
     }
   };
 
-  const handleManualApply = (contact, message) => {
-    // TODO: Implement manual apply modal
-    alert('Manual apply functionality coming soon');
+  const handleManualApply = async (contact, message) => {
+    if (!message?.email_subject || !message?.email_body) {
+      alert('No message to send');
+      return;
+    }
+
+    try {
+      await base44.functions.invoke('sendOutreachEmail', {
+        recipient_email: contact.email,
+        subject: message.email_subject,
+        body: message.email_body,
+        contact_id: contact.id,
+        contact_name: contact.full_name,
+        contact_title: contact.title,
+        company_id: companyId,
+        company_name: company.name
+      });
+
+      alert('Email sent successfully!');
+    } catch (error) {
+      console.error('Failed to send email:', error);
+      alert('Failed to send email: ' + error.message);
+    }
   };
 
   if (!companyName && !companyId) {
