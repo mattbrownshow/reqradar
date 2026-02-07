@@ -398,49 +398,50 @@ export default function JobBoards() {
             </div>
           ))}
         </TabsContent>
-      </Tabs>
+        </Tabs>
 
-      {/* Add Feed Modal */}
-      <Dialog open={showAddFeed} onOpenChange={setShowAddFeed}>
-        <DialogContent>
-          <DialogHeader>
-            <DialogTitle>Add New RSS Feed</DialogTitle>
-          </DialogHeader>
-          <div className="space-y-4 mt-4">
-            <div>
-              <Label>Feed URL</Label>
-              <Input value={newFeed.feed_url} onChange={e => setNewFeed(p => ({ ...p, feed_url: e.target.value }))} className="mt-1.5 rounded-xl" placeholder="https://www.indeed.com/rss?q=CFO&l=Seattle" />
+        {/* Add Feed Modal */}
+        <Dialog open={showAddFeed} onOpenChange={setShowAddFeed}>
+          <DialogContent>
+            <DialogHeader>
+              <DialogTitle>Add New RSS Feed</DialogTitle>
+            </DialogHeader>
+            <div className="space-y-4 mt-4">
+              <div>
+                <Label>Feed URL</Label>
+                <Input value={newFeed.feed_url} onChange={e => setNewFeed(p => ({ ...p, feed_url: e.target.value }))} className="mt-1.5 rounded-xl" placeholder="https://www.indeed.com/rss?q=CFO&l=Seattle" />
+              </div>
+              <div>
+                <Label>Feed Name (optional)</Label>
+                <Input value={newFeed.feed_name} onChange={e => setNewFeed(p => ({ ...p, feed_name: e.target.value }))} className="mt-1.5 rounded-xl" placeholder="Indeed - CFO Jobs" />
+              </div>
+              <div>
+                <Label>Refresh Frequency</Label>
+                <RadioGroup value={newFeed.refresh_frequency} onValueChange={v => setNewFeed(p => ({ ...p, refresh_frequency: v }))} className="mt-2 space-y-2">
+                  <label className="flex items-center gap-3 p-3 border border-gray-100 rounded-xl cursor-pointer hover:bg-gray-50">
+                    <RadioGroupItem value="hourly" />
+                    <span className="text-sm">Every hour</span>
+                  </label>
+                  <label className="flex items-center gap-3 p-3 border border-gray-100 rounded-xl cursor-pointer hover:bg-gray-50">
+                    <RadioGroupItem value="every_4_hours" />
+                    <span className="text-sm">Every 4 hours (recommended)</span>
+                  </label>
+                  <label className="flex items-center gap-3 p-3 border border-gray-100 rounded-xl cursor-pointer hover:bg-gray-50">
+                    <RadioGroupItem value="daily" />
+                    <span className="text-sm">Daily</span>
+                  </label>
+                </RadioGroup>
+              </div>
+              <div className="flex justify-end gap-2 pt-2">
+                <Button variant="outline" className="rounded-xl" onClick={() => setShowAddFeed(false)}>Cancel</Button>
+                <Button className="bg-[#F7931E] hover:bg-[#E07A0A] text-white rounded-xl" onClick={() => createFeedMutation.mutate(newFeed)} disabled={!newFeed.feed_url || createFeedMutation.isPending}>
+                  Add Feed
+                </Button>
+              </div>
             </div>
-            <div>
-              <Label>Feed Name (optional)</Label>
-              <Input value={newFeed.feed_name} onChange={e => setNewFeed(p => ({ ...p, feed_name: e.target.value }))} className="mt-1.5 rounded-xl" placeholder="Indeed - CFO Jobs" />
-            </div>
-            <div>
-              <Label>Refresh Frequency</Label>
-              <RadioGroup value={newFeed.refresh_frequency} onValueChange={v => setNewFeed(p => ({ ...p, refresh_frequency: v }))} className="mt-2 space-y-2">
-                <label className="flex items-center gap-3 p-3 border border-gray-100 rounded-xl cursor-pointer hover:bg-gray-50">
-                  <RadioGroupItem value="hourly" />
-                  <span className="text-sm">Every hour</span>
-                </label>
-                <label className="flex items-center gap-3 p-3 border border-gray-100 rounded-xl cursor-pointer hover:bg-gray-50">
-                  <RadioGroupItem value="every_4_hours" />
-                  <span className="text-sm">Every 4 hours (recommended)</span>
-                </label>
-                <label className="flex items-center gap-3 p-3 border border-gray-100 rounded-xl cursor-pointer hover:bg-gray-50">
-                  <RadioGroupItem value="daily" />
-                  <span className="text-sm">Daily</span>
-                </label>
-              </RadioGroup>
-            </div>
-            <div className="flex justify-end gap-2 pt-2">
-              <Button variant="outline" className="rounded-xl" onClick={() => setShowAddFeed(false)}>Cancel</Button>
-              <Button className="bg-[#F7931E] hover:bg-[#E07A0A] text-white rounded-xl" onClick={() => createFeedMutation.mutate(newFeed)} disabled={!newFeed.feed_url || createFeedMutation.isPending}>
-                Add Feed
-              </Button>
-            </div>
-          </div>
-        </DialogContent>
-      </Dialog>
+          </DialogContent>
+        </Dialog>
+      </div>
     </div>
   );
 }
