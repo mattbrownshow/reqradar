@@ -94,7 +94,7 @@ export default function Companies() {
       <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
         <div>
           <h1 className="text-2xl font-bold text-gray-900 tracking-tight">Companies</h1>
-          <p className="text-sm text-gray-500 mt-1">{companies.length} companies in your target list</p>
+          <p className="text-sm text-gray-600 mt-2 max-w-3xl">Manage your curated list of target companies. Track engagement and view overall company profiles. For specific job openings, check the "Open Roles" page.</p>
         </div>
         <JobPreferencesCard />
       </div>

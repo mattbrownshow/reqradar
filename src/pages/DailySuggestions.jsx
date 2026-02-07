@@ -52,7 +52,7 @@ export default function DailySuggestions() {
             <Sparkles className="w-6 h-6 text-[#F7931E]" />
             Daily Recommendations
           </h1>
-          <p className="text-sm text-gray-500 mt-1">Companies matching your executive profile</p>
+          <p className="text-sm text-gray-600 mt-2 max-w-3xl">Discover new companies tailored to your job search preferences, even before they post specific roles. Review and decide which ones to add to your target list.</p>
         </div>
         <Button
           onClick={() => runDiscoveryMutation.mutate()}
