@@ -26,10 +26,12 @@ Deno.serve(async (req) => {
     // Generate new feeds based on current target roles
     const newFeeds = [];
     const roles = profile.target_roles || [];
-    const locations = profile.preferred_locations || [''];
+    const locations = profile.preferred_locations && profile.preferred_locations.length > 0 
+      ? profile.preferred_locations.slice(0, 3) 
+      : [''];
     
     for (const role of roles) {
-      for (const location of locations.slice(0, 3)) {
+      for (const location of locations) {
         const encodedRole = encodeURIComponent(role);
         const encodedLocation = encodeURIComponent(location);
         
