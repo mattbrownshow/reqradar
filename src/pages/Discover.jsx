@@ -195,32 +195,11 @@ export default function Discover() {
 
       <div className="max-w-7xl mx-auto">
         {/* Header */}
-        <div className="flex flex-col sm:flex-row sm:items-start justify-between gap-4 mb-6">
-          <div>
-            <h1 className="text-3xl font-bold text-gray-900 mb-2">Discovery Engine</h1>
-            <p className="text-gray-600">
-              Opportunities automatically surfaced overnight matching your <strong>{targetRole}</strong> profile
-            </p>
-          </div>
-          <div className="flex gap-2">
-            <Link to={createPageUrl("DiscoverySources")}>
-              <Button variant="outline" className="rounded-xl gap-2">
-                <Settings className="w-4 h-4" />
-                Manage Sources
-              </Button>
-            </Link>
-            <Button
-              onClick={() => runDiscoveryMutation.mutate()}
-              disabled={runDiscoveryMutation.isPending}
-              className="bg-[#FF9E4D] hover:bg-[#E8893D] text-white rounded-xl gap-2"
-            >
-              {runDiscoveryMutation.isPending ? (
-                <><Loader2 className="w-4 h-4 animate-spin" /> Running...</>
-              ) : (
-                <><Play className="w-4 h-4" /> Run Discovery Now</>
-              )}
-            </Button>
-          </div>
+        <div className="mb-6">
+          <h1 className="text-3xl font-bold text-gray-900 mb-2">Discovery Engine</h1>
+          <p className="text-gray-600">
+            Opportunities automatically surfaced overnight matching your <strong>{targetRole}</strong> profile
+          </p>
         </div>
 
         {/* Last Run Info */}
@@ -282,13 +261,11 @@ export default function Discover() {
             }
             emptyDescription={
               activeTab === "all"
-                ? "Every night, we scan thousands of companies matching your target profile. Run discovery or check back tomorrow for fresh recommendations."
+                ? "Every night, we scan thousands of companies matching your target profile. Check back tomorrow for fresh recommendations."
                 : activeTab === "high-match"
                 ? "High-match roles will appear here when discovery finds 88%+ alignment."
                 : "We're monitoring sources daily. New matches will appear here automatically."
             }
-            onRunDiscovery={() => runDiscoveryMutation.mutate()}
-            isRunningDiscovery={runDiscoveryMutation.isPending}
             profile={profile}
           />
         )}
@@ -324,7 +301,7 @@ export default function Discover() {
   );
 }
 
-function OpportunitiesTabContent({ opportunities, loading, emptyMessage, emptyDescription, onRunDiscovery, isRunningDiscovery, profile }) {
+function OpportunitiesTabContent({ opportunities, loading, emptyMessage, emptyDescription, profile }) {
   const queryClient = useQueryClient();
 
   const saveJobMutation = useMutation({
@@ -359,14 +336,6 @@ function OpportunitiesTabContent({ opportunities, loading, emptyMessage, emptyDe
         </div>
         <h3 className="text-2xl font-semibold text-gray-900 mb-3">{emptyMessage}</h3>
         <p className="text-gray-600 mb-8 leading-relaxed">{emptyDescription}</p>
-        
-        <Button
-          onClick={onRunDiscovery}
-          disabled={isRunningDiscovery}
-          className="bg-[#FF9E4D] hover:bg-[#E8893D] text-white rounded-xl"
-        >
-          Run Discovery to See Real Companies
-        </Button>
       </div>
     );
   }

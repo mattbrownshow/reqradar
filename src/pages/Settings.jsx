@@ -10,9 +10,10 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Checkbox } from "@/components/ui/checkbox";
 import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
 import {
-  User, Bell, Sliders, Shield, Save, Loader2, LogOut, Briefcase, Upload, FileText, ExternalLink, ChevronRight, Trash2
+  User, Bell, Sliders, Shield, Save, Loader2, LogOut, Briefcase, Upload, FileText, ExternalLink, ChevronRight, Trash2, Sparkles, Play, Rss
 } from "lucide-react";
 import SearchableMultiSelect from "../components/shared/SearchableMultiSelect";
+import DiscoverySettings from "../components/settings/DiscoverySettings";
 import { Link } from "react-router-dom";
 import { createPageUrl } from "../utils";
 
@@ -144,6 +145,9 @@ export default function Settings() {
             </TabsTrigger>
             <TabsTrigger value="job-search" className="rounded-lg data-[state=active]:bg-white gap-1.5">
               <Briefcase className="w-4 h-4" /> Job Search
+            </TabsTrigger>
+            <TabsTrigger value="discovery" className="rounded-lg data-[state=active]:bg-white gap-1.5">
+              <Sparkles className="w-4 h-4" /> Discovery
             </TabsTrigger>
             <TabsTrigger value="preferences" className="rounded-lg data-[state=active]:bg-white gap-1.5">
               <Sliders className="w-4 h-4" /> Preferences
@@ -593,6 +597,10 @@ export default function Settings() {
               </Button>
             </div>
           </div>
+        </TabsContent>
+
+        <TabsContent value="discovery" className="mt-6">
+          <DiscoverySettings />
         </TabsContent>
 
         <TabsContent value="preferences" className="mt-6">
