@@ -21,7 +21,6 @@ export default function CompanyDetail() {
   const [generatedMessages, setGeneratedMessages] = useState({});
   const [generatingContactId, setGeneratingContactId] = useState(null);
 
-  // Load or create company from name
   useEffect(() => {
     if (companyName && !companyId) {
       loadOrCreateCompany();
@@ -32,34 +31,25 @@ export default function CompanyDetail() {
     try {
       setEnriching(true);
       const decodedName = decodeURIComponent(companyName);
-      console.log('🔍 Looking for company:', decodedName);
       
-      // Try to find company by name
       const companies = await base44.entities.Company.filter({ name: decodedName });
       
       let id;
       if (companies.length > 0) {
-        console.log('✅ Found existing company:', companies[0].id);
         id = companies[0].id;
         setCompanyId(id);
       } else {
-        console.log('⚠️ Company not found, creating new...');
-        // Create company record
         const newCompany = await base44.entities.Company.create({ name: decodedName });
-        console.log('✅ Company created:', newCompany.id);
         id = newCompany.id;
         setCompanyId(id);
       }
 
-      // Auto-enrich company intelligence
       try {
-        console.log('🔬 Enriching company intelligence...');
         await base44.functions.invoke('enrichCompanyIntelligence', {
           company_id: id,
           company_name: decodedName
         });
         queryClient.invalidateQueries({ queryKey: ["company", id] });
-        console.log('✅ Enrichment complete');
       } catch (error) {
         console.error('Enrichment failed:', error);
       }
