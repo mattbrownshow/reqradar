@@ -10,9 +10,11 @@ Deno.serve(async (req) => {
     }
 
     // Get user's target roles
-    const profiles = await base44.entities.CandidateProfile.filter({ created_by: user.email });
+    const profiles = await base44.asServiceRole.entities.CandidateProfile.filter({ created_by: user.email });
     const profile = profiles[0];
     const targetRoles = profile?.target_roles || [];
+    
+    console.log(`User: ${user.email}, Target Roles: ${targetRoles.join(', ') || 'NONE'}`);
 
     // Get all active RSS feeds
     const feeds = await base44.entities.RSSFeed.filter({ status: 'active' });
