@@ -28,7 +28,7 @@ Deno.serve(async (req) => {
     }
 
     let totalJobsCreated = 0;
-    const existingJobs = await base44.entities.OpenRole.list('-created_date', 500);
+    const existingJobs = await base44.asServiceRole.entities.OpenRole.list('-created_date', 500);
     const existingUrls = new Set(existingJobs.map(j => j.source_url));
 
     // Fetch and parse each feed
@@ -39,9 +39,12 @@ Deno.serve(async (req) => {
 
         // Skip API endpoints - they need special handling and have strict rate limiting
         if (feedUrl.includes('remotive.com') || feedUrl.includes('arbeitnow.com') || feedUrl.includes('themuse.com')) {
+          console.log(`Skipping API endpoint: ${feed.feed_name}`);
           continue;
         }
 
+        console.log(`Fetching RSS feed: ${feed.feed_name} from ${feedUrl}`);
+        
         // Handle RSS feeds
         const response = await fetch(feedUrl, {
           headers: {
@@ -55,7 +58,9 @@ Deno.serve(async (req) => {
         }
 
         const feedContent = await response.text();
+        console.log(`Feed content length for ${feed.feed_name}: ${feedContent.length}`);
         jobs = parseRSSFeed(feedContent, feed.feed_name, feedUrl);
+        console.log(`Parsed ${jobs.length} jobs from ${feed.feed_name}`);
         
         if (jobs.length === 0) {
           continue;
