@@ -97,8 +97,8 @@ export default function Companies() {
       {/* Header */}
       <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
         <div className="flex-1">
-          <h1 className="text-2xl font-bold text-gray-900 tracking-tight">Companies</h1>
-          <p className="text-sm text-gray-500 mt-2">Search for companies matching your profile. When you add a company, we automatically scan for your desired roles and find decision maker contacts.</p>
+          <h1 className="text-2xl font-bold text-gray-900 tracking-tight">Target Companies</h1>
+          <p className="text-sm text-gray-500 mt-2">Your curated list of companies to pursue. We automatically scan for matching roles and find decision maker contacts.</p>
         </div>
         <JobPreferencesCard />
       </div>

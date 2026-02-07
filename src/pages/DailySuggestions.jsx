@@ -57,9 +57,9 @@ export default function DailySuggestions() {
         <div>
           <h1 className="text-2xl font-bold text-gray-900 flex items-center gap-2">
             <Sparkles className="w-6 h-6 text-[#F7931E]" />
-            Daily Recommendations
+            Discovery Engine
           </h1>
-          <p className="text-sm text-gray-500 mt-2">Companies found overnight matching your profile. Add interesting ones to your Target List.</p>
+          <p className="text-sm text-gray-500 mt-2">Every night, we scan thousands of companies matching your profile. New companies and roles appear here automatically.</p>
         </div>
         <Link to={createPageUrl("Companies")}>
           <Button variant="outline" className="rounded-xl gap-2">
