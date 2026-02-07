@@ -198,11 +198,17 @@ export default function EnhancedPipelineCard({ item, job, onStatusChange, onLaun
               const companyId = item.company_id;
               return (
                 <>
-                  <Link to={createPageUrl("CompanyDetail") + `?id=${companyId}`}>
-                    <Button variant="outline" size="sm" className="w-full text-xs rounded-lg">
-                      View Company Intelligence →
+                  {companyId ? (
+                    <Link to={createPageUrl("CompanyDetail") + `?id=${companyId}`}>
+                      <Button variant="outline" size="sm" className="w-full text-xs rounded-lg">
+                        View Company Intelligence →
+                      </Button>
+                    </Link>
+                  ) : (
+                    <Button variant="outline" size="sm" className="w-full text-xs rounded-lg text-gray-400" disabled>
+                      Company data unavailable
                     </Button>
-                  </Link>
+                  )}
                   <Button
                     size="sm"
                     variant="outline"
