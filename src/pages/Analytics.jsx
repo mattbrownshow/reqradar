@@ -69,13 +69,13 @@ export default function Analytics() {
     <div className="px-4 sm:px-6 py-8 space-y-8">
       <div>
         <h1 className="text-2xl font-bold text-gray-900 tracking-tight">Analytics</h1>
-        <p className="text-sm text-gray-500 mt-2">Track your job search metrics: applications, responses, interviews, and conversion rates.</p>
+        <p className="text-sm text-gray-500 mt-2">Track your job search metrics: activations, responses, interviews, and conversion rates.</p>
       </div>
 
       {/* Metrics */}
       <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
         <MetricCard icon={Building2} title="Total Companies" value={companies.length} trend={companies.length > 0 ? `Tracked` : "—"} />
-        <MetricCard icon={Target} title="Contacted" value={contacted} subtitle={companies.length > 0 ? `${Math.round(contacted / companies.length * 100)}% contact rate` : "—"} bgColor="bg-blue-50" iconColor="text-blue-500" />
+        <MetricCard icon={Target} title="Opportunities Activated" value={contacted} subtitle={companies.length > 0 ? `${Math.round(contacted / companies.length * 100)}% activation rate` : "—"} bgColor="bg-blue-50" iconColor="text-blue-500" />
         <MetricCard icon={Briefcase} title="Open Positions" value={roles.length} subtitle={`${companies.length} companies hiring`} bgColor="bg-purple-50" iconColor="text-purple-500" />
         <MetricCard icon={BarChart3} title="Avg. Match Score" value={avgScore} subtitle="ICP alignment" bgColor="bg-emerald-50" iconColor="text-emerald-500" />
       </div>
