@@ -18,13 +18,15 @@ import StatusBadge from "../components/shared/StatusBadge";
 export default function CompanyDetail() {
   const queryClient = useQueryClient();
   const params = new URLSearchParams(window.location.search);
-  const companyId = params.get("id");
+  const companyName = params.get("name");
+  const companyIdParam = params.get("id");
+  
+  const [companyId, setCompanyId] = useState(companyIdParam);
+  const [enriching, setEnriching] = useState(!companyIdParam); // Auto-enrich if no ID
   
   console.log('=== COMPANY DETAIL PAGE ===');
-  console.log('Full URL:', window.location.href);
-  console.log('URL params:', window.location.search);
-  console.log('Company ID from URL:', companyId);
-  console.log('Company ID type:', typeof companyId);
+  console.log('Company name from URL:', companyName);
+  console.log('Company ID from URL:', companyIdParam);
 
   const [showAddContact, setShowAddContact] = useState(false);
   const [newContact, setNewContact] = useState({ full_name: "", title: "", email: "", phone: "", linkedin_url: "" });
