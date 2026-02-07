@@ -252,13 +252,17 @@ export default function OpenRoles() {
                         </p>
                       )}
                       {(role.match_reasons || []).length > 0 && (
-                        <div className="flex flex-wrap gap-1.5 mt-3">
-                          {role.match_reasons.map((reason, i) => (
-                            <span key={i} className="inline-flex items-center gap-1 text-xs text-emerald-700 bg-emerald-50 px-2 py-1 rounded-lg">
-                              <Check className="w-3 h-3" /> {reason}
-                            </span>
-                          ))}
-                        </div>
+                       <div className="mt-3 p-3 bg-emerald-50 rounded-lg">
+                         <p className="text-xs font-semibold text-emerald-900 mb-1.5">Why it matches:</p>
+                         <ul className="space-y-1">
+                           {role.match_reasons.slice(0, 3).map((reason, idx) => (
+                             <li key={idx} className="text-xs text-emerald-700 flex items-start gap-1.5">
+                               <span className="text-emerald-500 mt-0.5">✓</span>
+                               <span>{reason}</span>
+                             </li>
+                           ))}
+                         </ul>
+                       </div>
                       )}
                       {role.source && (
                         <div className="flex items-center gap-2 mt-3 text-xs">
