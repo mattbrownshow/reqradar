@@ -193,7 +193,16 @@ export default function EnhancedPipelineCard({ item, job, onStatusChange, onLaun
 
           {/* Actions */}
           <div className="flex flex-col gap-2 pt-2 border-t border-gray-200">
-            <Link to={createPageUrl("CompanyDetail") + `?id=${item.company_id}`}>
+            {(() => {
+              const companyId = item?.job?.company?.id || item?.company_id;
+              console.log('=== VIEW INTELLIGENCE DEBUG ===');
+              console.log('item:', item);
+              console.log('item.job:', item?.job);
+              console.log('item.job.company:', item?.job?.company);
+              console.log('item.company_id:', item?.company_id);
+              console.log('Final companyId:', companyId);
+              return (
+                <Link to={createPageUrl("CompanyDetail") + `?id=${companyId}`}>
               <Button variant="outline" size="sm" className="w-full text-xs rounded-lg">
                 View Company Intelligence →
               </Button>
