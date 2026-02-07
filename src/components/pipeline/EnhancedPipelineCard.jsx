@@ -193,7 +193,7 @@ export default function EnhancedPipelineCard({ item, job, onStatusChange, onLaun
 
           {/* Actions */}
           <div className="flex flex-col gap-2 pt-2 border-t border-gray-200">
-            <Link to={createPageUrl("CompanyDetail") + `?id=${job?.company_id}`}>
+            <Link to={createPageUrl("CompanyDetail") + `?id=${item.company_id}`}>
               <Button variant="outline" size="sm" className="w-full text-xs rounded-lg">
                 View Company Intelligence →
               </Button>
