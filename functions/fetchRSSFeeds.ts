@@ -59,11 +59,17 @@ Deno.serve(async (req) => {
           continue;
         }
 
-        // Filter by target roles
-        const roleLower = targetRoles.map(r => r.toLowerCase());
+        // Filter by target roles - match any keyword from role
+        const roleKeywords = new Set();
+        targetRoles.forEach(role => {
+          role.toLowerCase().split(' ').forEach(word => {
+            if (word.length > 3) roleKeywords.add(word);
+          });
+        });
+
         const matchedJobs = jobs.filter(job => {
           const titleDesc = (job.title + ' ' + job.description).toLowerCase();
-          return roleLower.some(role => titleDesc.includes(role.split(' ')[0])); // Match first word of role
+          return Array.from(roleKeywords).some(keyword => titleDesc.includes(keyword));
         });
 
         // Filter out duplicates
