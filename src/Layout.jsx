@@ -68,7 +68,9 @@ export default function Layout({ children, currentPageName }) {
         }
 
         .phase-links {
-          display: none;
+          opacity: 0;
+          visibility: hidden;
+          pointer-events: none;
           position: absolute;
           top: 100%;
           left: 0;
@@ -80,9 +82,15 @@ export default function Layout({ children, currentPageName }) {
           min-width: 200px;
           z-index: 1000;
           margin-top: 4px;
+          transition: opacity 0.15s ease-in-out, visibility 0.15s ease-in-out;
         }
 
-        .phase-group:hover .phase-links { display: block; }
+        .phase-group:hover .phase-links { 
+          opacity: 1;
+          visibility: visible;
+          pointer-events: auto;
+          transition-delay: 0.1s;
+        }
 
         .phase-links a {
           display: block;
