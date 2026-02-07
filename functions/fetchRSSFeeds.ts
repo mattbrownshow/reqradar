@@ -98,16 +98,18 @@ Deno.serve(async (req) => {
 async function fetchRemotiveJobs(targetRoles) {
   const jobs = [];
   try {
-    for (const role of targetRoles) {
-      const response = await fetch(`https://remotive.com/api/remote-jobs?search=${encodeURIComponent(role)}`);
-      if (!response.ok) continue;
-      
+    // Only fetch first role to avoid timeout
+    const role = targetRoles[0];
+    if (!role) return jobs;
+    
+    const response = await fetch(`https://remotive.com/api/remote-jobs?search=${encodeURIComponent(role)}`);
+    if (response.ok) {
       const data = await response.json();
       if (data.jobs) {
-        jobs.push(...data.jobs.map(job => ({
+        jobs.push(...data.jobs.slice(0, 10).map(job => ({
           title: job.title,
           company_name: job.company_name,
-          description: job.description,
+          description: job.description || '',
           location: job.job_region || 'Remote',
           work_type: 'Remote',
           source: 'Remotive',
@@ -120,7 +122,7 @@ async function fetchRemotiveJobs(targetRoles) {
       }
     }
   } catch (error) {
-    console.error('Error fetching Remotive jobs:', error);
+    console.error('Error fetching Remotive jobs:', error.message);
   }
   return jobs;
 }
@@ -128,16 +130,18 @@ async function fetchRemotiveJobs(targetRoles) {
 async function fetchArbeitnowJobs(targetRoles) {
   const jobs = [];
   try {
-    for (const role of targetRoles) {
-      const response = await fetch(`https://www.arbeitnow.com/api/job-board-api?query=${encodeURIComponent(role)}`);
-      if (!response.ok) continue;
-      
+    // Only fetch first role to avoid timeout
+    const role = targetRoles[0];
+    if (!role) return jobs;
+    
+    const response = await fetch(`https://www.arbeitnow.com/api/job-board-api?search=${encodeURIComponent(role)}`);
+    if (response.ok) {
       const data = await response.json();
-      if (data.data) {
-        jobs.push(...data.data.map(job => ({
+      if (Array.isArray(data)) {
+        jobs.push(...data.slice(0, 10).map(job => ({
           title: job.title,
           company_name: job.company_name,
-          description: job.description,
+          description: job.description || '',
           location: job.location || 'Remote',
           work_type: 'Remote',
           source: 'Arbeitnow',
@@ -150,7 +154,7 @@ async function fetchArbeitnowJobs(targetRoles) {
       }
     }
   } catch (error) {
-    console.error('Error fetching Arbeitnow jobs:', error);
+    console.error('Error fetching Arbeitnow jobs:', error.message);
   }
   return jobs;
 }
@@ -158,29 +162,31 @@ async function fetchArbeitnowJobs(targetRoles) {
 async function fetchTheMuseJobs(targetRoles) {
   const jobs = [];
   try {
-    for (const role of targetRoles) {
-      const response = await fetch(`https://www.themuse.com/api/public/jobs?search=${encodeURIComponent(role)}`);
-      if (!response.ok) continue;
-      
+    // Only fetch first role to avoid timeout
+    const role = targetRoles[0];
+    if (!role) return jobs;
+    
+    const response = await fetch(`https://www.themuse.com/api/public/jobs?search=${encodeURIComponent(role)}`);
+    if (response.ok) {
       const data = await response.json();
       if (data.results) {
-        jobs.push(...data.results.map(job => ({
+        jobs.push(...data.results.slice(0, 10).map(job => ({
           title: job.name,
-          company_name: job.company.name,
-          description: job.contents,
-          location: job.locations[0]?.name || 'Remote',
+          company_name: job.company?.name || 'Unknown',
+          description: job.contents || '',
+          location: job.locations?.[0]?.name || 'Remote',
           work_type: 'Remote',
           source: 'The Muse',
           source_type: 'rss_feed',
-          source_url: job.refs.landing_page,
-          posted_date: new Date(job.published_at).toISOString().split('T')[0],
+          source_url: job.refs?.landing_page,
+          posted_date: job.published_at ? new Date(job.published_at).toISOString().split('T')[0] : new Date().toISOString().split('T')[0],
           status: 'new',
           match_score: 0
         })));
       }
     }
   } catch (error) {
-    console.error('Error fetching The Muse jobs:', error);
+    console.error('Error fetching The Muse jobs:', error.message);
   }
   return jobs;
 }
