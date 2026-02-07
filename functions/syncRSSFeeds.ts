@@ -23,26 +23,9 @@ Deno.serve(async (req) => {
     // Get existing feeds
     const existingFeeds = await base44.entities.RSSFeed.list('-created_date', 100);
     
-    // Generate new feeds based on current target roles
+    // Skip creating Indeed feeds - they block RSS requests
+    // Instead, rely on public API sources (Remotive, Arbeitnow, The Muse) which handle role-based filtering
     const newFeeds = [];
-    const roles = profile.target_roles || [];
-    const locations = profile.preferred_locations && profile.preferred_locations.length > 0 
-      ? profile.preferred_locations.slice(0, 3) 
-      : [''];
-    
-    for (const role of roles) {
-      for (const location of locations) {
-        const encodedRole = encodeURIComponent(role);
-        const encodedLocation = encodeURIComponent(location);
-        
-        newFeeds.push({
-          feed_name: `Indeed - ${role}${location ? ` in ${location}` : ''}`,
-          feed_url: `https://www.indeed.com/rss?q=${encodedRole}${location ? `&l=${encodedLocation}` : ''}&sort=date`,
-          refresh_frequency: "every_4_hours",
-          status: "active"
-        });
-      }
-    }
     
     // Add remote job feeds and public APIs if not already present
     const remoteFeeds = [
