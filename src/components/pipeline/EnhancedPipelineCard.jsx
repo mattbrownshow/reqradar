@@ -14,9 +14,9 @@ export default function EnhancedPipelineCard({ item, job, onStatusChange, onLaun
   const [enrichedAt, setEnrichedAt] = useState(item.enriched_at);
   const queryClient = useQueryClient();
 
-  const { data: company } = useQuery({
+  const { data: company = [] } = useQuery({
     queryKey: ["company", job?.company_id],
-    queryFn: () => base44.entities.Company.list({ id: job?.company_id }),
+    queryFn: () => base44.entities.Company.filter({ id: job?.company_id }),
     enabled: !!job?.company_id
   });
 
