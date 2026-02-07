@@ -20,6 +20,7 @@ export default function Companies() {
   const queryClient = useQueryClient();
   const [searchTerm, setSearchTerm] = useState("");
   const [industryFilter, setIndustryFilter] = useState("all");
+  const [sortBy, setSortBy] = useState("match");
   const [viewMode, setViewMode] = useState("grid");
   const [isSearching, setIsSearching] = useState(false);
   const [discoveryResults, setDiscoveryResults] = useState([]);
@@ -37,6 +38,27 @@ export default function Companies() {
     queryKey: ["candidateProfile"],
     queryFn: () => base44.entities.CandidateProfile.list("-created_date", 1),
   });
+
+  const { data: allJobs = [] } = useQuery({
+    queryKey: ["openRoles"],
+    queryFn: () => base44.entities.OpenRole.list(),
+  });
+
+  // Pre-populate filters from user preferences
+  React.useEffect(() => {
+    const profile = profiles[0];
+    if (profile && selectedIndustries.length === 0 && selectedSizes.length === 0) {
+      if (profile.industries?.length > 0) {
+        setSelectedIndustries(profile.industries);
+      }
+      if (profile.company_sizes?.length > 0) {
+        setSelectedSizes(profile.company_sizes);
+      }
+      if (profile.funding_stages?.length > 0) {
+        setSelectedFunding(profile.funding_stages);
+      }
+    }
+  }, [profiles]);
 
   const handleDiscoverCompanies = async () => {
     setIsSearching(true);
@@ -82,11 +104,36 @@ export default function Companies() {
 
   const industries = [...new Set(companies.map(c => c.industry).filter(Boolean))];
 
-  const filtered = companies.filter(c => {
+  // Count jobs per company
+  const companiesWithJobs = companies.map(company => {
+    const companyJobs = allJobs.filter(job => job.company_id === company.id || job.company_name === company.name);
+    return {
+      ...company,
+      jobCount: companyJobs.length,
+      matchingJobs: companyJobs
+    };
+  });
+
+  const filtered = companiesWithJobs.filter(c => {
     const matchSearch = !searchTerm || c.name?.toLowerCase().includes(searchTerm.toLowerCase()) || c.industry?.toLowerCase().includes(searchTerm.toLowerCase());
     const matchIndustry = industryFilter === "all" || c.industry === industryFilter;
     return matchSearch && matchIndustry;
   });
+
+  // Sort companies
+  const sorted = [...filtered].sort((a, b) => {
+    if (sortBy === "jobs") {
+      return b.jobCount - a.jobCount;
+    } else if (sortBy === "match") {
+      return (b.match_score || 0) - (a.match_score || 0);
+    } else if (sortBy === "name") {
+      return (a.name || "").localeCompare(b.name || "");
+    }
+    return 0;
+  });
+
+  const companiesWithJobs = sorted.filter(c => c.jobCount > 0).length;
+  const profile = profiles[0];
 
   return (
     <div className="px-4 sm:px-6 py-8 space-y-6">
@@ -102,6 +149,27 @@ export default function Companies() {
       {/* Company Discovery */}
       <div className="bg-white border border-gray-100 rounded-2xl p-6 space-y-4">
         <h3 className="font-semibold text-gray-900">Discover New Companies</h3>
+        
+        {profile && (
+          <div className="bg-blue-50 border border-blue-200 rounded-lg p-3 text-sm">
+            <div className="flex flex-wrap items-center gap-x-3 gap-y-1 text-xs">
+              <span className="font-medium text-blue-900">Filters from your profile:</span>
+              {profile.target_roles?.length > 0 && (
+                <span className="text-blue-700">• Targeting: {profile.target_roles.slice(0, 2).join(", ")}{profile.target_roles.length > 2 && ` +${profile.target_roles.length - 2}`}</span>
+              )}
+              {selectedIndustries.length > 0 && (
+                <span className="text-blue-700">• Industries: {selectedIndustries.join(", ")}</span>
+              )}
+              {selectedSizes.length > 0 && (
+                <span className="text-blue-700">• Size: {selectedSizes.join(", ")}</span>
+              )}
+              {profile.min_salary && profile.max_salary && (
+                <span className="text-blue-700">• Salary: ${profile.min_salary.toLocaleString()} - ${profile.max_salary.toLocaleString()}</span>
+              )}
+            </div>
+          </div>
+        )}
+
         <div className="flex flex-col sm:flex-row gap-3">
           <div className="flex-1 relative">
             <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-400" />
@@ -127,25 +195,35 @@ export default function Companies() {
         <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
           <div>
             <label className="text-xs text-gray-500 mb-1.5 block">Industries</label>
-            <Select value={selectedIndustries[0] || "all"} onValueChange={v => setSelectedIndustries(v === "all" ? [] : [v])}>
+            <Select 
+              value={selectedIndustries.length > 0 ? selectedIndustries[0] : "all"} 
+              onValueChange={v => setSelectedIndustries(v === "all" ? [] : [v])}
+            >
               <SelectTrigger className="rounded-xl">
-                <SelectValue placeholder="Any industry" />
+                <SelectValue>
+                  {selectedIndustries.length > 0 ? selectedIndustries.join(", ") : "Any industry"}
+                </SelectValue>
               </SelectTrigger>
               <SelectContent>
                 <SelectItem value="all">Any industry</SelectItem>
-                <SelectItem value="Technology">Technology</SelectItem>
-                <SelectItem value="Healthcare">Healthcare</SelectItem>
-                <SelectItem value="Finance">Finance</SelectItem>
+                <SelectItem value="Technology / Software / SaaS">Technology / Software / SaaS</SelectItem>
+                <SelectItem value="Healthcare / Biotech">Healthcare / Biotech</SelectItem>
+                <SelectItem value="Financial Services / Fintech">Finance / Fintech</SelectItem>
                 <SelectItem value="Manufacturing">Manufacturing</SelectItem>
-                <SelectItem value="Retail">Retail</SelectItem>
+                <SelectItem value="Retail / E-commerce">Retail / E-commerce</SelectItem>
               </SelectContent>
             </Select>
           </div>
           <div>
             <label className="text-xs text-gray-500 mb-1.5 block">Company Size</label>
-            <Select value={selectedSizes[0] || "all"} onValueChange={v => setSelectedSizes(v === "all" ? [] : [v])}>
+            <Select 
+              value={selectedSizes.length > 0 ? selectedSizes[0] : "all"} 
+              onValueChange={v => setSelectedSizes(v === "all" ? [] : [v])}
+            >
               <SelectTrigger className="rounded-xl">
-                <SelectValue placeholder="Any size" />
+                <SelectValue>
+                  {selectedSizes.length > 0 ? selectedSizes.join(", ") : "Any size"}
+                </SelectValue>
               </SelectTrigger>
               <SelectContent>
                 <SelectItem value="all">Any size</SelectItem>
@@ -158,9 +236,14 @@ export default function Companies() {
           </div>
           <div>
             <label className="text-xs text-gray-500 mb-1.5 block">Funding Stage</label>
-            <Select value={selectedFunding[0] || "all"} onValueChange={v => setSelectedFunding(v === "all" ? [] : [v])}>
+            <Select 
+              value={selectedFunding.length > 0 ? selectedFunding[0] : "all"} 
+              onValueChange={v => setSelectedFunding(v === "all" ? [] : [v])}
+            >
               <SelectTrigger className="rounded-xl">
-                <SelectValue placeholder="Any stage" />
+                <SelectValue>
+                  {selectedFunding.length > 0 ? selectedFunding.join(", ") : "Any stage"}
+                </SelectValue>
               </SelectTrigger>
               <SelectContent>
                 <SelectItem value="all">Any stage</SelectItem>
@@ -178,7 +261,12 @@ export default function Companies() {
       {showDiscoveryResults && discoveryResults.length > 0 && (
         <div className="bg-blue-50 border border-blue-200 rounded-2xl p-6 space-y-4">
           <div className="flex items-center justify-between">
-            <h3 className="font-semibold text-gray-900">Found {discoveryResults.length} Matching Companies</h3>
+            <div>
+              <h3 className="font-semibold text-gray-900">Found {discoveryResults.length} Matching Companies</h3>
+              <p className="text-xs text-gray-600 mt-1">
+                {discoveryResults.filter(c => c.jobCount > 0).length} companies have jobs matching your target roles
+              </p>
+            </div>
             <Button variant="ghost" size="sm" onClick={() => setShowDiscoveryResults(false)}>
               <X className="w-4 h-4" />
             </Button>
@@ -229,10 +317,37 @@ export default function Companies() {
                  <p className="text-xs text-gray-500 line-clamp-2 mt-2">{company.description}</p>
                 )}
 
+                {company.matchingJobs?.length > 0 && (
+                 <div className="mt-3 p-2 bg-emerald-50 border border-emerald-200 rounded-lg">
+                   <h5 className="text-xs font-semibold text-emerald-900 mb-1">
+                     🎯 {company.matchingJobs.length} matching role{company.matchingJobs.length > 1 ? "s" : ""} found
+                   </h5>
+                   <ul className="text-xs text-emerald-700 space-y-0.5">
+                     {company.matchingJobs.slice(0, 2).map((job, idx) => (
+                       <li key={idx}>• {job.title}</li>
+                     ))}
+                     {company.matchingJobs.length > 2 && (
+                       <li className="font-medium">+ {company.matchingJobs.length - 2} more</li>
+                     )}
+                   </ul>
+                 </div>
+                )}
+
+                {company.matchReasons?.length > 0 && (
+                 <div className="mt-2 text-xs text-gray-600">
+                   <span className="font-medium">Why it matches:</span>
+                   <ul className="mt-1 space-y-0.5">
+                     {company.matchReasons.slice(0, 2).map((reason, idx) => (
+                       <li key={idx}>✓ {reason.message}</li>
+                     ))}
+                   </ul>
+                 </div>
+                )}
+
                 <Button 
                   size="sm"
                   onClick={() => handleAddToTargetList(company)}
-                  className="w-full bg-[#F7931E] hover:bg-[#E07A0A] text-white rounded-lg gap-1.5"
+                  className="w-full bg-[#F7931E] hover:bg-[#E07A0A] text-white rounded-lg gap-1.5 mt-3"
                 >
                   <Plus className="w-3.5 h-3.5" /> Add to Target List
                 </Button>
@@ -245,7 +360,14 @@ export default function Companies() {
       {/* Your Target Companies */}
       {companies.length > 0 && (
         <div>
-          <h3 className="font-semibold text-gray-900 mb-4">Your Target Companies ({companies.length})</h3>
+          <div className="flex items-center justify-between mb-4">
+            <div>
+              <h3 className="font-semibold text-gray-900">Your Target Companies ({companies.length})</h3>
+              <p className="text-xs text-gray-500 mt-0.5">
+                {companiesWithJobs} {companiesWithJobs === 1 ? "company has" : "companies have"} open roles
+              </p>
+            </div>
+          </div>
           <div className="flex flex-wrap gap-3 items-center mb-4">
             <Select value={industryFilter} onValueChange={setIndustryFilter}>
               <SelectTrigger className="w-[180px] rounded-xl">
@@ -256,6 +378,17 @@ export default function Companies() {
                 {industries.map(ind => (
                   <SelectItem key={ind} value={ind}>{ind}</SelectItem>
                 ))}
+              </SelectContent>
+            </Select>
+
+            <Select value={sortBy} onValueChange={setSortBy}>
+              <SelectTrigger className="w-[180px] rounded-xl">
+                <SelectValue placeholder="Sort by" />
+              </SelectTrigger>
+              <SelectContent>
+                <SelectItem value="match">Best Match</SelectItem>
+                <SelectItem value="jobs">Has Jobs First</SelectItem>
+                <SelectItem value="name">Alphabetical</SelectItem>
               </SelectContent>
             </Select>
 
@@ -280,7 +413,7 @@ export default function Companies() {
         />
       ) : viewMode === "grid" ? (
         <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-4">
-          {filtered.map(company => (
+          {sorted.map(company => (
             <Link
               key={company.id}
               to={createPageUrl("CompanyDetail") + `?id=${company.id}`}
@@ -351,11 +484,23 @@ export default function Companies() {
                     </div>
                   )}
                 </div>
-                {company.open_positions_count > 0 && (
-                  <div className="flex items-center gap-1.5 text-[#F7931E] font-medium">
-                    <Briefcase className="w-3.5 h-3.5" />
-                    {company.open_positions_count} open positions
+                {company.jobCount > 0 ? (
+                  <div className="mt-2 p-2 bg-emerald-50 border border-emerald-200 rounded-lg">
+                    <div className="flex items-center gap-1.5 text-emerald-900 font-semibold text-xs mb-1">
+                      <Briefcase className="w-3.5 h-3.5" />
+                      {company.jobCount} open role{company.jobCount > 1 ? "s" : ""}
+                    </div>
+                    <ul className="text-xs text-emerald-700 space-y-0.5">
+                      {company.matchingJobs.slice(0, 2).map((job, idx) => (
+                        <li key={idx}>• {job.title}</li>
+                      ))}
+                      {company.jobCount > 2 && (
+                        <li className="font-medium">+ {company.jobCount - 2} more</li>
+                      )}
+                    </ul>
                   </div>
+                ) : (
+                  <div className="text-xs text-gray-400 mt-2">No open roles currently posted</div>
                 )}
                 {company.domain && (
                   <a 
@@ -386,7 +531,7 @@ export default function Companies() {
               </tr>
             </thead>
             <tbody className="divide-y divide-gray-50">
-              {filtered.map(company => (
+              {sorted.map(company => (
                 <tr key={company.id} className="hover:bg-gray-50/50 transition-colors">
                   <td className="px-6 py-4">
                     <div className="w-10 h-10 bg-orange-50 rounded-lg flex items-center justify-center text-sm font-bold text-[#F7931E]">
