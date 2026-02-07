@@ -207,41 +207,59 @@ export default function CompanyDetail() {
             {contacts.length === 0 ? (
               <div className="bg-white border border-gray-200 rounded-xl p-8 text-center">
                 <p className="text-gray-600 mb-4">No decision makers identified yet</p>
-                <Button
-                  onClick={async () => {
-                    try {
-                      const result = await base44.functions.invoke('findContacts', {
-                        companyDomain: company.domain,
-                        companyName: company.name,
-                        titles: ['CEO', 'CTO', 'COO', 'CFO', 'VP', 'Director']
-                      });
-                      
-                      const contacts = Array.isArray(result.data) ? result.data : (result.data?.contacts || []);
-                      
-                      if (contacts.length > 0) {
-                        for (const contact of contacts) {
-                          await base44.entities.Contact.create({
-                            ...contact,
-                            company_id: companyId,
-                            company_name: company.name
-                          });
+                <div className="flex gap-3 justify-center">
+                  <Button
+                    onClick={async () => {
+                      try {
+                        const result = await base44.functions.invoke('findContacts', {
+                          companyDomain: company.domain,
+                          companyName: company.name,
+                          titles: ['CEO', 'CTO', 'COO', 'CFO', 'VP', 'Director']
+                        });
+                        
+                        const contactsList = Array.isArray(result.data) ? result.data : (result.data?.contacts || []);
+                        
+                        if (contactsList.length > 0) {
+                          for (const contact of contactsList) {
+                            await base44.entities.Contact.create({
+                              ...contact,
+                              company_id: companyId,
+                              company_name: company.name
+                            });
+                          }
+                          queryClient.invalidateQueries({ queryKey: ["contacts", companyId] });
+                        } else {
+                          alert('No decision makers found for this company');
                         }
-                        queryClient.invalidateQueries({ queryKey: ["contacts", companyId] });
-                      } else {
-                        alert('No decision makers found for this company');
+                      } catch (error) {
+                        console.error('Error:', error);
+                        alert('Failed to find decision makers. Please try again.');
                       }
-                    } catch (error) {
-                      console.error('Error:', error);
-                      alert('Failed to find decision makers. Please try again.');
-                    }
-                  }}
-                  className="bg-orange-600 hover:bg-orange-700 text-white"
-                >
-                  Find Decision Makers
-                </Button>
+                    }}
+                    className="bg-orange-600 hover:bg-orange-700 text-white"
+                  >
+                    Find Decision Makers
+                  </Button>
+                  <Button
+                    onClick={() => setShowOutreachModal(true)}
+                    variant="outline"
+                  >
+                    Draft Outreach (No Contacts)
+                  </Button>
+                </div>
               </div>
             ) : (
               <div className="space-y-4">
+                <div className="flex justify-between items-center mb-4">
+                  <h3 className="text-lg font-semibold text-gray-900">Decision Makers</h3>
+                  <Button
+                    onClick={() => setShowOutreachModal(true)}
+                    className="bg-orange-600 hover:bg-orange-700 text-white gap-2"
+                  >
+                    <Send className="w-4 h-4" />
+                    Draft Outreach
+                  </Button>
+                </div>
                 {contacts.map(contact => (
                   <ContactCard
                     key={contact.id}
