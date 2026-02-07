@@ -17,7 +17,8 @@ Deno.serve(async (req) => {
     console.log(`User: ${user.email}, Target Roles: ${targetRoles.join(', ') || 'NONE'}`);
 
     // Get all active RSS feeds
-    const feeds = await base44.asServiceRole.entities.RSSFeed.filter({ status: 'active' });
+    const allFeeds = await base44.asServiceRole.entities.RSSFeed.list('-created_date', 100);
+    const feeds = allFeeds.filter(f => f.status === 'active');
     
     console.log(`Found ${feeds.length} active feeds`);
     
