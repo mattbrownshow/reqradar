@@ -206,7 +206,9 @@ export default function EnhancedPipelineCard({ item, job, onStatusChange, onLaun
               <Button variant="outline" size="sm" className="w-full text-xs rounded-lg">
                 View Company Intelligence →
               </Button>
-            </Link>
+              </Link>
+              );
+              })()}
             <Button
               size="sm"
               variant="outline"
