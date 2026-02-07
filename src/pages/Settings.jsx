@@ -52,12 +52,13 @@ export default function Settings() {
     base44.auth.me().then(setUser).catch(() => {});
   }, []);
 
-  const { data: profiles = [] } = useQuery({
+  const { data: profiles = [], isLoading: profilesLoading } = useQuery({
     queryKey: ["candidateProfile"],
     queryFn: async () => {
       const result = await base44.entities.CandidateProfile.list("-created_date", 1);
       return Array.isArray(result) ? result : [];
     },
+    refetchOnMount: 'stale'
   });
 
   const profile = profiles[0] || {};
