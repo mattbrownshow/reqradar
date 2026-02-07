@@ -62,6 +62,7 @@ import OpenRoles from './pages/OpenRoles';
 import Outreach from './pages/Outreach';
 import Pipeline from './pages/Pipeline';
 import Settings from './pages/Settings';
+import GmailCallback from './pages/GmailCallback';
 import __Layout from './Layout.jsx';
 
 
@@ -81,6 +82,7 @@ export const PAGES = {
     "Outreach": Outreach,
     "Pipeline": Pipeline,
     "Settings": Settings,
+    "GmailCallback": GmailCallback,
 }
 
 export const pagesConfig = {
