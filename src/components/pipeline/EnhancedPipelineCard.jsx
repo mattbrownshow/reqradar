@@ -5,6 +5,7 @@ import { Button } from "@/components/ui/button";
 import { Building2, MapPin, DollarSign, ChevronDown, ChevronUp } from "lucide-react";
 import DecisionMakersPanel from "./DecisionMakersPanel";
 import OutreachStatusBar from "./OutreachStatusBar";
+import ActivationSignals from "./ActivationSignals";
 import { Link } from "react-router-dom";
 import { createPageUrl } from "../../utils";
 
@@ -49,6 +50,11 @@ export default function EnhancedPipelineCard({ item, job, onStatusChange, onLaun
     lastContactDate: relevantOutreach[0]?.sent_at
   } : null;
 
+  // Sort outreach by date for most recent first
+  const sortedOutreach = [...relevantOutreach].sort((a, b) => 
+    new Date(b.created_date || b.sent_at) - new Date(a.created_date || a.sent_at)
+  );
+
   return (
     <div className="bg-white border-2 border-gray-200 rounded-xl hover:shadow-lg hover:border-[#FF9E4D] transition-all overflow-hidden">
       {/* Header */}
@@ -88,17 +94,13 @@ export default function EnhancedPipelineCard({ item, job, onStatusChange, onLaun
           </div>
         </div>
 
-        {/* Decision Makers Summary */}
-        {contacts.length > 0 && (
-          <div className="text-xs text-gray-600 bg-blue-50 rounded-lg p-2">
-            <p className="font-medium">
-              {contacts.length} decision maker{contacts.length !== 1 ? "s" : ""} identified
-            </p>
-          </div>
-        )}
-
-        {/* Outreach Status */}
-        {outreachStatus && <OutreachStatusBar outreachStatus={outreachStatus} opportunityId={item.id} />}
+        {/* Activation Signals */}
+        <ActivationSignals 
+          stage={item.stage}
+          contacts={contacts}
+          outreach={sortedOutreach}
+          item={item}
+        />
 
         {/* Timeline */}
         <div className="text-xs text-gray-500 flex items-center gap-2">
