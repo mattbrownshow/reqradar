@@ -79,7 +79,7 @@ export default function Settings() {
         availability: profile.availability || ""
       });
     }
-  }, [profile.id]);
+  }, [profile?.id, profile?.target_roles, profile?.industries, profile?.preferred_locations]);
 
   const saveJobSearchMutation = useMutation({
     mutationFn: async () => {
