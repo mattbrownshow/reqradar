@@ -9,7 +9,6 @@ import { ArrowLeft, Loader2 } from "lucide-react";
 import CompanyHeader from "../components/company/CompanyHeader";
 import OverviewTab from "../components/company/OverviewTab";
 import ContactCard from "../components/company/ContactCard";
-import CampaignTracker from "../components/company/CampaignTracker";
 
 export default function CompanyDetail() {
   const queryClient = useQueryClient();
@@ -21,8 +20,6 @@ export default function CompanyDetail() {
   const [enriching, setEnriching] = useState(!companyIdParam);
   const [generatedMessages, setGeneratedMessages] = useState({});
   const [generatingContactId, setGeneratingContactId] = useState(null);
-  const [selectedContacts, setSelectedContacts] = useState([]);
-  const [autoApplying, setAutoApplying] = useState(false);
 
   useEffect(() => {
     if (companyName && !companyId) {
@@ -103,6 +100,8 @@ export default function CompanyDetail() {
       const response = await base44.functions.invoke('generateOutreachMessage', {
         role_title: roles[0]?.title || 'Executive Role',
         role_description: roles[0]?.description || '',
+        role_salary_min: roles[0]?.salary_min,
+        role_salary_max: roles[0]?.salary_max,
         company_name: company.name,
         company_industry: company.industry,
         company_description: company.description,
@@ -124,29 +123,9 @@ export default function CompanyDetail() {
     }
   };
 
-  const handleManualApply = async (contact, message) => {
-    if (!message?.email_subject || !message?.email_body) {
-      alert('No message to send');
-      return;
-    }
-
-    try {
-      await base44.functions.invoke('sendOutreachEmail', {
-        recipient_email: contact.email,
-        subject: message.email_subject,
-        body: message.email_body,
-        contact_id: contact.id,
-        contact_name: contact.full_name,
-        contact_title: contact.title,
-        company_id: companyId,
-        company_name: company.name
-      });
-
-      alert('Email sent successfully!');
-    } catch (error) {
-      console.error('Failed to send email:', error);
-      alert('Failed to send email: ' + error.message);
-    }
+  const handleManualApply = (contact, message) => {
+    // TODO: Implement manual apply modal
+    alert('Manual apply functionality coming soon');
   };
 
   if (!companyName && !companyId) {
@@ -185,9 +164,9 @@ export default function CompanyDetail() {
     <div className="min-h-screen bg-gray-50">
       {/* Breadcrumb */}
       <div className="px-6 py-4 border-b border-gray-200 bg-white sticky top-16 z-40">
-        <div className="max-w-7xl mx-auto flex items-center gap-2 text-sm text-gray-600">
-          <Link to={createPageUrl("Discover")} className="hover:text-gray-900 hover:underline">Discover</Link>
-          <span className="text-gray-300">/</span>
+        <div className="flex items-center gap-2 text-sm text-gray-600">
+          <Link to={createPageUrl("Discover")} className="hover:text-gray-900">Discover</Link>
+          <span>/</span>
           <span className="text-gray-900 font-medium">{company.name}</span>
         </div>
       </div>
@@ -196,7 +175,7 @@ export default function CompanyDetail() {
       <CompanyHeader company={company} enriching={enriching} />
 
       {/* Tabs */}
-      <div className="px-6 py-6 max-w-7xl mx-auto w-full">
+      <div className="px-6 py-6">
         <Tabs defaultValue="overview" className="space-y-6">
           <TabsList className="bg-white border border-gray-200 rounded-xl p-1">
             <TabsTrigger value="overview" className="rounded-lg data-[state=active]:bg-gray-100">Overview</TabsTrigger>
@@ -216,61 +195,6 @@ export default function CompanyDetail() {
 
           {/* Contacts Tab */}
           <TabsContent value="contacts" className="space-y-4">
-            {/* Auto-Apply Controls */}
-            {contacts.length > 0 && Object.keys(generatedMessages).length > 0 && (
-              <div className="bg-white border border-gray-200 rounded-xl p-4">
-                <div className="flex items-center justify-between">
-                  <div>
-                    <h4 className="font-semibold text-gray-900">Auto-Send Campaign</h4>
-                    <p className="text-sm text-gray-600 mt-1">
-                      {selectedContacts.length} / {contacts.length} contacts selected
-                    </p>
-                  </div>
-                  <Button
-                    onClick={async () => {
-                      if (selectedContacts.length === 0) {
-                        alert('Select contacts to send to');
-                        return;
-                      }
-                      setAutoApplying(true);
-                      try {
-                        const messagesToSend = {};
-                        selectedContacts.forEach(id => {
-                          messagesToSend[id] = generatedMessages[id];
-                        });
-                        
-                        const response = await base44.functions.invoke('autoApplyToContacts', {
-                          contact_ids: selectedContacts,
-                          company_id: companyId,
-                          company_name: company.name,
-                          messages: messagesToSend
-                        });
-
-                        if (response.data.success) {
-                          alert(`Sent ${response.data.results.sent} emails successfully`);
-                          setSelectedContacts([]);
-                          queryClient.invalidateQueries({ queryKey: ['outreachMessages', companyId] });
-                        } else {
-                          alert(`Sent ${response.data.results.sent}, Failed ${response.data.results.failed}`);
-                        }
-                      } catch (error) {
-                        alert('Campaign failed: ' + error.message);
-                      } finally {
-                        setAutoApplying(false);
-                      }
-                    }}
-                    disabled={autoApplying || selectedContacts.length === 0}
-                    className="bg-orange-600 hover:bg-orange-700 text-white"
-                  >
-                    {autoApplying ? 'Sending...' : 'Send Campaign'}
-                  </Button>
-                </div>
-              </div>
-            )}
-
-            {/* Campaign Tracker */}
-            {companyId && <CampaignTracker companyId={companyId} companyName={company.name} />}
-
             {contacts.length === 0 ? (
               <div className="bg-white border border-gray-200 rounded-xl p-8 text-center">
                 <p className="text-gray-600 mb-4">No decision makers identified yet</p>
@@ -283,8 +207,7 @@ export default function CompanyDetail() {
                         titles: ['CEO', 'CTO', 'COO', 'CFO', 'VP', 'Director']
                       });
                       
-                      const contactsList = Array.isArray(result.data) ? result.data : (result.data.contacts || []);
-                      for (const contact of contactsList) {
+                      for (const contact of result.data.contacts) {
                         await base44.entities.Contact.create({
                           ...contact,
                           company_id: companyId,
@@ -305,28 +228,13 @@ export default function CompanyDetail() {
             ) : (
               <div className="space-y-4">
                 {contacts.map(contact => (
-                  <div key={contact.id} className="flex items-start gap-3">
-                    <input
-                      type="checkbox"
-                      checked={selectedContacts.includes(contact.id)}
-                      onChange={(e) => {
-                        if (e.target.checked) {
-                          setSelectedContacts([...selectedContacts, contact.id]);
-                        } else {
-                          setSelectedContacts(selectedContacts.filter(id => id !== contact.id));
-                        }
-                      }}
-                      className="mt-2 cursor-pointer"
-                    />
-                    <div className="flex-1">
-                      <ContactCard
-                        contact={contact}
-                        generatedMessage={generatedMessages[contact.id]}
-                        onGenerateMessage={() => handleGenerateMessage(contact)}
-                        onManualApply={handleManualApply}
-                      />
-                    </div>
-                  </div>
+                  <ContactCard
+                    key={contact.id}
+                    contact={contact}
+                    generatedMessage={generatedMessages[contact.id]}
+                    onGenerateMessage={() => handleGenerateMessage(contact)}
+                    onManualApply={handleManualApply}
+                  />
                 ))}
               </div>
             )}
