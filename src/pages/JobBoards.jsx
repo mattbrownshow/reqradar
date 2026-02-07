@@ -49,7 +49,7 @@ export default function JobBoards() {
     queryFn: () => base44.entities.OpenRole.list("-created_date", 200),
   });
 
-  const jobBoardRoles = roles.filter(r => r.source && r.source !== "Company Career Page");
+  const jobBoardRoles = roles.filter(r => r.source && r.source !== "Company Career Page" && r.status !== "not_interested");
 
   const createFeedMutation = useMutation({
     mutationFn: (data) => base44.entities.RSSFeed.create({ ...data, status: "active", jobs_found: 0, last_updated: new Date().toISOString() }),
@@ -68,6 +68,11 @@ export default function JobBoards() {
   const toggleFeedMutation = useMutation({
     mutationFn: ({ id, status }) => base44.entities.RSSFeed.update(id, { status: status === "active" ? "paused" : "active" }),
     onSuccess: () => queryClient.invalidateQueries({ queryKey: ["feeds"] }),
+  });
+
+  const updateRoleStatusMutation = useMutation({
+    mutationFn: ({ id, status }) => base44.entities.OpenRole.update(id, { status }),
+    onSuccess: () => queryClient.invalidateQueries({ queryKey: ["openRoles"] }),
   });
 
   return (
@@ -135,14 +140,37 @@ export default function JobBoards() {
                     {role.description && (
                       <p className="text-sm text-gray-500 mt-2 line-clamp-2">{role.description}</p>
                     )}
+                    {role.match_reasons && role.match_reasons.length > 0 && (
+                      <div className="mt-3 p-3 bg-emerald-50 rounded-lg">
+                        <p className="text-xs font-semibold text-emerald-900 mb-1.5">Why it matches:</p>
+                        <ul className="space-y-1">
+                          {role.match_reasons.slice(0, 3).map((reason, idx) => (
+                            <li key={idx} className="text-xs text-emerald-700 flex items-start gap-1.5">
+                              <span className="text-emerald-500 mt-0.5">✓</span>
+                              <span>{reason}</span>
+                            </li>
+                          ))}
+                        </ul>
+                      </div>
+                    )}
                   </div>
                   <StatusBadge status={role.status || "new"} />
                 </div>
                 <div className="flex gap-2 mt-4 pt-3 border-t border-gray-50">
-                  <Button size="sm" variant="outline" className="rounded-lg text-xs gap-1.5">
+                  <Button 
+                    size="sm" 
+                    variant="outline" 
+                    className="rounded-lg text-xs gap-1.5"
+                    onClick={() => updateRoleStatusMutation.mutate({ id: role.id, status: "saved" })}
+                  >
                     <Check className="w-3 h-3" /> Relevant
                   </Button>
-                  <Button size="sm" variant="ghost" className="rounded-lg text-xs gap-1.5 text-gray-400">
+                  <Button 
+                    size="sm" 
+                    variant="ghost" 
+                    className="rounded-lg text-xs gap-1.5 text-gray-400 hover:text-red-500"
+                    onClick={() => updateRoleStatusMutation.mutate({ id: role.id, status: "not_interested" })}
+                  >
                     <X className="w-3 h-3" /> Not Relevant
                   </Button>
                   {role.source_url && (
