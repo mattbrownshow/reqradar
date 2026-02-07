@@ -345,6 +345,57 @@ export default function OutreachComposerModal({ company, contacts, roles, user, 
           </Button>
         </div>
       </div>
+
+      {/* Send Confirmation Modal */}
+      {showConfirmation && selectedContact && generatedMessage && (
+        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4">
+          <div className="bg-white rounded-2xl max-w-md w-full p-6 space-y-6">
+            <div>
+              <h3 className="text-lg font-bold text-gray-900">Ready to Send?</h3>
+              <p className="text-sm text-gray-600 mt-1">Review your message before sending</p>
+            </div>
+
+            <div className="bg-gray-50 p-4 rounded-lg space-y-3 text-sm">
+              <div>
+                <p className="text-gray-600 font-medium">To:</p>
+                <p className="text-gray-900">{selectedContact.email || selectedContact.full_name}</p>
+              </div>
+              <div>
+                <p className="text-gray-600 font-medium">Subject:</p>
+                <p className="text-gray-900">{subjectLine}</p>
+              </div>
+              <div>
+                <p className="text-gray-600 font-medium">Preview:</p>
+                <p className="text-gray-700 line-clamp-3">{generatedMessage.message}</p>
+              </div>
+            </div>
+
+            {!selectedContact.email_verified && (
+              <div className="bg-yellow-50 border border-yellow-200 rounded-lg p-3 text-sm text-yellow-800">
+                ⚠️ This email address was found via web scraping and may not be current.
+              </div>
+            )}
+
+            <div className="flex gap-3">
+              <Button
+                onClick={() => setShowConfirmation(false)}
+                disabled={sending}
+                variant="outline"
+                className="flex-1"
+              >
+                Cancel
+              </Button>
+              <Button
+                onClick={handleSendEmail}
+                disabled={sending}
+                className="flex-1 bg-green-600 hover:bg-green-700 text-white"
+              >
+                {sending ? 'Sending...' : 'Send Email'}
+              </Button>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 }
