@@ -43,11 +43,12 @@ export default function JobsPipeline() {
   });
 
   const stages = [
-    { id: "saved", title: "Saved", color: "#3B82F6", emptyTitle: "Start saving roles", emptyText: "When you find interesting opportunities in Open Roles, save them here for research." },
-    { id: "researching", title: "Researching", color: "#8B5CF6", emptyTitle: "Research your opportunities", emptyText: "Drag saved roles here when you're actively researching the company and preparing to apply." },
-    { id: "applied", title: "Applied", color: "#F59E0B", emptyTitle: "No applications yet", emptyText: "Move roles here when you submit your application. We'll help you track follow-ups." },
-    { id: "interviewing", title: "Interviewing", color: "#10B981", emptyTitle: "No active interviews", emptyText: "Roles move here when you're scheduled for interviews or in active conversation." },
-    { id: "offer", title: "Offer", color: "#059669", emptyTitle: "No offers yet", emptyText: "The finish line! Offers and final negotiations are tracked here." }
+    { id: "saved", title: "Saved", color: "#3B82F6", emptyTitle: "Start saving opportunities", emptyText: "Save opportunities you want to explore. Begin gathering intelligence on companies and decision makers." },
+    { id: "intel_gathering", title: "Intel Gathering", color: "#8B5CF6", emptyTitle: "Gather intelligence", emptyText: "Research companies and identify decision makers. Once you've mapped contacts, launch outreach." },
+    { id: "outreach_active", title: "Outreach Active", color: "#F59E0B", emptyTitle: "No active campaigns", emptyText: "Outreach campaigns underway to decision makers. Track message delivery and engagement." },
+    { id: "conversation", title: "Conversation", color: "#10B981", emptyTitle: "No conversations yet", emptyText: "Decision makers have replied. Move here to manage ongoing dialogue and next steps." },
+    { id: "interview_scheduled", title: "Interview Scheduled", color: "#059669", emptyTitle: "No scheduled interviews", emptyText: "Interviews booked and confirmed. Track meeting details and follow-ups here." },
+    { id: "closed", title: "Closed", color: "#065F46", emptyTitle: "No closed opportunities", emptyText: "Outcome decided—offer accepted, declined, or rejected." }
   ];
 
   const groupedPipeline = stages.reduce((acc, stage) => {
@@ -91,6 +92,13 @@ export default function JobsPipeline() {
         {/* Metrics */}
         <div className="mb-6">
           <PipelineMetrics pipelineItems={pipelineItems} outreachData={outreach} />
+        </div>
+
+        {/* Stage Description */}
+        <div className="bg-orange-50 border border-orange-200 rounded-2xl p-4 mb-6">
+          <p className="text-sm text-gray-900">
+            <span className="font-semibold">Pipeline Journey:</span> Save opportunities → Gather intelligence on companies and decision makers → Launch and manage outreach campaigns → Engage in conversations → Schedule interviews → Close with outcome
+          </p>
         </div>
 
         <DragDropContext onDragEnd={onDragEnd}>
