@@ -5,11 +5,11 @@ Deno.serve(async (req) => {
     const base44 = createClientFromRequest(req);
 
     const payload = await req.json();
-    const { event, data: jobPipeline } = payload;
+    const { job_id, pipeline_id, company_id, company_name, company_domain } = payload;
 
-    if (!jobPipeline || !jobPipeline.job_id) {
-      console.error('Invalid enrichment payload:', { event, jobPipeline });
-      return Response.json({ error: 'Invalid payload' }, { status: 400 });
+    if (!job_id || !pipeline_id) {
+      console.error('Invalid enrichment payload:', payload);
+      return Response.json({ error: 'Missing job_id or pipeline_id' }, { status: 400 });
     }
 
     // Fetch the OpenRole to get company info
