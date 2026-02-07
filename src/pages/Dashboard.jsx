@@ -437,8 +437,34 @@ export default function Dashboard() {
           </div>
           <div className="divide-y divide-gray-50">
             {activities.length === 0 ? (
-              <div className="p-8 text-center text-sm text-gray-500">
-                Your activity feed will show your job search actions here - opportunities activated, companies added, outreach sent, interview updates, and status changes.
+              <div className="divide-y divide-gray-50">
+                <div className="px-6 py-4 flex items-start gap-3">
+                  <div className="w-8 h-8 rounded-lg bg-orange-100 flex items-center justify-center mt-0.5 shrink-0">
+                    <Send className="w-4 h-4 text-[#F7931E]" />
+                  </div>
+                  <div className="flex-1">
+                    <p className="text-sm font-medium text-gray-700">Email sent to CEO at example company</p>
+                    <p className="text-xs text-gray-500 mt-0.5">Executive outreach initiated</p>
+                  </div>
+                </div>
+                <div className="px-6 py-4 flex items-start gap-3">
+                  <div className="w-8 h-8 rounded-lg bg-emerald-100 flex items-center justify-center mt-0.5 shrink-0">
+                    <MessageSquare className="w-4 h-4 text-emerald-600" />
+                  </div>
+                  <div className="flex-1">
+                    <p className="text-sm font-medium text-gray-700">Reply received from VP Engineering</p>
+                    <p className="text-xs text-gray-500 mt-0.5">Decision maker engaged</p>
+                  </div>
+                </div>
+                <div className="px-6 py-4 flex items-start gap-3">
+                  <div className="w-8 h-8 rounded-lg bg-purple-100 flex items-center justify-center mt-0.5 shrink-0">
+                    <CalendarDays className="w-4 h-4 text-purple-600" />
+                  </div>
+                  <div className="flex-1">
+                    <p className="text-sm font-medium text-gray-700">Interview scheduled with CTO</p>
+                    <p className="text-xs text-gray-500 mt-0.5">Opportunity in active pursuit</p>
+                  </div>
+                </div>
               </div>
             ) : (
               activities.slice(0, 8).map((activity) => (
