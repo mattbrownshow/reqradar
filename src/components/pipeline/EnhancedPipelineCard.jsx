@@ -35,7 +35,8 @@ export default function EnhancedPipelineCard({ item, job, onStatusChange, onLaun
   const enrichMutation = useMutation({
     mutationFn: async () => {
       const result = await base44.functions.invoke('enrichOpportunityContacts', {
-        job_id: item.id,
+        job_id: item.job_id,
+        pipeline_id: item.id,
         company_id: job.company_id,
         company_name: job.company_name,
         company_domain: job.company_domain || ''
