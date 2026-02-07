@@ -10,18 +10,11 @@ export default function OutreachComposerModal({ company, contacts, roles, user, 
   const [generatedMessage, setGeneratedMessage] = useState(null);
   const [loading, setLoading] = useState(false);
   const [copied, setCopied] = useState(false);
-  const [emailConnected, setEmailConnected] = useState(false);
   const [subjectLine, setSubjectLine] = useState('');
   const [showConfirmation, setShowConfirmation] = useState(false);
   const [sending, setSending] = useState(false);
 
   const selectedContact = contacts.find(c => c.id === selectedContactId);
-
-  useEffect(() => {
-    base44.auth.me().then(currentUser => {
-      setEmailConnected(currentUser?.email_connected || false);
-    }).catch(() => {});
-  }, []);
 
   const generateSubjectLine = () => {
     const firstRole = roles[0];
