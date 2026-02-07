@@ -86,7 +86,26 @@ export default function CompanyDetail() {
     setGeneratedMessage(null);
   };
 
-  if (!company) {
+  if (!companyId) {
+    return (
+      <div className="px-6 py-8">
+        <div className="text-center py-16 text-gray-400">No company selected</div>
+      </div>
+    );
+  }
+
+  if (error) {
+    return (
+      <div className="px-6 py-8">
+        <div className="text-center py-16">
+          <p className="text-red-500 font-semibold mb-4">Failed to load company</p>
+          <p className="text-gray-500 text-sm">{error.message}</p>
+        </div>
+      </div>
+    );
+  }
+
+  if (isLoading || !company) {
     return (
       <div className="px-6 py-8">
         <div className="text-center py-16 text-gray-400">Loading company...</div>
