@@ -390,7 +390,7 @@ export default function Dashboard() {
 
       {/* All Metrics Collapsible */}
       <details className="bg-white border border-gray-100 rounded-2xl p-6">
-        <summary className="cursor-pointer text-gray-600 text-sm font-medium">View all metrics</summary>
+        <summary className="cursor-pointer text-gray-600 text-sm font-medium">View full momentum metrics</summary>
         <div className="mt-6 grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
 
           <MetricCard
