@@ -310,6 +310,17 @@ export default function CompanyDetail() {
           </TabsContent>
         </Tabs>
       </div>
+
+      {/* Outreach Composer Modal */}
+      {showOutreachModal && user && (
+        <OutreachComposerModal
+          company={company}
+          contacts={contacts}
+          roles={roles}
+          user={user}
+          onClose={() => setShowOutreachModal(false)}
+        />
+      )}
     </div>
   );
 }
