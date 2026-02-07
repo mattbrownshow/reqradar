@@ -9,12 +9,12 @@ Deno.serve(async (req) => {
       return Response.json({ error: 'Unauthorized' }, { status: 401 });
     }
 
-    // Get user's target roles
-    const profiles = await base44.asServiceRole.entities.CandidateProfile.filter({ created_by: user.email });
-    const profile = profiles[0];
+    // Get user's target roles - get all profiles and filter by user email
+    const allProfiles = await base44.asServiceRole.entities.CandidateProfile.list('-created_date', 100);
+    const profile = allProfiles.find(p => p.created_by === user.email);
     const targetRoles = profile?.target_roles || [];
     
-    console.log(`User: ${user.email}, Target Roles: ${targetRoles.join(', ') || 'NONE'}`);
+    console.log(`User: ${user.email}, Found profile: ${profile ? 'yes' : 'no'}, Target Roles: ${targetRoles.join(', ') || 'NONE'}`);
 
     // Get all active RSS feeds
     const allFeeds = await base44.asServiceRole.entities.RSSFeed.list('-created_date', 100);
