@@ -194,10 +194,7 @@ export default function EnhancedPipelineCard({ item, job, onStatusChange, onLaun
           {/* Actions */}
           <div className="flex flex-col gap-2 pt-2 border-t border-gray-200">
             {(() => {
-              const companyId = job?.company_id;
-              console.log('=== VIEW INTELLIGENCE DEBUG ===');
-              console.log('Using company_id from OpenRole:', companyId);
-              console.log('Job data:', job);
+              const companyId = item.company_id;
               return (
                 <>
                   <Link to={createPageUrl("CompanyDetail") + `?id=${companyId}`}>
