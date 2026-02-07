@@ -137,7 +137,7 @@ export default function CompanyDetail() {
     setGeneratedMessage(null);
   };
 
-  if (!companyId) {
+  if (!companyName && !companyId) {
     return (
       <div className="px-6 py-8">
         <div className="text-center py-16 text-gray-400">No company selected</div>
@@ -156,10 +156,15 @@ export default function CompanyDetail() {
     );
   }
 
-  if (isLoading || !company) {
+  if (isLoading || !company || enriching) {
     return (
       <div className="px-6 py-8">
-        <div className="text-center py-16 text-gray-400">Loading company...</div>
+        <div className="text-center py-16">
+          <p className="text-gray-600 font-semibold">
+            {enriching ? '🔬 Enriching company intelligence...' : 'Loading company...'}
+          </p>
+          {enriching && <p className="text-gray-400 text-sm mt-2">Gathering company data from external sources</p>}
+        </div>
       </div>
     );
   }
