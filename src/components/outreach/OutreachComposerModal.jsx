@@ -197,7 +197,7 @@ export default function OutreachComposerModal({ company, contacts, roles, user, 
                   {[
                     { value: 'linkedin_connection', label: 'LinkedIn Connection Request (300 char)' },
                     { value: 'linkedin_inmail', label: 'LinkedIn InMail (2000 char)' },
-                    { value: 'email', label: `Email ${emailConnected ? '(direct send)' : '(copy & paste)'}` }
+                    { value: 'email', label: 'Email (direct send)' }
                   ].map(option => (
                     <label key={option.value} className="flex items-center gap-2 cursor-pointer">
                       <input
