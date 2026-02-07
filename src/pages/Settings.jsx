@@ -85,9 +85,12 @@ export default function Settings() {
     mutationFn: async () => {
       if (!profile.id) throw new Error('No profile found');
       await base44.entities.CandidateProfile.update(profile.id, jobSearchPrefs);
+      // Sync RSS feeds with updated target roles
+      await base44.functions.invoke('syncRSSFeeds', {});
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["candidateProfile"] });
+      queryClient.invalidateQueries({ queryKey: ["feeds"] });
     }
   });
 
