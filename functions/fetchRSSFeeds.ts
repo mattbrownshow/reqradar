@@ -9,6 +9,11 @@ Deno.serve(async (req) => {
       return Response.json({ error: 'Unauthorized' }, { status: 401 });
     }
 
+    // Get user's target roles
+    const profiles = await base44.entities.CandidateProfile.filter({ created_by: user.email });
+    const profile = profiles[0];
+    const targetRoles = profile?.target_roles || [];
+
     // Get all active RSS feeds
     const feeds = await base44.entities.RSSFeed.filter({ status: 'active' });
     
@@ -28,28 +33,31 @@ Deno.serve(async (req) => {
     for (const feed of feeds) {
       try {
         const feedUrl = feed.feed_url;
-        
-        // Skip API endpoints that need special handling
-        if (feedUrl.includes('remotive.com') || feedUrl.includes('arbeitnow.com') || feedUrl.includes('themuse.com')) {
-          continue; // These are handled by fetchJobsFromAPIs
-        }
+        let jobs = [];
 
-        // Fetch the feed
-        const response = await fetch(feedUrl, {
-          headers: {
-            'User-Agent': 'Mozilla/5.0 (compatible; Flowzyn/1.0)'
+        // Handle API endpoints with role filtering
+        if (feedUrl.includes('remotive.com/api')) {
+          jobs = await fetchRemotiveJobs(targetRoles);
+        } else if (feedUrl.includes('arbeitnow.com/api')) {
+          jobs = await fetchArbeitnowJobs(targetRoles);
+        } else if (feedUrl.includes('themuse.com/developers/api')) {
+          jobs = await fetchTheMuseJobs(targetRoles);
+        } else {
+          // Handle RSS feeds
+          const response = await fetch(feedUrl, {
+            headers: {
+              'User-Agent': 'Mozilla/5.0 (compatible; Flowzyn/1.0)'
+            }
+          });
+
+          if (!response.ok) {
+            console.error(`Failed to fetch feed ${feed.feed_name}: ${response.status}`);
+            continue;
           }
-        });
 
-        if (!response.ok) {
-          console.error(`Failed to fetch feed ${feed.feed_name}: ${response.status}`);
-          continue;
+          const feedContent = await response.text();
+          jobs = parseRSSFeed(feedContent, feed.feed_name, feedUrl);
         }
-
-        const feedContent = await response.text();
-        
-        // Parse RSS XML
-        const jobs = parseRSSFeed(feedContent, feed.feed_name, feedUrl);
         
         if (jobs.length === 0) {
           continue;
@@ -86,6 +94,96 @@ Deno.serve(async (req) => {
     }, { status: 500 });
   }
 });
+
+async function fetchRemotiveJobs(targetRoles) {
+  const jobs = [];
+  try {
+    for (const role of targetRoles) {
+      const response = await fetch(`https://remotive.com/api/remote-jobs?search=${encodeURIComponent(role)}`);
+      if (!response.ok) continue;
+      
+      const data = await response.json();
+      if (data.jobs) {
+        jobs.push(...data.jobs.map(job => ({
+          title: job.title,
+          company_name: job.company_name,
+          description: job.description,
+          location: job.job_region || 'Remote',
+          work_type: 'Remote',
+          source: 'Remotive',
+          source_type: 'rss_feed',
+          source_url: job.url,
+          posted_date: new Date(job.publication_date).toISOString().split('T')[0],
+          status: 'new',
+          match_score: 0
+        })));
+      }
+    }
+  } catch (error) {
+    console.error('Error fetching Remotive jobs:', error);
+  }
+  return jobs;
+}
+
+async function fetchArbeitnowJobs(targetRoles) {
+  const jobs = [];
+  try {
+    for (const role of targetRoles) {
+      const response = await fetch(`https://www.arbeitnow.com/api/job-board-api?query=${encodeURIComponent(role)}`);
+      if (!response.ok) continue;
+      
+      const data = await response.json();
+      if (data.data) {
+        jobs.push(...data.data.map(job => ({
+          title: job.title,
+          company_name: job.company_name,
+          description: job.description,
+          location: job.location || 'Remote',
+          work_type: 'Remote',
+          source: 'Arbeitnow',
+          source_type: 'rss_feed',
+          source_url: job.url,
+          posted_date: job.posted_at ? new Date(job.posted_at).toISOString().split('T')[0] : new Date().toISOString().split('T')[0],
+          status: 'new',
+          match_score: 0
+        })));
+      }
+    }
+  } catch (error) {
+    console.error('Error fetching Arbeitnow jobs:', error);
+  }
+  return jobs;
+}
+
+async function fetchTheMuseJobs(targetRoles) {
+  const jobs = [];
+  try {
+    for (const role of targetRoles) {
+      const response = await fetch(`https://www.themuse.com/api/public/jobs?search=${encodeURIComponent(role)}`);
+      if (!response.ok) continue;
+      
+      const data = await response.json();
+      if (data.results) {
+        jobs.push(...data.results.map(job => ({
+          title: job.name,
+          company_name: job.company.name,
+          description: job.contents,
+          location: job.locations[0]?.name || 'Remote',
+          work_type: 'Remote',
+          source: 'The Muse',
+          source_type: 'rss_feed',
+          source_url: job.refs.landing_page,
+          posted_date: new Date(job.published_at).toISOString().split('T')[0],
+          status: 'new',
+          match_score: 0
+        })));
+      }
+    }
+  } catch (error) {
+    console.error('Error fetching The Muse jobs:', error);
+  }
+  return jobs;
+}
 
 function parseRSSFeed(xml, feedName, feedUrl) {
   const jobs = [];
