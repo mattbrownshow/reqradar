@@ -51,19 +51,19 @@ import ActiveOpportunities from './pages/ActiveOpportunities';
 import Analytics from './pages/Analytics';
 import CandidateSetup from './pages/CandidateSetup';
 import Companies from './pages/Companies';
-import CompanyDetail from './pages/CompanyDetail';
 import DailySuggestions from './pages/DailySuggestions';
 import Dashboard from './pages/Dashboard';
 import Discover from './pages/Discover';
 import DiscoverySources from './pages/DiscoverySources';
-import GmailCallback from './pages/GmailCallback';
 import JobBoards from './pages/JobBoards';
 import JobsPipeline from './pages/JobsPipeline';
 import OpenRoles from './pages/OpenRoles';
-import OutlookCallback from './pages/OutlookCallback';
 import Outreach from './pages/Outreach';
 import Pipeline from './pages/Pipeline';
 import Settings from './pages/Settings';
+import GmailCallback from './pages/GmailCallback';
+import OutlookCallback from './pages/OutlookCallback';
+import CompanyDetail from './pages/CompanyDetail';
 import __Layout from './Layout.jsx';
 
 
@@ -72,19 +72,19 @@ export const PAGES = {
     "Analytics": Analytics,
     "CandidateSetup": CandidateSetup,
     "Companies": Companies,
-    "CompanyDetail": CompanyDetail,
     "DailySuggestions": DailySuggestions,
     "Dashboard": Dashboard,
     "Discover": Discover,
     "DiscoverySources": DiscoverySources,
-    "GmailCallback": GmailCallback,
     "JobBoards": JobBoards,
     "JobsPipeline": JobsPipeline,
     "OpenRoles": OpenRoles,
-    "OutlookCallback": OutlookCallback,
     "Outreach": Outreach,
     "Pipeline": Pipeline,
     "Settings": Settings,
+    "GmailCallback": GmailCallback,
+    "OutlookCallback": OutlookCallback,
+    "CompanyDetail": CompanyDetail,
 }
 
 export const pagesConfig = {
