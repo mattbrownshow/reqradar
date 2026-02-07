@@ -15,6 +15,7 @@ import {
 import StatusBadge from "../components/shared/StatusBadge";
 import EmptyState from "../components/shared/EmptyState";
 import JobPreferencesCard from "../components/shared/JobPreferencesCard";
+import PageDescription from "../components/shared/PageDescription";
 import { toast } from "sonner";
 
 export default function Companies() {
@@ -94,6 +95,8 @@ export default function Companies() {
 
   return (
     <div className="px-4 sm:px-6 py-8 space-y-6">
+      <PageDescription page="companies" />
+      
       {/* Header */}
       <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
         <div>

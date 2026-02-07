@@ -18,6 +18,7 @@ import MetricCard from "../components/shared/MetricCard";
 import StatusBadge from "../components/shared/StatusBadge";
 import EmptyState from "../components/shared/EmptyState";
 import EmailIntegrationBanner from "../components/outreach/EmailIntegrationBanner";
+import PageDescription from "../components/shared/PageDescription";
 import { format } from "date-fns";
 
 export default function Outreach() {
@@ -88,10 +89,11 @@ export default function Outreach() {
 
   return (
     <div className="px-4 sm:px-6 py-8 space-y-6">
+      <PageDescription page="outreach" />
+      
       <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
         <div>
           <h1 className="text-2xl font-bold text-gray-900 tracking-tight">Outreach</h1>
-          <p className="text-sm text-gray-500 mt-1">Track and manage executive outreach campaigns</p>
         </div>
         <Button onClick={() => setShowCreate(true)} className="bg-[#F7931E] hover:bg-[#E07A0A] text-white rounded-xl gap-2">
           <Plus className="w-4 h-4" /> Create Outreach

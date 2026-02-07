@@ -7,6 +7,7 @@ import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Sparkles, Building2, MapPin, Users, TrendingUp, Plus, X, Loader2, Play, CheckCircle } from "lucide-react";
 import { toast } from "sonner";
+import PageDescription from "../components/shared/PageDescription";
 
 export default function DailySuggestions() {
   const [filter, setFilter] = useState("new");
@@ -53,6 +54,8 @@ export default function DailySuggestions() {
 
   return (
     <div className="px-4 sm:px-6 py-8 space-y-6">
+      <PageDescription page="suggestions" />
+      
       <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
         <div>
           <h1 className="text-2xl font-bold text-gray-900 flex items-center gap-2">
