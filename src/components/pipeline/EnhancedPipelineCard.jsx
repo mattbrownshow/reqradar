@@ -202,25 +202,27 @@ export default function EnhancedPipelineCard({ item, job, onStatusChange, onLaun
               console.log('item.company_id:', item?.company_id);
               console.log('Final companyId:', companyId);
               return (
-                <Link to={createPageUrl("CompanyDetail") + `?id=${companyId}`}>
-              <Button variant="outline" size="sm" className="w-full text-xs rounded-lg">
-                View Company Intelligence →
-              </Button>
-              </Link>
+                <>
+                  <Link to={createPageUrl("CompanyDetail") + `?id=${companyId}`}>
+                    <Button variant="outline" size="sm" className="w-full text-xs rounded-lg">
+                      View Company Intelligence →
+                    </Button>
+                  </Link>
+                  <Button
+                    size="sm"
+                    variant="outline"
+                    className="w-full text-xs rounded-lg"
+                    onClick={() => {
+                      const newStatus = item.stage === "interviewing" ? "offer" : 
+                                       item.stage === "applied" ? "interviewing" : "applied";
+                      onStatusChange(item.id, newStatus);
+                    }}
+                  >
+                    Update Status
+                  </Button>
+                </>
               );
               })()}
-            <Button
-              size="sm"
-              variant="outline"
-              className="w-full text-xs rounded-lg"
-              onClick={() => {
-                const newStatus = item.stage === "interviewing" ? "offer" : 
-                                 item.stage === "applied" ? "interviewing" : "applied";
-                onStatusChange(item.id, newStatus);
-              }}
-            >
-              Update Status
-            </Button>
           </div>
         </div>
       )}
