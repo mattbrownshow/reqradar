@@ -35,35 +35,25 @@ Deno.serve(async (req) => {
         const feedUrl = feed.feed_url;
         let jobs = [];
 
-        console.log(`Processing feed: ${feed.feed_name}`);
-
-        // Handle API endpoints with role filtering
-        if (feedUrl.includes('remotive.com/api')) {
-          jobs = await fetchRemotiveJobs(targetRoles);
-          console.log(`Remotive jobs found: ${jobs.length}`);
-        } else if (feedUrl.includes('arbeitnow.com/api')) {
-          jobs = await fetchArbeitnowJobs(targetRoles);
-          console.log(`Arbeitnow jobs found: ${jobs.length}`);
-        } else if (feedUrl.includes('themuse.com/developers/api') || feedUrl.includes('themuse.com')) {
-          jobs = await fetchTheMuseJobs(targetRoles);
-          console.log(`The Muse jobs found: ${jobs.length}`);
-        } else {
-          // Handle RSS feeds
-          const response = await fetch(feedUrl, {
-            headers: {
-              'User-Agent': 'Mozilla/5.0 (compatible; Flowzyn/1.0)'
-            }
-          });
-
-          if (!response.ok) {
-            console.error(`Failed to fetch feed ${feed.feed_name}: ${response.status}`);
-            continue;
-          }
-
-          const feedContent = await response.text();
-          jobs = parseRSSFeed(feedContent, feed.feed_name, feedUrl);
-          console.log(`${feed.feed_name} jobs found: ${jobs.length}`);
+        // Skip API endpoints - they need special handling and have strict rate limiting
+        if (feedUrl.includes('remotive.com') || feedUrl.includes('arbeitnow.com') || feedUrl.includes('themuse.com')) {
+          continue;
         }
+
+        // Handle RSS feeds
+        const response = await fetch(feedUrl, {
+          headers: {
+            'User-Agent': 'Mozilla/5.0 (compatible; Flowzyn/1.0)'
+          }
+        });
+
+        if (!response.ok) {
+          console.error(`Failed to fetch feed ${feed.feed_name}: ${response.status}`);
+          continue;
+        }
+
+        const feedContent = await response.text();
+        jobs = parseRSSFeed(feedContent, feed.feed_name, feedUrl);
         
         if (jobs.length === 0) {
           continue;
@@ -71,7 +61,6 @@ Deno.serve(async (req) => {
 
         // Filter out duplicates
         const newJobs = jobs.filter(j => !existingUrls.has(j.source_url));
-        console.log(`New jobs after dedup: ${newJobs.length}`);
         
         if (newJobs.length > 0) {
           // Create OpenRole records for new jobs
