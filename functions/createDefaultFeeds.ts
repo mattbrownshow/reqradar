@@ -52,6 +52,28 @@ Deno.serve(async (req) => {
         refresh_frequency: "every_4_hours",
         status: "active"
       });
+
+      // Add public API-based job feeds
+      feeds.push({
+        feed_name: "Remotive - Remote Jobs API",
+        feed_url: "https://remotive.com/api/remote-jobs",
+        refresh_frequency: "every_4_hours",
+        status: "active"
+      });
+
+      feeds.push({
+        feed_name: "Arbeitnow - Job Board API",
+        feed_url: "https://www.arbeitnow.com/api/job-board-api",
+        refresh_frequency: "every_4_hours",
+        status: "active"
+      });
+
+      feeds.push({
+        feed_name: "The Muse - Jobs API",
+        feed_url: "https://www.themuse.com/developers/api/v2/jobs",
+        refresh_frequency: "every_4_hours",
+        status: "active"
+      });
     } else {
       // Fallback to default executive feeds if no profile
       feeds.push(
