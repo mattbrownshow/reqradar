@@ -52,6 +52,16 @@ Deno.serve(async (req) => {
             let jobsFound = 0;
             let pagesScanned = 0;
 
+            // Fetch jobs from RSS feeds
+            try {
+              const { data: rssResult } = await base44.functions.invoke('fetchRSSFeeds', {});
+              if (rssResult.success) {
+                jobsFound += rssResult.jobs_created || 0;
+              }
+            } catch (error) {
+              console.error('Failed to fetch from RSS feeds:', error);
+            }
+
             // Fetch jobs from public APIs
             try {
               const { data: apiResult } = await base44.functions.invoke('fetchJobsFromAPIs', {});
