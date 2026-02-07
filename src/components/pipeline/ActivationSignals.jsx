@@ -1,7 +1,8 @@
 import React from "react";
 import { Mail, MessageSquare, Clock, Zap, AlertCircle } from "lucide-react";
+import ContactRoleRelevance from "./ContactRoleRelevance";
 
-export default function ActivationSignals({ stage, contacts, outreach, item }) {
+export default function ActivationSignals({ stage, contacts, outreach, item, enrichedAt }) {
   // Engagement data
   const totalMessages = outreach.length;
   const deliveredMessages = outreach.filter(o => ["delivered", "opened", "responded"].includes(o.status)).length;
@@ -66,10 +67,22 @@ export default function ActivationSignals({ stage, contacts, outreach, item }) {
 
   return (
     <div className="space-y-2 text-xs">
+      {/* Contact Role Relevance (if contacts exist) */}
+      {contacts.length > 0 && (
+        <ContactRoleRelevance contacts={contacts} />
+      )}
+
       {/* Enrichment/Contact Status */}
       <div className="flex items-center gap-2 px-3 py-2 bg-blue-50 rounded-lg">
         <Zap className="w-3.5 h-3.5 text-blue-500 shrink-0" />
-        <span className="text-gray-700">{getEnrichmentStatus()}</span>
+        <div className="flex-1">
+          <span className="text-gray-700">{getEnrichmentStatus()}</span>
+          {enrichedAt && (
+            <p className="text-xs text-gray-500 mt-0.5">
+              Enriched {formatTimeAgo(new Date(enrichedAt))}
+            </p>
+          )}
+        </div>
       </div>
 
       {/* Engagement Signals */}

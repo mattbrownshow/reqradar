@@ -1,8 +1,8 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import { base44 } from "@/api/base44Client";
-import { useQuery } from "@tanstack/react-query";
+import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { Button } from "@/components/ui/button";
-import { Building2, MapPin, DollarSign, ChevronDown, ChevronUp } from "lucide-react";
+import { Building2, MapPin, DollarSign, ChevronDown, ChevronUp, Send, MessageSquare, Loader2 } from "lucide-react";
 import DecisionMakersPanel from "./DecisionMakersPanel";
 import OutreachStatusBar from "./OutreachStatusBar";
 import ActivationSignals from "./ActivationSignals";
@@ -11,6 +11,8 @@ import { createPageUrl } from "../../utils";
 
 export default function EnhancedPipelineCard({ item, job, onStatusChange, onLaunchOutreach }) {
   const [expanded, setExpanded] = useState(false);
+  const [enrichedAt, setEnrichedAt] = useState(item.enriched_at);
+  const queryClient = useQueryClient();
 
   const { data: company } = useQuery({
     queryKey: ["company", job?.company_id],
@@ -28,6 +30,36 @@ export default function EnhancedPipelineCard({ item, job, onStatusChange, onLaun
     queryKey: ["outreach"],
     queryFn: () => base44.entities.OutreachMessage.list("-created_date", 500)
   });
+
+  // Auto-trigger enrichment on mount if needed
+  const enrichMutation = useMutation({
+    mutationFn: async () => {
+      const result = await base44.functions.invoke('enrichOpportunityContacts', {
+        job_id: item.id,
+        company_id: job.company_id,
+        company_name: job.company_name,
+        company_domain: job.company_domain || ''
+      });
+      return result.data;
+    },
+    onSuccess: (data) => {
+      if (data.status === 'success') {
+        setEnrichedAt(new Date().toISOString());
+        queryClient.invalidateQueries({ queryKey: ["contacts"] });
+        // Auto-transition to Intel Gathering if contacts found
+        if (data.contacts_created > 0 && item.stage === "saved") {
+          onStatusChange(item.id, "intel_gathering");
+        }
+      }
+    }
+  });
+
+  // Auto-enrich on first render if in saved stage and no enrichment yet
+  useEffect(() => {
+    if (item.stage === "saved" && !enrichedAt && contacts.length === 0) {
+      enrichMutation.mutate();
+    }
+  }, []);
 
   if (!job) {
     return (
@@ -100,12 +132,47 @@ export default function EnhancedPipelineCard({ item, job, onStatusChange, onLaun
           contacts={contacts}
           outreach={sortedOutreach}
           item={item}
+          enrichedAt={enrichedAt}
         />
 
-        {/* Timeline */}
-        <div className="text-xs text-gray-500 flex items-center gap-2">
-          {item.applied_at && <span>Activated: {new Date(item.applied_at).toLocaleDateString()}</span>}
-          {item.interview_date && <span>Interview: {new Date(item.interview_date).toLocaleDateString()}</span>}
+        {/* Timeline & Status */}
+        <div className="space-y-1.5">
+          <div className="text-xs text-gray-500 flex items-center gap-2">
+            {item.applied_at && <span>Activated: {new Date(item.applied_at).toLocaleDateString()}</span>}
+            {item.interview_date && <span>Interview: {new Date(item.interview_date).toLocaleDateString()}</span>}
+          </div>
+
+          {/* Primary CTA */}
+          {item.stage === "intel_gathering" && contacts.length > 0 && sortedOutreach.length === 0 && (
+            <Button
+              size="sm"
+              className="w-full bg-orange-500 hover:bg-orange-600 text-white rounded-lg text-xs h-8 gap-1.5"
+              onClick={() => onLaunchOutreach(contacts.map(c => c.id))}
+            >
+              <Send className="w-3 h-3" />
+              Launch Outreach
+            </Button>
+          )}
+
+          {/* Start Conversation CTA */}
+          {(item.stage === "outreach_active" || item.stage === "conversation") && sortedOutreach.length > 0 && (
+            <Button
+              size="sm"
+              variant="outline"
+              className="w-full rounded-lg text-xs h-8 gap-1.5"
+            >
+              <MessageSquare className="w-3 h-3" />
+              Continue Conversations
+            </Button>
+          )}
+
+          {/* Enrich if needed */}
+          {enrichMutation.isPending && (
+            <div className="text-xs text-blue-600 flex items-center gap-1.5 px-3 py-2 bg-blue-50 rounded-lg">
+              <Loader2 className="w-3 h-3 animate-spin" />
+              <span>Enriching contacts...</span>
+            </div>
+          )}
         </div>
       </div>
 
