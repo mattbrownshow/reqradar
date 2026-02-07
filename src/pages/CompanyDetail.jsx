@@ -25,12 +25,11 @@ export default function CompanyDetail() {
   const [generatingOutreach, setGeneratingOutreach] = useState(false);
   const [generatedMessage, setGeneratedMessage] = useState(null);
 
-  const { data: companies = [] } = useQuery({
+  const { data: company } = useQuery({
     queryKey: ["company", companyId],
-    queryFn: () => base44.entities.Company.filter({ id: companyId }),
+    queryFn: () => base44.entities.Company.get(companyId),
     enabled: !!companyId,
   });
-  const company = companies[0];
 
   const { data: contacts = [] } = useQuery({
     queryKey: ["contacts", companyId],
