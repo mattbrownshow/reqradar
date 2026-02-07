@@ -1,9 +1,12 @@
 import React, { useState } from "react";
+import { Link } from "react-router-dom";
+import { createPageUrl } from "../utils";
 import { base44 } from "@/api/base44Client";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
-import { Sparkles, Building2, MapPin, Users, TrendingUp, Plus, X, Loader2, Play } from "lucide-react";
+import { Sparkles, Building2, MapPin, Users, TrendingUp, Plus, X, Loader2, Play, CheckCircle } from "lucide-react";
+import { toast } from "sonner";
 
 export default function DailySuggestions() {
   const [filter, setFilter] = useState("new");
@@ -36,8 +39,12 @@ export default function DailySuggestions() {
   const manageSuggestionMutation = useMutation({
     mutationFn: ({ suggestion_id, action }) => 
       base44.functions.invoke("manageSuggestions", { suggestion_id, action }),
-    onSuccess: () => {
+    onSuccess: (data, variables) => {
       queryClient.invalidateQueries({ queryKey: ["suggestions"] });
+      queryClient.invalidateQueries({ queryKey: ["companies"] });
+      if (variables.action === "add_to_target") {
+        toast.success("Company added to your target list");
+      }
     }
   });
 
@@ -54,6 +61,11 @@ export default function DailySuggestions() {
           </h1>
           <p className="text-sm text-gray-600 mt-2 max-w-3xl">Discover new companies tailored to your job search preferences, even before they post specific roles. Review and decide which ones to add to your target list.</p>
         </div>
+        <Link to={createPageUrl("Companies")}>
+          <Button variant="outline" className="rounded-xl gap-2">
+            <Building2 className="w-4 h-4" /> View Target List
+          </Button>
+        </Link>
         <Button
           onClick={() => runDiscoveryMutation.mutate()}
           disabled={runDiscoveryMutation.isPending}
@@ -232,10 +244,23 @@ function SuggestionCard({ suggestion, onAddToTarget, onDismiss, isLoading }) {
         <Button
           onClick={onAddToTarget}
           disabled={isLoading || suggestion.status === "added_to_target"}
-          className="flex-1 bg-[#F7931E] hover:bg-[#E07A0A] rounded-xl gap-2"
+          className={`flex-1 rounded-xl gap-2 ${
+            suggestion.status === "added_to_target"
+              ? "bg-emerald-600 hover:bg-emerald-700 text-white"
+              : "bg-[#F7931E] hover:bg-[#E07A0A] text-white"
+          }`}
         >
-          <Plus className="w-4 h-4" />
-          {suggestion.status === "added_to_target" ? "Added to Target List" : "Add to Target List"}
+          {suggestion.status === "added_to_target" ? (
+            <>
+              <CheckCircle className="w-4 h-4" />
+              Added to Target List
+            </>
+          ) : (
+            <>
+              <Plus className="w-4 h-4" />
+              Add to Target List
+            </>
+          )}
         </Button>
         {suggestion.status === "new" && (
           <Button
