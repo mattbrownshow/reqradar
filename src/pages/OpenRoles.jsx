@@ -140,8 +140,8 @@ export default function OpenRoles() {
   return (
     <div className="px-4 sm:px-6 py-8 space-y-6">
       <div>
-        <h1 className="text-2xl font-bold text-gray-900 tracking-tight">Open Roles</h1>
-        <p className="text-sm text-gray-500 mt-2">All matching jobs from target companies, job boards, and daily discoveries.</p>
+        <h1 className="text-2xl font-bold text-gray-900 tracking-tight">Qualified Opportunities</h1>
+        <p className="text-sm text-gray-500 mt-2">Roles ranked by match score from your target companies, monitored feeds, and market discoveries.</p>
       </div>
 
       {/* Search */}
