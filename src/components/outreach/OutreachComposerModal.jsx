@@ -296,24 +296,38 @@ export default function OutreachComposerModal({ company, contacts, roles, user, 
                   </p>
 
                   {/* Action Buttons */}
-                  <div className="flex gap-2">
+                  <div className="flex gap-2 flex-col sm:flex-row">
                     <Button
                       onClick={handleGenerateMessage}
                       disabled={loading}
                       variant="outline"
-                      className="flex-1 gap-2"
+                      className="gap-2"
                     >
                       <RefreshCw className="w-4 h-4" />
                       Regenerate
                     </Button>
-                    <Button
-                      onClick={handleCopyToClipboard}
-                      variant="outline"
-                      className="flex-1 gap-2"
-                    >
-                      <Copy className="w-4 h-4" />
-                      {copied ? 'Copied!' : 'Copy'}
-                    </Button>
+                    {messageType === 'email' && emailConnected ? (
+                      <Button
+                        onClick={() => setShowConfirmation(true)}
+                        disabled={sending || !subjectLine}
+                        className="bg-green-600 hover:bg-green-700 text-white gap-2"
+                      >
+                        {sending ? (
+                          <><Loader2 className="w-4 h-4 animate-spin" /> Sending...</>
+                        ) : (
+                          <><Send className="w-4 h-4" /> Send Email</>
+                        )}
+                      </Button>
+                    ) : (
+                      <Button
+                        onClick={handleCopyToClipboard}
+                        variant="outline"
+                        className="gap-2"
+                      >
+                        <Copy className="w-4 h-4" />
+                        {copied ? 'Copied!' : 'Copy'}
+                      </Button>
+                    )}
                   </div>
                 </div>
               )}
