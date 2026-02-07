@@ -366,8 +366,7 @@ export default function ActiveOpportunities() {
               <div className="flex flex-wrap gap-2">
                 <Button
                   size="sm"
-                  variant="outline"
-                  className="rounded-xl gap-1.5"
+                  className="bg-[#FF9E4D] hover:bg-[#E8893D] text-white rounded-xl gap-1.5"
                   onClick={() => saveJobMutation.mutate(role.id)}
                   disabled={saveJobMutation.isPending}
                 >
