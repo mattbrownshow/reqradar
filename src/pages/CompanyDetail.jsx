@@ -80,7 +80,6 @@ export default function CompanyDetail() {
     enabled: !!companyId || !!companyName,
   });
 
-  const [generatedMessages, setGeneratedMessages] = useState({});
   const [generatingFor, setGeneratingFor] = useState(null);
 
   const { data: roles = [] } = useQuery({
