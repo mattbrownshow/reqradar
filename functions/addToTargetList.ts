@@ -46,9 +46,38 @@ Deno.serve(async (req) => {
       entity_id: company.id
     });
 
+    // Get user preferences for auto-enrichment
+    const profiles = await base44.entities.CandidateProfile.filter({
+      email: user.email
+    });
+    const userPrefs = profiles[0];
+
+    // Trigger background tasks (don't wait for them)
+    if (userPrefs && company.domain) {
+      const targetTitle = userPrefs.ideal_decision_maker || 'CEO';
+      
+      // Auto-enrich contact in background
+      base44.functions.invoke('enrichContact', {
+        companyId: company.id,
+        companyDomain: company.domain,
+        targetTitle: targetTitle
+      }).catch(err => console.error('Background enrichment failed:', err));
+
+      // Auto-scan career page in background
+      if (companyData.website || company.domain) {
+        const website = companyData.website || `https://${company.domain}`;
+        base44.functions.invoke('scanCareerPage', {
+          companyId: company.id,
+          companyWebsite: website,
+          companyName: company.name
+        }).catch(err => console.error('Background scan failed:', err));
+      }
+    }
+
     return Response.json({
       success: true,
-      company
+      company,
+      message: 'Company added. Finding decision maker and scanning for jobs...'
     });
 
   } catch (error) {
