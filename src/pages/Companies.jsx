@@ -92,91 +92,197 @@ export default function Companies() {
     return matchSearch && matchIndustry;
   });
 
+  const profile = profiles[0] || {};
+
   return (
-    <div className="px-4 sm:px-6 py-8 space-y-6">
-      {/* Header */}
-      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
-        <div className="flex-1">
-          <h1 className="text-2xl font-bold text-gray-900 tracking-tight">Companies</h1>
-          <p className="text-sm text-gray-500 mt-2">Search for companies matching your profile. When you add a company, we automatically scan for your desired roles and find decision maker contacts.</p>
+    <div className="px-4 sm:px-6 py-8 lg:py-12">
+      <style>{`
+        .preferences-summary-box {
+          display: flex;
+          align-items: center;
+          gap: 16px;
+          margin-top: 16px;
+          padding: 12px 16px;
+          background: #FFF9F5;
+          border: 1px solid #FFE4CC;
+          border-radius: 8px;
+          flex-wrap: wrap;
+        }
+        
+        .pref-label {
+          font-weight: 600;
+          color: #1A1A1A;
+          font-size: 14px;
+        }
+        
+        .pref-separator {
+          margin: 0 8px;
+          color: #9CA3AF;
+        }
+        
+        .discover-details {
+          margin-top: 24px;
+        }
+        
+        .discover-details p {
+          color: #6B7280;
+          margin-bottom: 16px;
+        }
+      `}</style>
+      
+      <div className="max-w-7xl mx-auto">
+        {/* Header */}
+        <div className="mb-6">
+          <h1 className="text-3xl font-bold text-gray-900 mb-2">Target Companies</h1>
+          <p className="text-gray-600">Search for companies matching your profile. When you add a company, we automatically scan for your desired roles and find decision maker contacts.</p>
+          
+          {/* Preferences Summary */}
+          {profile && (profile.target_roles?.length > 0 || profile.industries?.length > 0) && (
+            <div className="preferences-summary-box">
+              <span className="pref-label">Targeting:</span>
+              {profile.target_roles?.[0] && <span className="text-sm text-gray-700">{profile.target_roles[0]}</span>}
+              {profile.industries?.length > 0 && (
+                <>
+                  <span className="pref-separator">•</span>
+                  <span className="text-sm text-gray-700">{profile.industries.join(', ')}</span>
+                </>
+              )}
+              {profile.remote_preferences?.[0] && (
+                <>
+                  <span className="pref-separator">•</span>
+                  <span className="text-sm text-gray-700">{profile.remote_preferences[0]}</span>
+                </>
+              )}
+              {(profile.min_salary || profile.max_salary) && (
+                <>
+                  <span className="pref-separator">•</span>
+                  <span className="text-sm text-gray-700">
+                    ${profile.min_salary?.toLocaleString() || '0'} - ${profile.max_salary?.toLocaleString() || '0'}
+                  </span>
+                </>
+              )}
+              <Link to={createPageUrl("Settings")} className="ml-auto text-[#FF9E4D] hover:underline text-sm font-semibold flex items-center gap-1">
+                <svg width="16" height="16" viewBox="0 0 16 16" fill="none">
+                  <path d="M2 10v4h4l8-8-4-4-8 8z" fill="currentColor"/>
+                </svg>
+                Edit
+              </Link>
+            </div>
+          )}
         </div>
-        <JobPreferencesCard />
-      </div>
 
-      {/* Company Discovery */}
-      <div className="bg-white border border-gray-100 rounded-2xl p-6 space-y-4">
-        <h3 className="font-semibold text-gray-900">Discover New Companies</h3>
-        <div className="flex flex-col sm:flex-row gap-3">
-          <div className="flex-1 relative">
-            <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-400" />
-            <Input
-              value={searchTerm}
-              onChange={e => setSearchTerm(e.target.value)}
-              onKeyDown={e => e.key === "Enter" && handleDiscoverCompanies()}
-              placeholder="Optional keywords..."
-              className="pl-10 rounded-xl"
-            />
-          </div>
-          <Button
-            onClick={handleDiscoverCompanies}
-            disabled={isSearching}
-            className="bg-[#F7931E] hover:bg-[#E07A0A] text-white rounded-xl gap-2 shrink-0"
-          >
-            {isSearching ? <Loader2 className="w-4 h-4 animate-spin" /> : <Search className="w-4 h-4" />}
-            {isSearching ? "Searching..." : "Find Companies"}
-          </Button>
-        </div>
+        {/* Your Target Companies */}
+        {companies.length > 0 && (
+          <section className="mb-8">
+            <div className="flex items-center justify-between mb-4">
+              <h2 className="text-xl font-semibold text-gray-900">Your Target Companies ({companies.length})</h2>
+              <div className="flex items-center gap-3">
+                <Select value={industryFilter} onValueChange={setIndustryFilter}>
+                  <SelectTrigger className="w-[180px] rounded-xl">
+                    <SelectValue placeholder="Industry" />
+                  </SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="all">All Industries</SelectItem>
+                    {industries.map(ind => (
+                      <SelectItem key={ind} value={ind}>{ind}</SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
+                
+                <div className="flex items-center gap-1 bg-white border border-gray-200 p-1 rounded-lg">
+                  <button 
+                    onClick={() => setViewMode("grid")} 
+                    className={`p-2 rounded-md transition-all ${viewMode === "grid" ? "bg-[#FF9E4D] text-white" : "text-gray-600 hover:bg-gray-50"}`}
+                  >
+                    <Grid3X3 className="w-4 h-4" />
+                  </button>
+                  <button 
+                    onClick={() => setViewMode("list")} 
+                    className={`p-2 rounded-md transition-all ${viewMode === "list" ? "bg-[#FF9E4D] text-white" : "text-gray-600 hover:bg-gray-50"}`}
+                  >
+                    <List className="w-4 h-4" />
+                  </button>
+                </div>
+              </div>
+            </div>
+          </section>
+        )}
 
-        {/* Filters */}
-        <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
-          <div>
-            <label className="text-xs text-gray-500 mb-1.5 block">Industries</label>
-            <Select value={selectedIndustries[0] || "all"} onValueChange={v => setSelectedIndustries(v === "all" ? [] : [v])}>
-              <SelectTrigger className="rounded-xl">
-                <SelectValue placeholder="Any industry" />
-              </SelectTrigger>
-              <SelectContent>
-                <SelectItem value="all">Any industry</SelectItem>
-                <SelectItem value="Technology">Technology</SelectItem>
-                <SelectItem value="Healthcare">Healthcare</SelectItem>
-                <SelectItem value="Finance">Finance</SelectItem>
-                <SelectItem value="Manufacturing">Manufacturing</SelectItem>
-                <SelectItem value="Retail">Retail</SelectItem>
-              </SelectContent>
-            </Select>
+        {/* Company Discovery - Collapsible */}
+        <details className="bg-white border border-gray-200 rounded-2xl p-6 mb-8">
+          <summary className="cursor-pointer flex items-center justify-between list-none">
+            <h2 className="text-xl font-semibold text-gray-900">Discover More Companies</h2>
+            <ChevronDown className="w-5 h-5 text-gray-400 transition-transform" />
+          </summary>
+          
+          <div className="discover-details">
+            <p>Find companies matching your profile</p>
+            
+            <div className="flex flex-col sm:flex-row gap-3 mb-4">
+              <div className="flex-1 relative">
+                <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-400" />
+                <Input
+                  value={searchTerm}
+                  onChange={e => setSearchTerm(e.target.value)}
+                  onKeyDown={e => e.key === "Enter" && handleDiscoverCompanies()}
+                  placeholder="Optional keywords..."
+                  className="pl-10 rounded-xl"
+                />
+              </div>
+              <Button
+                onClick={handleDiscoverCompanies}
+                disabled={isSearching}
+                className="bg-[#FF9E4D] hover:bg-[#E8893D] text-white rounded-xl gap-2 shrink-0"
+              >
+                {isSearching ? <Loader2 className="w-4 h-4 animate-spin" /> : <Search className="w-4 h-4" />}
+                {isSearching ? "Searching..." : "Find Companies"}
+              </Button>
+            </div>
+
+            {/* Filters */}
+            <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
+              <Select value={selectedIndustries[0] || "all"} onValueChange={v => setSelectedIndustries(v === "all" ? [] : [v])}>
+                <SelectTrigger className="rounded-xl">
+                  <SelectValue placeholder="Any industry" />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="all">Any industry</SelectItem>
+                  <SelectItem value="Technology">Technology</SelectItem>
+                  <SelectItem value="Healthcare">Healthcare</SelectItem>
+                  <SelectItem value="Finance">Finance</SelectItem>
+                  <SelectItem value="Manufacturing">Manufacturing</SelectItem>
+                  <SelectItem value="Retail">Retail</SelectItem>
+                </SelectContent>
+              </Select>
+              
+              <Select value={selectedSizes[0] || "all"} onValueChange={v => setSelectedSizes(v === "all" ? [] : [v])}>
+                <SelectTrigger className="rounded-xl">
+                  <SelectValue placeholder="Any size" />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="all">Any size</SelectItem>
+                  <SelectItem value="1-50">1-50 employees</SelectItem>
+                  <SelectItem value="51-200">51-200 employees</SelectItem>
+                  <SelectItem value="201-1000">201-1000 employees</SelectItem>
+                  <SelectItem value="1000+">1000+ employees</SelectItem>
+                </SelectContent>
+              </Select>
+              
+              <Select value={selectedFunding[0] || "all"} onValueChange={v => setSelectedFunding(v === "all" ? [] : [v])}>
+                <SelectTrigger className="rounded-xl">
+                  <SelectValue placeholder="Any stage" />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="all">Any stage</SelectItem>
+                  <SelectItem value="Seed">Seed</SelectItem>
+                  <SelectItem value="Series A">Series A</SelectItem>
+                  <SelectItem value="Series B">Series B</SelectItem>
+                  <SelectItem value="Series C+">Series C+</SelectItem>
+                </SelectContent>
+              </Select>
+            </div>
           </div>
-          <div>
-            <label className="text-xs text-gray-500 mb-1.5 block">Company Size</label>
-            <Select value={selectedSizes[0] || "all"} onValueChange={v => setSelectedSizes(v === "all" ? [] : [v])}>
-              <SelectTrigger className="rounded-xl">
-                <SelectValue placeholder="Any size" />
-              </SelectTrigger>
-              <SelectContent>
-                <SelectItem value="all">Any size</SelectItem>
-                <SelectItem value="1-50">1-50 employees</SelectItem>
-                <SelectItem value="51-200">51-200 employees</SelectItem>
-                <SelectItem value="201-1000">201-1000 employees</SelectItem>
-                <SelectItem value="1000+">1000+ employees</SelectItem>
-              </SelectContent>
-            </Select>
-          </div>
-          <div>
-            <label className="text-xs text-gray-500 mb-1.5 block">Funding Stage</label>
-            <Select value={selectedFunding[0] || "all"} onValueChange={v => setSelectedFunding(v === "all" ? [] : [v])}>
-              <SelectTrigger className="rounded-xl">
-                <SelectValue placeholder="Any stage" />
-              </SelectTrigger>
-              <SelectContent>
-                <SelectItem value="all">Any stage</SelectItem>
-                <SelectItem value="Seed">Seed</SelectItem>
-                <SelectItem value="Series A">Series A</SelectItem>
-                <SelectItem value="Series B">Series B</SelectItem>
-                <SelectItem value="Series C+">Series C+</SelectItem>
-              </SelectContent>
-            </Select>
-          </div>
-        </div>
-      </div>
+        </details>
 
       {/* Discovery Results */}
       {showDiscoveryResults && discoveryResults.length > 0 && (
@@ -246,63 +352,14 @@ export default function Companies() {
         </div>
       )}
 
-      {/* Your Target Companies */}
-      {companies.length > 0 && (
-        <div>
-          <div className="flex items-center justify-between mb-4">
-            <h3 className="font-semibold text-gray-900">Your Target Companies ({companies.length})</h3>
-            <Button
-              variant="ghost"
-              size="sm"
-              onClick={() => setShowTargetList(!showTargetList)}
-              className="gap-2"
-            >
-              {showTargetList ? (
-                <>
-                  <ChevronUp className="w-4 h-4" /> Hide
-                </>
-              ) : (
-                <>
-                  <ChevronDown className="w-4 h-4" /> Show
-                </>
-              )}
-            </Button>
-          </div>
-          {showTargetList && (
-            <div className="flex flex-wrap gap-3 items-center mb-4">
-              <Select value={industryFilter} onValueChange={setIndustryFilter}>
-                <SelectTrigger className="w-[180px] rounded-xl">
-                  <SelectValue placeholder="Industry" />
-                </SelectTrigger>
-                <SelectContent>
-                  <SelectItem value="all">All Industries</SelectItem>
-                  {industries.map(ind => (
-                    <SelectItem key={ind} value={ind}>{ind}</SelectItem>
-                  ))}
-                </SelectContent>
-              </Select>
-
-              <div className="ml-auto flex items-center gap-1 bg-gray-100 p-1 rounded-lg">
-                <button onClick={() => setViewMode("grid")} className={`p-1.5 rounded-md transition-colors ${viewMode === "grid" ? "bg-white shadow-sm" : ""}`}>
-                  <Grid3X3 className="w-4 h-4 text-gray-600" />
-                </button>
-                <button onClick={() => setViewMode("list")} className={`p-1.5 rounded-md transition-colors ${viewMode === "list" ? "bg-white shadow-sm" : ""}`}>
-                  <List className="w-4 h-4 text-gray-600" />
-                </button>
-              </div>
-            </div>
-          )}
-        </div>
-      )}
-
-      {/* Target Companies Grid/List */}
-      {companies.length === 0 ? (
-        <EmptyState
-          icon={Building2}
-          title="No target companies yet"
-          description="Use the discovery tool above to find and add companies to your target list."
-        />
-      ) : !showTargetList ? null : viewMode === "grid" ? (
+        {/* Target Companies Grid/List */}
+        {companies.length === 0 ? (
+          <EmptyState
+            icon={Building2}
+            title="No target companies yet"
+            description="Use the discovery tool above to find and add companies to your target list."
+          />
+        ) : viewMode === "grid" ? (
         <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-4">
           {filtered.map(company => (
             <Link
@@ -430,8 +487,9 @@ export default function Companies() {
               ))}
             </tbody>
           </table>
-        </div>
-      )}
+          </div>
+        )}
+      </div>
     </div>
   );
 }
