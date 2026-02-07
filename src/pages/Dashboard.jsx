@@ -66,18 +66,24 @@ export default function Dashboard() {
   const interviews = applications.filter(a => a.status === "interview");
   const sentOutreach = outreach.filter(o => o.status !== "draft");
   const responses = outreach.filter(o => o.status === "responded");
+  const repliesAwaitingResponse = responses.length;
   
   // Calculate dashboard data
   const newRoles = openRoles.filter(r => r.status === 'new').length;
   const highestMatch = newRoles > 0 ? Math.max(...openRoles.filter(r => r.status === 'new').map(r => r.match_score || 0)) : 0;
   const applicationsInProgress = jobPipeline.filter(j => !['rejected', 'not_interested', 'offer'].includes(j.stage)).length;
   const activeMonitors = rssFeeds.filter(f => f.status === 'active').length;
+  const companiesWithoutOutreach = companies.filter(c => {
+    const hasOutreach = outreach.some(o => o.company_id === c.id);
+    return !hasOutreach;
+  }).length;
+  const savedNotActivated = jobPipeline.filter(j => j.stage === 'saved').length;
   
   // Weekly stats - last 7 days
   const weekAgo = new Date(Date.now() - 7 * 24 * 60 * 60 * 1000);
   const weeklyDiscovered = openRoles.filter(r => new Date(r.created_date) > weekAgo).length;
   const weeklyActivated = jobPipeline.filter(j => j.applied_at && new Date(j.applied_at) > weekAgo).length;
-  const weeklyInterviews = jobPipeline.filter(j => j.interview_date && new Date(j.interview_date) > weekAgo).length;
+  const weeklyInterviews = interviews.filter(i => new Date(i.created_date) > weekAgo).length;
 
   const activityIcons = {
     application: <FileText className="w-4 h-4 text-blue-500" />,
@@ -88,69 +94,84 @@ export default function Dashboard() {
     company_added: <Building2 className="w-4 h-4 text-gray-500" />,
   };
 
-  // Determine status message
+  // Dynamic operational status message - priority driven
   let statusMessage = '';
-  if (newRoles > 0) {
-    statusMessage = `${newRoles} high-match ${newRoles === 1 ? 'role needs' : 'roles need'} your attention`;
-  } else if (applicationsInProgress > 0) {
-    statusMessage = `You have ${applicationsInProgress} ${applicationsInProgress === 1 ? 'application' : 'applications'} in progress`;
+  let activationPhase = '';
+  
+  if (repliesAwaitingResponse > 0) {
+    statusMessage = `You have ${repliesAwaitingResponse} decision maker ${repliesAwaitingResponse === 1 ? 'reply' : 'replies'} awaiting response.`;
+    activationPhase = 'engage';
+  } else if (companiesWithoutOutreach > 0) {
+    statusMessage = `${companiesWithoutOutreach} ${companiesWithoutOutreach === 1 ? 'opportunity is' : 'opportunities are'} ready for outreach activation.`;
+    activationPhase = 'activate';
+  } else if (companies.length >= 3) {
+    statusMessage = `Decision makers identified for ${Math.min(companies.length, 5)} opportunities.`;
+    activationPhase = 'map';
+  } else if (newRoles > 0) {
+    statusMessage = `${newRoles} new executive ${newRoles === 1 ? 'opportunity' : 'opportunities'} surfaced overnight.`;
+    activationPhase = 'discover';
+  } else if (weeklyInterviews > 0) {
+    statusMessage = `${weeklyInterviews} ${weeklyInterviews === 1 ? 'interview is' : 'interviews are'} scheduled this week.`;
+    activationPhase = 'interview';
   } else {
-    statusMessage = `Ready to discover opportunities`;
+    statusMessage = `Ready to surface new opportunities.`;
+    activationPhase = 'discover';
   }
 
-  // Determine action cards
+  // Dynamic action cards - reordered by activation urgency
   let primaryCard, secondaryCard, tertiaryCard;
   
-  if (newRoles > 0) {
+  // Primary: Next best activation action
+  if (repliesAwaitingResponse > 0) {
+    primaryCard = {
+      icon: MessageSquare,
+      title: `Respond to ${repliesAwaitingResponse} decision maker ${repliesAwaitingResponse === 1 ? 'reply' : 'replies'}`,
+      description: 'Follow up with executives who have engaged',
+      ctaText: 'View Conversations →',
+      ctaLink: createPageUrl('Outreach')
+    };
+  } else if (companiesWithoutOutreach > 0) {
+    primaryCard = {
+      icon: Send,
+      title: `Launch outreach to ${companiesWithoutOutreach} mapped decision ${companiesWithoutOutreach === 1 ? 'maker' : 'makers'}`,
+      description: 'Engage executives at your target opportunities',
+      ctaText: 'Launch Outreach →',
+      ctaLink: createPageUrl('Outreach')
+    };
+  } else if (newRoles > 0) {
     primaryCard = {
       icon: Target,
-      title: `Review ${newRoles} new ${newRoles === 1 ? 'role' : 'roles'}${highestMatch > 0 ? ` (${highestMatch}% match)` : ''}`,
-      description: 'Found overnight matching your target profile',
-      ctaText: 'View Roles →',
-      ctaLink: createPageUrl('OpenRoles')
+      title: `Activate ${newRoles} new ${newRoles === 1 ? 'opportunity' : 'opportunities'}`,
+      description: `Discovered overnight (${Math.round(highestMatch)}% match)`,
+      ctaText: 'Activate Opportunities →',
+      ctaLink: createPageUrl('ActiveOpportunities')
     };
-  } else if (companies.length < 5) {
+  } else {
     primaryCard = {
       icon: Target,
       title: 'Discover new opportunities',
-      description: 'Search thousands of companies hiring for your target role',
-      ctaText: 'Start Searching →',
-      ctaLink: createPageUrl('Companies')
-    };
-  } else {
-    primaryCard = {
-      icon: Target,
-      title: 'Check daily suggestions',
-      description: 'AI discovers new matching companies overnight',
-      ctaText: 'View Suggestions →',
-      ctaLink: createPageUrl('DailySuggestions')
+      description: 'AI surfaces matching opportunities daily',
+      ctaText: 'View Opportunities →',
+      ctaLink: createPageUrl('Discover')
     };
   }
-  
-  if (applicationsInProgress > 0) {
-    secondaryCard = {
-      icon: BarChart3,
-      title: `${applicationsInProgress} ${applicationsInProgress === 1 ? 'opportunity' : 'opportunities'} in progress`,
-      description: 'Continue with next steps',
-      ctaText: 'Continue →',
-      ctaLink: createPageUrl('JobsPipeline')
-    };
-  } else {
-    secondaryCard = {
-      icon: BarChart3,
-      title: 'Manage your pipeline',
-      description: 'Track activated opportunities and interviews',
-      ctaText: 'View Pipeline →',
-      ctaLink: createPageUrl('JobsPipeline')
-    };
-  }
-  
+
+  // Secondary: Pipeline momentum
+  secondaryCard = {
+    icon: BarChart3,
+    title: `${applicationsInProgress} ${applicationsInProgress === 1 ? 'opportunity' : 'opportunities'} in active pursuit`,
+    description: companiesWithoutOutreach > 0 ? `${companiesWithoutOutreach} decision makers mapped` : 'Outreach launched and in progress',
+    ctaText: 'Continue Pursuit →',
+    ctaLink: createPageUrl('JobsPipeline')
+  };
+
+  // Tertiary: Discovery automation health
   tertiaryCard = {
     icon: Briefcase,
-    title: 'Auto-monitoring active',
-    description: `Checking ${activeMonitors} ${activeMonitors === 1 ? 'source' : 'sources'} for new roles daily`,
-    ctaText: 'Manage Sources →',
-    ctaLink: createPageUrl('JobBoards')
+    title: 'Discovery automation active',
+    description: `Monitoring ${activeMonitors} ${activeMonitors === 1 ? 'source' : 'sources'} for new opportunities`,
+    ctaText: 'Discovery Settings →',
+    ctaLink: createPageUrl('DiscoverySources')
   };
 
   return (
