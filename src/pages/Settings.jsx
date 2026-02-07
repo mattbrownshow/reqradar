@@ -124,12 +124,41 @@ export default function Settings() {
     setIsUploadingResume(true);
     try {
       const { file_url } = await base44.integrations.Core.UploadFile({ file });
-      if (profile.id) {
-        await base44.entities.CandidateProfile.update(profile.id, { resume_url: file_url });
-        queryClient.invalidateQueries({ queryKey: ["candidateProfile"] });
+      
+      if (!profile.id) {
+        alert('Please complete your profile setup first');
+        setIsUploadingResume(false);
+        return;
       }
+
+      // Parse resume to extract job search criteria
+      const parseResult = await base44.functions.invoke('parseResume', { 
+        file_url,
+        file_name: file.name 
+      });
+
+      const parsedData = parseResult.data.parsed_data || {};
+      const updateData = {
+        resume_url: file_url,
+        ...parsedData
+      };
+
+      await base44.entities.CandidateProfile.update(profile.id, updateData);
+      
+      // Update job search prefs from parsed data if available
+      if (parsedData.target_roles || parsedData.industries) {
+        setJobSearchPrefs(p => ({
+          ...p,
+          target_roles: parsedData.target_roles || p.target_roles,
+          industries: parsedData.industries || p.industries,
+          skills: parsedData.skills || []
+        }));
+      }
+
+      queryClient.invalidateQueries({ queryKey: ["candidateProfile"] });
     } catch (error) {
       console.error('Resume upload failed:', error);
+      alert('Failed to upload resume. Please try again.');
     }
     setIsUploadingResume(false);
   };
