@@ -25,6 +25,10 @@ export default function CompanyDetail() {
   const [user, setUser] = useState(null);
 
   useEffect(() => {
+    base44.auth.me().then(setUser).catch(() => {});
+  }, []);
+
+  useEffect(() => {
     if (companyName && !companyId) {
       loadOrCreateCompany();
     }
