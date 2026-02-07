@@ -5,7 +5,6 @@ import { DragDropContext, Droppable, Draggable } from "@hello-pangea/dnd";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Kanban, Building2, MapPin, DollarSign, Calendar, StickyNote } from "lucide-react";
-import PageDescription from "../components/shared/PageDescription";
 
 export default function JobsPipeline() {
   const queryClient = useQueryClient();
@@ -59,13 +58,12 @@ export default function JobsPipeline() {
 
   return (
     <div className="px-4 sm:px-6 py-8">
-      <PageDescription page="pipeline" />
-      
       <div className="mb-6">
         <h1 className="text-2xl font-bold text-gray-900 flex items-center gap-2">
           <Kanban className="w-6 h-6 text-[#F7931E]" />
           Jobs Pipeline
         </h1>
+        <p className="text-sm text-gray-500 mt-2">Track your applications from Saved → Researching → Applied → Interviewing → Offer.</p>
       </div>
 
       <DragDropContext onDragEnd={onDragEnd}>

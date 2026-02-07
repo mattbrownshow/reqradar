@@ -11,7 +11,6 @@ import {
 import { Button } from "@/components/ui/button";
 import MetricCard from "../components/shared/MetricCard";
 import StatusBadge from "../components/shared/StatusBadge";
-import PageDescription from "../components/shared/PageDescription";
 import { format } from "date-fns";
 
 export default function Dashboard() {
@@ -50,8 +49,6 @@ export default function Dashboard() {
 
   return (
     <div className="px-4 sm:px-6 py-8 space-y-8">
-      <PageDescription page="dashboard" />
-      
       {/* Hero */}
       <div className="relative overflow-hidden bg-gradient-to-br from-[#FEF3E2] via-white to-orange-50 rounded-3xl p-8 sm:p-12">
         <div className="absolute top-0 right-0 w-64 h-64 bg-[#F7931E] opacity-5 rounded-full -translate-y-32 translate-x-32" />

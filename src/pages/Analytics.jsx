@@ -5,7 +5,6 @@ import {
   Building2, Target, Briefcase, BarChart3
 } from "lucide-react";
 import MetricCard from "../components/shared/MetricCard";
-import PageDescription from "../components/shared/PageDescription";
 import {
   PieChart, Pie, Cell, BarChart, Bar, XAxis, YAxis, CartesianGrid,
   Tooltip, ResponsiveContainer, Legend
@@ -68,10 +67,9 @@ export default function Analytics() {
 
   return (
     <div className="px-4 sm:px-6 py-8 space-y-8">
-      <PageDescription page="analytics" />
-      
       <div>
         <h1 className="text-2xl font-bold text-gray-900 tracking-tight">Analytics</h1>
+        <p className="text-sm text-gray-500 mt-2">Track your job search metrics: applications, responses, interviews, and conversion rates.</p>
       </div>
 
       {/* Metrics */}

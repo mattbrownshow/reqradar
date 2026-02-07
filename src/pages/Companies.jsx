@@ -15,7 +15,6 @@ import {
 import StatusBadge from "../components/shared/StatusBadge";
 import EmptyState from "../components/shared/EmptyState";
 import JobPreferencesCard from "../components/shared/JobPreferencesCard";
-import PageDescription from "../components/shared/PageDescription";
 import { toast } from "sonner";
 
 export default function Companies() {
@@ -95,13 +94,11 @@ export default function Companies() {
 
   return (
     <div className="px-4 sm:px-6 py-8 space-y-6">
-      <PageDescription page="companies" />
-      
       {/* Header */}
       <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
-        <div>
+        <div className="flex-1">
           <h1 className="text-2xl font-bold text-gray-900 tracking-tight">Companies</h1>
-          <p className="text-sm text-gray-600 mt-2 max-w-3xl">Manage your curated list of target companies. Track engagement and view overall company profiles. For specific job openings, check the "Open Roles" page.</p>
+          <p className="text-sm text-gray-500 mt-2">Search for companies matching your profile. When you add a company, we automatically scan for VP of Operations roles and find decision maker contacts.</p>
         </div>
         <JobPreferencesCard />
       </div>

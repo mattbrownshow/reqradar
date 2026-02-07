@@ -7,7 +7,6 @@ import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Sparkles, Building2, MapPin, Users, TrendingUp, Plus, X, Loader2, Play, CheckCircle } from "lucide-react";
 import { toast } from "sonner";
-import PageDescription from "../components/shared/PageDescription";
 
 export default function DailySuggestions() {
   const [filter, setFilter] = useState("new");
@@ -54,15 +53,13 @@ export default function DailySuggestions() {
 
   return (
     <div className="px-4 sm:px-6 py-8 space-y-6">
-      <PageDescription page="suggestions" />
-      
       <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
         <div>
           <h1 className="text-2xl font-bold text-gray-900 flex items-center gap-2">
             <Sparkles className="w-6 h-6 text-[#F7931E]" />
             Daily Recommendations
           </h1>
-          <p className="text-sm text-gray-600 mt-2 max-w-3xl">Discover new companies tailored to your job search preferences, even before they post specific roles. Review and decide which ones to add to your target list.</p>
+          <p className="text-sm text-gray-500 mt-2">Companies found overnight matching your profile. Add interesting ones to your Target List.</p>
         </div>
         <Link to={createPageUrl("Companies")}>
           <Button variant="outline" className="rounded-xl gap-2">

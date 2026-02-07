@@ -13,7 +13,6 @@ import {
   User, Bell, Sliders, Shield, Save, Loader2, LogOut, Briefcase, Upload, FileText, ExternalLink
 } from "lucide-react";
 import SearchableMultiSelect from "../components/shared/SearchableMultiSelect";
-import PageDescription from "../components/shared/PageDescription";
 import { Link } from "react-router-dom";
 import { createPageUrl } from "../utils";
 
@@ -125,10 +124,9 @@ export default function Settings() {
 
   return (
     <div className="px-4 sm:px-6 py-8 space-y-6">
-      <PageDescription page="settings" />
-      
       <div>
         <h1 className="text-2xl font-bold text-gray-900 tracking-tight">Settings</h1>
+        <p className="text-sm text-gray-500 mt-2">Update your target roles, industries, salary range, and company preferences.</p>
       </div>
 
       <Tabs defaultValue="profile">
