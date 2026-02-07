@@ -5,6 +5,8 @@ import { DragDropContext, Droppable, Draggable } from "@hello-pangea/dnd";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Kanban, Building2, MapPin, DollarSign, Calendar, StickyNote } from "lucide-react";
+import PipelineMetrics from "../components/pipeline/PipelineMetrics";
+import EnhancedPipelineCard from "../components/pipeline/EnhancedPipelineCard";
 
 export default function JobsPipeline() {
   const queryClient = useQueryClient();
@@ -19,9 +21,22 @@ export default function JobsPipeline() {
     queryFn: () => base44.entities.OpenRole.list()
   });
 
+  const { data: outreach = [] } = useQuery({
+    queryKey: ["outreach"],
+    queryFn: () => base44.entities.OutreachMessage.list("-created_date", 500)
+  });
+
   const moveStageMutation = useMutation({
     mutationFn: ({ pipeline_id, stage }) =>
       base44.functions.invoke("manageJobPipeline", { action: "move", pipeline_id, stage }),
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ["jobPipeline"] });
+    }
+  });
+
+  const updateStatusMutation = useMutation({
+    mutationFn: ({ id, stage }) =>
+      base44.entities.JobPipeline.update(id, { stage }),
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["jobPipeline"] });
     }
@@ -69,20 +84,13 @@ export default function JobsPipeline() {
       <div className="max-w-[1600px] mx-auto">
         {/* Header */}
         <div className="mb-6">
-          <h1 className="text-3xl font-bold text-gray-900 flex items-center gap-2 mb-2">
-            📊 Jobs Pipeline
-          </h1>
-          <p className="text-gray-600">Track your applications from Saved → Researching → Applied → Interviewing → Offer.</p>
+          <h1 className="text-3xl font-bold text-gray-900 mb-2">Pipeline</h1>
+          <p className="text-gray-600">Track activated opportunities and manage outreach to decision makers</p>
         </div>
 
-        {/* Stats Header */}
-        <div className="bg-blue-50 border border-blue-200 rounded-2xl p-4 mb-6">
-          <p className="text-sm font-semibold text-gray-900">
-            Active Applications: {stats.active} across {stages.length} stages
-          </p>
-          <p className="text-xs text-gray-600 mt-1">
-            This month: {pipelineItems.filter(i => i.stage === "applied").length} applied, {pipelineItems.filter(i => i.stage === "interviewing").length} interviews, {pipelineItems.filter(i => i.stage === "offer").length} offers
-          </p>
+        {/* Metrics */}
+        <div className="mb-6">
+          <PipelineMetrics pipelineItems={pipelineItems} outreachData={outreach} />
         </div>
 
         <DragDropContext onDragEnd={onDragEnd}>
@@ -167,86 +175,31 @@ function PipelineColumn({ stage, items, jobsMap }) {
 }
 
 function JobPipelineCard({ item, job, stage }) {
-  const [expanded, setExpanded] = React.useState(false);
+  const queryClient = useQueryClient();
+  
+  const updateStatusMutation = useMutation({
+    mutationFn: ({ id, stage }) =>
+      base44.entities.JobPipeline.update(id, { stage }),
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ["jobPipeline"] });
+    }
+  });
 
-  if (!job) {
-    return (
-      <div className="bg-white border border-gray-200 rounded-xl p-4">
-        <p className="text-sm text-gray-500">Job not found</p>
-      </div>
-    );
-  }
+  const handleStatusChange = (itemId, newStage) => {
+    updateStatusMutation.mutate({ id: itemId, stage: newStage });
+  };
 
-  const priorityColors = {
-    high: "bg-red-100 text-red-700",
-    medium: "bg-yellow-100 text-yellow-700",
-    low: "bg-gray-100 text-gray-600"
+  const handleLaunchOutreach = (selectedDMIds) => {
+    // Navigate to outreach page with context
+    window.location.href = `/outreach?opportunity_id=${item.id}&contacts=${selectedDMIds.join(",")}`;
   };
 
   return (
-    <div 
-      className="bg-white border-2 border-gray-200 rounded-xl p-4 hover:shadow-lg hover:border-[#FF9E4D] transition-all cursor-move"
-      onClick={() => setExpanded(!expanded)}
-    >
-      {/* Minimal Card View */}
-      <h4 className="font-bold text-gray-900 mb-1.5 line-clamp-2 text-sm">{job.title}</h4>
-      <p className="text-xs text-gray-600 mb-3">{job.company_name}</p>
-      
-      {job.salary_min && job.salary_max && (
-        <p className="text-xs font-medium text-gray-700 mb-2">
-          ${(job.salary_min / 1000).toFixed(0)}K - ${(job.salary_max / 1000).toFixed(0)}K
-        </p>
-      )}
-
-      <div className="flex items-center justify-between text-xs text-gray-500 mb-2">
-        {item.applied_at && (
-          <span className="flex items-center gap-1">
-            📅 Applied: {new Date(item.applied_at).toLocaleDateString('en-US', { month: 'short', day: 'numeric' })}
-          </span>
-        )}
-        {item.saved_at && !item.applied_at && (
-          <span className="flex items-center gap-1">
-            📅 Saved: {new Date(item.saved_at).toLocaleDateString('en-US', { month: 'short', day: 'numeric' })}
-          </span>
-        )}
-      </div>
-
-      {item.interview_date && (
-        <p className="text-xs text-blue-600 flex items-center gap-1 mb-2">
-          🔔 Follow-up: {new Date(item.interview_date).toLocaleDateString('en-US', { month: 'short', day: 'numeric' })}
-        </p>
-      )}
-
-      {/* Expandable Detail View */}
-      {expanded && (
-        <div className="mt-3 pt-3 border-t border-gray-200 space-y-2">
-          {job.location && (
-            <p className="text-xs text-gray-600 flex items-center gap-1">
-              <MapPin className="w-3 h-3" />
-              {job.location}
-            </p>
-          )}
-          
-          {job.work_type && (
-            <p className="text-xs text-gray-600">
-              {job.work_type}
-            </p>
-          )}
-
-          {item.notes && (
-            <>
-              <p className="text-xs font-semibold text-gray-900 mt-3">Recent Activity:</p>
-              <p className="text-xs text-gray-600">{item.notes}</p>
-            </>
-          )}
-
-          <div className="flex gap-2 mt-3">
-            <Button size="sm" variant="outline" className="text-xs h-7 rounded-lg flex-1">
-              View Job Details →
-            </Button>
-          </div>
-        </div>
-      )}
-    </div>
+    <EnhancedPipelineCard
+      item={item}
+      job={job}
+      onStatusChange={handleStatusChange}
+      onLaunchOutreach={handleLaunchOutreach}
+    />
   );
 }
