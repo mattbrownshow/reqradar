@@ -364,16 +364,6 @@ export default function ActiveOpportunities() {
               )}
               {/* Action Buttons */}
               <div className="flex flex-wrap gap-2">
-                {role.status !== "applied" && (
-                  <Button
-                    size="sm"
-                    className="bg-[#FF9E4D] hover:bg-[#E8893D] text-white rounded-xl gap-1.5"
-                    onClick={() => applyMutation.mutate(role)}
-                    disabled={applyMutation.isPending}
-                  >
-                    Activate Opportunity
-                  </Button>
-                )}
                 <Button
                   size="sm"
                   variant="outline"

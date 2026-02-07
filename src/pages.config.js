@@ -47,40 +47,40 @@
  *
  * The mainPage value must match a key in the PAGES object exactly.
  */
+import ActiveOpportunities from './pages/ActiveOpportunities';
 import Analytics from './pages/Analytics';
 import CandidateSetup from './pages/CandidateSetup';
 import Companies from './pages/Companies';
 import CompanyDetail from './pages/CompanyDetail';
 import DailySuggestions from './pages/DailySuggestions';
 import Dashboard from './pages/Dashboard';
+import Discover from './pages/Discover';
+import DiscoverySources from './pages/DiscoverySources';
 import JobBoards from './pages/JobBoards';
 import JobsPipeline from './pages/JobsPipeline';
 import OpenRoles from './pages/OpenRoles';
 import Outreach from './pages/Outreach';
 import Pipeline from './pages/Pipeline';
 import Settings from './pages/Settings';
-import Discover from './pages/Discover';
-import DiscoverySources from './pages/DiscoverySources';
-import ActiveOpportunities from './pages/ActiveOpportunities';
 import __Layout from './Layout.jsx';
 
 
 export const PAGES = {
+    "ActiveOpportunities": ActiveOpportunities,
     "Analytics": Analytics,
     "CandidateSetup": CandidateSetup,
     "Companies": Companies,
     "CompanyDetail": CompanyDetail,
     "DailySuggestions": DailySuggestions,
     "Dashboard": Dashboard,
+    "Discover": Discover,
+    "DiscoverySources": DiscoverySources,
     "JobBoards": JobBoards,
     "JobsPipeline": JobsPipeline,
     "OpenRoles": OpenRoles,
     "Outreach": Outreach,
     "Pipeline": Pipeline,
     "Settings": Settings,
-    "Discover": Discover,
-    "DiscoverySources": DiscoverySources,
-    "ActiveOpportunities": ActiveOpportunities,
 }
 
 export const pagesConfig = {
