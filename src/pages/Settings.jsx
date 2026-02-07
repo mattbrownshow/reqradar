@@ -586,6 +586,10 @@ export default function Settings() {
           <DiscoverySettings />
         </TabsContent>
 
+        <TabsContent value="connected-accounts" className="mt-6">
+          <ConnectedAccountsSection user={user} />
+        </TabsContent>
+
         <TabsContent value="preferences" className="mt-6">
           <div className="bg-white border border-gray-100 rounded-2xl p-6 sm:p-8 space-y-6 max-w-2xl">
             <h3 className="font-semibold text-gray-900">Application Settings</h3>
