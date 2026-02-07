@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { X, Copy, RefreshCw, Loader2 } from 'lucide-react';
+import { X, Copy, RefreshCw, Loader2, Send } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { base44 } from '@/api/base44Client';
 
@@ -10,6 +10,10 @@ export default function OutreachComposerModal({ company, contacts, roles, user, 
   const [generatedMessage, setGeneratedMessage] = useState(null);
   const [loading, setLoading] = useState(false);
   const [copied, setCopied] = useState(false);
+  const [emailConnected, setEmailConnected] = useState(false);
+  const [subjectLine, setSubjectLine] = useState('');
+  const [showConfirmation, setShowConfirmation] = useState(false);
+  const [sending, setSending] = useState(false);
 
   const selectedContact = contacts.find(c => c.id === selectedContactId);
 
