@@ -283,7 +283,8 @@ export default function CompanyDetail() {
                         titles: ['CEO', 'CTO', 'COO', 'CFO', 'VP', 'Director']
                       });
                       
-                      for (const contact of result.data.contacts) {
+                      const contactsList = Array.isArray(result.data) ? result.data : (result.data.contacts || []);
+                      for (const contact of contactsList) {
                         await base44.entities.Contact.create({
                           ...contact,
                           company_id: companyId,
