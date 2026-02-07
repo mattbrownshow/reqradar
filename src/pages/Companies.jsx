@@ -132,7 +132,7 @@ export default function Companies() {
     return 0;
   });
 
-  const companiesWithJobs = sorted.filter(c => c.jobCount > 0).length;
+  const companiesWithJobsCount = sorted.filter(c => c.jobCount > 0).length;
   const profile = profiles[0];
 
   return (
