@@ -195,25 +195,29 @@ export default function CandidateSetup() {
   };
 
   const handleFinish = async () => {
-    await saveMutation.mutateAsync({ ...profile, setup_complete: true });
-    await queryClient.refetchQueries({ queryKey: ["candidateProfile"] });
-    
-    // Auto-create default RSS feeds for new user
     try {
-      await base44.functions.invoke('createDefaultFeeds', {});
-    } catch (error) {
-      console.error('Failed to create default feeds:', error);
-    }
+      await saveMutation.mutateAsync({ ...profile, setup_complete: true });
+      
+      // Auto-create default RSS feeds for new user
+      try {
+        await base44.functions.invoke('createDefaultFeeds', {});
+      } catch (error) {
+        console.error('Failed to create default feeds:', error);
+      }
 
-    // Trigger initial discovery run
-    try {
-      await base44.functions.invoke('runDailyDiscovery', {});
+      // Trigger initial discovery run
+      try {
+        await base44.functions.invoke('runDailyDiscovery', {});
+      } catch (error) {
+        console.error('Failed to run initial discovery:', error);
+      }
+      
+      // Use hard redirect to ensure fresh page load
+      window.location.href = createPageUrl("Dashboard");
     } catch (error) {
-      console.error('Failed to run initial discovery:', error);
+      console.error('Finish setup failed:', error);
+      alert('Failed to complete setup. Please try again.');
     }
-    
-    // Use replace to prevent going back
-    navigate(createPageUrl("Dashboard"), { replace: true });
   };
 
   const handleSaveStep = () => {
