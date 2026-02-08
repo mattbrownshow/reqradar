@@ -14,14 +14,16 @@ import {
 } from "lucide-react";
 import SearchableMultiSelect from "../components/shared/SearchableMultiSelect";
 import DiscoverySettings from "../components/settings/DiscoverySettings";
-import { Link } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
 import { createPageUrl } from "../utils";
 import ConnectedAccountsSection from "../components/settings/ConnectedAccountsSection";
 
 export default function Settings() {
   const queryClient = useQueryClient();
+  const navigate = useNavigate();
   const [user, setUser] = useState(null);
   const [isUploadingResume, setIsUploadingResume] = useState(false);
+  const [showResetConfirm, setShowResetConfirm] = useState(false);
   const resumeInputRef = React.useRef(null);
   const [autoApplySettings, setAutoApplySettings] = useState({
     daily_limit: 10,
@@ -93,6 +95,14 @@ export default function Settings() {
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["candidateProfile"] });
       queryClient.invalidateQueries({ queryKey: ["feeds"] });
+    }
+  });
+
+  const resetDataMutation = useMutation({
+    mutationFn: () => base44.functions.invoke('resetUserData', {}),
+    onSuccess: () => {
+      setShowResetConfirm(false);
+      navigate(createPageUrl("CandidateSetup"), { replace: true });
     }
   });
 
@@ -668,6 +678,48 @@ export default function Settings() {
             <div className="flex gap-3">
               <Button variant="outline" className="rounded-xl">Export My Data (CSV)</Button>
             </div>
+            
+            {/* Reset Data Section */}
+            <div className="pt-6 border-t border-gray-100 space-y-4">
+              <div>
+                <h4 className="font-semibold text-sm text-gray-900 mb-2">Reset All Data</h4>
+                <p className="text-xs text-gray-500 mb-3">Clear all your profile information, companies, opportunities, and history to start fresh</p>
+              </div>
+              {!showResetConfirm ? (
+                <Button
+                  variant="outline"
+                  className="border-orange-300 text-orange-600 hover:bg-orange-50 hover:text-orange-700 rounded-xl gap-2"
+                  onClick={() => setShowResetConfirm(true)}
+                >
+                  <Trash2 className="w-4 h-4" /> Reset All Data
+                </Button>
+              ) : (
+                <div className="p-4 bg-orange-50 border border-orange-200 rounded-xl space-y-3">
+                  <p className="text-sm font-medium text-gray-900">Are you sure? This cannot be undone.</p>
+                  <p className="text-xs text-gray-600">You'll be taken through setup again to configure your profile.</p>
+                  <div className="flex gap-2">
+                    <Button
+                      variant="outline"
+                      size="sm"
+                      className="rounded-lg"
+                      onClick={() => setShowResetConfirm(false)}
+                    >
+                      Cancel
+                    </Button>
+                    <Button
+                      size="sm"
+                      className="bg-orange-600 hover:bg-orange-700 text-white rounded-lg gap-2"
+                      onClick={() => resetDataMutation.mutate()}
+                      disabled={resetDataMutation.isPending}
+                    >
+                      {resetDataMutation.isPending && <Loader2 className="w-3 h-3 animate-spin" />}
+                      Yes, Reset Everything
+                    </Button>
+                  </div>
+                </div>
+              )}
+            </div>
+
             <div className="pt-6 border-t border-gray-100">
               <Button
                 variant="ghost"
