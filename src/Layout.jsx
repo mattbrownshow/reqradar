@@ -130,9 +130,6 @@ export default function Layout({ children, currentPageName }) {
                 <Link to={createPageUrl("Settings")} className={`px-3 py-2 rounded-lg text-sm ${currentPageName === "Settings" ? "text-gray-900 font-semibold" : "text-gray-600 hover:text-gray-900"}`}>
                   Settings
                 </Link>
-                <Link to={createPageUrl("CandidateSetup")} className={`px-3 py-2 rounded-lg text-sm ${currentPageName === "CandidateSetup" ? "text-gray-900 font-semibold" : "text-gray-600 hover:text-gray-900"}`}>
-                  Profile
-                </Link>
                 <button onClick={async () => await base44.auth.logout()} className="flex items-center gap-1.5 px-3 py-2 rounded-lg text-sm text-gray-600 hover:text-gray-900 cursor-pointer">
                   <LogOut className="w-4 h-4" /> Logout
                 </button>
