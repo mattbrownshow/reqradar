@@ -45,10 +45,19 @@ export default function Discover() {
     }
   }, [profile]);
 
-  // Fetch opportunities (roles)
+  // Fetch and filter opportunities (roles) by user profile
   const { data: allRoles = [], isLoading: rolesLoading } = useQuery({
     queryKey: ["openRoles"],
-    queryFn: () => base44.entities.OpenRole.list("-match_score", 200),
+    queryFn: async () => {
+      try {
+        const result = await base44.functions.invoke("filterJobsByUserProfile", {});
+        return result.data.categorized.all || [];
+      } catch (error) {
+        console.error('Filter error:', error);
+        // Fallback to unfiltered list
+        return await base44.entities.OpenRole.list("-match_score", 200);
+      }
+    },
   });
 
   // Fetch suggested companies
@@ -139,11 +148,12 @@ export default function Discover() {
   const weekAgo = new Date();
   weekAgo.setDate(weekAgo.getDate() - 7);
 
-  const allOpportunities = allRoles.filter(r => r.status !== "not_interested");
+  // Only show jobs with 50%+ match (filtering happens on backend)
+  const allOpportunities = allRoles.filter(r => r.status !== "not_interested" && r.match_score >= 50);
   const highMatchOpportunities = allOpportunities.filter(r => r.match_score >= 88);
   const newThisWeek = allOpportunities.filter(r => {
     const createdDate = new Date(r.created_date);
-    return createdDate >= weekAgo;
+    return createdDate >= weekAgo && r.match_score >= 50;
   });
 
   const currentOpportunities = activeTab === "all" ? allOpportunities
