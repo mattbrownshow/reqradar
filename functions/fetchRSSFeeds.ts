@@ -52,6 +52,15 @@ Deno.serve(async (req) => {
           await base44.asServiceRole.entities.OpenRole.bulkCreate(newAdzunaJobs);
           totalJobsCreated += newAdzunaJobs.length;
           console.log(`Created ${newAdzunaJobs.length} new jobs from Adzuna`);
+          
+          // Update Adzuna feed count
+          const adzunaFeed = allFeeds.find(f => f.feed_name && f.feed_name.includes('Adzuna'));
+          if (adzunaFeed) {
+            await base44.asServiceRole.entities.RSSFeed.update(adzunaFeed.id, {
+              jobs_found: (adzunaFeed.jobs_found || 0) + newAdzunaJobs.length,
+              last_updated: new Date().toISOString()
+            });
+          }
         }
       }
     } catch (error) {
@@ -70,6 +79,15 @@ Deno.serve(async (req) => {
           await base44.asServiceRole.entities.OpenRole.bulkCreate(newSerpJobs);
           totalJobsCreated += newSerpJobs.length;
           console.log(`Created ${newSerpJobs.length} new jobs from SerpAPI`);
+          
+          // Update SerpAPI feed count
+          const serpFeed = allFeeds.find(f => f.feed_name && f.feed_name.includes('SerpAPI'));
+          if (serpFeed) {
+            await base44.asServiceRole.entities.RSSFeed.update(serpFeed.id, {
+              jobs_found: (serpFeed.jobs_found || 0) + newSerpJobs.length,
+              last_updated: new Date().toISOString()
+            });
+          }
         }
       }
     } catch (error) {
@@ -88,6 +106,15 @@ Deno.serve(async (req) => {
           await base44.asServiceRole.entities.OpenRole.bulkCreate(newSerperJobs);
           totalJobsCreated += newSerperJobs.length;
           console.log(`Created ${newSerperJobs.length} new jobs from Serper`);
+          
+          // Update Serper feed count
+          const serperFeed = allFeeds.find(f => f.feed_name && f.feed_name.includes('Serper'));
+          if (serperFeed) {
+            await base44.asServiceRole.entities.RSSFeed.update(serperFeed.id, {
+              jobs_found: (serperFeed.jobs_found || 0) + newSerperJobs.length,
+              last_updated: new Date().toISOString()
+            });
+          }
         }
       }
     } catch (error) {
