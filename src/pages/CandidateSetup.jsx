@@ -312,36 +312,26 @@ export default function CandidateSetup() {
             <div className="space-y-8">
               <div className="space-y-6">
                 <h2 className="text-xl font-semibold text-gray-900">Compensation Requirements</h2>
-                <div className="space-y-6">
+                <div className="space-y-4">
                   <div>
-                    <div className="flex justify-between text-sm font-medium text-gray-700 mb-2">
-                      <span>Minimum</span>
-                      <span>${(profile.min_salary || 150000).toLocaleString()}</span>
-                    </div>
-                    <Slider
-                      value={[profile.min_salary || 150000]}
-                      min={100000}
-                      max={2000000}
-                      step={10000}
-                      onValueChange={([val]) => setProfile(p => ({ ...p, min_salary: val }))}
+                    <Label>Minimum Salary</Label>
+                    <Input
+                      type="number"
+                      value={profile.min_salary || 150000}
+                      onChange={(e) => setProfile(p => ({ ...p, min_salary: parseInt(e.target.value) || 0 }))}
+                      className="rounded-xl mt-1.5"
+                      placeholder="150000"
                     />
                   </div>
                   <div>
-                    <div className="flex justify-between text-sm font-medium text-gray-700 mb-2">
-                      <span>Maximum</span>
-                      <span>${(profile.max_salary || 350000).toLocaleString()}</span>
-                    </div>
-                    <Slider
-                      value={[profile.max_salary || 350000]}
-                      min={100000}
-                      max={2000000}
-                      step={10000}
-                      onValueChange={([val]) => setProfile(p => ({ ...p, max_salary: val }))}
+                    <Label>Maximum Salary</Label>
+                    <Input
+                      type="number"
+                      value={profile.max_salary || 350000}
+                      onChange={(e) => setProfile(p => ({ ...p, max_salary: parseInt(e.target.value) || 0 }))}
+                      className="rounded-xl mt-1.5"
+                      placeholder="350000"
                     />
-                  </div>
-                  <div className="flex justify-between text-xs text-gray-400">
-                    <span>$100K</span>
-                    <span>$2M</span>
                   </div>
                 </div>
               </div>
