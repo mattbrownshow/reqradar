@@ -10,19 +10,19 @@ Deno.serve(async (req) => {
     }
 
     // Get all user records to delete
-    const profiles = await base44.entities.CandidateProfile.filter({ created_by: user.email });
-    const companies = await base44.entities.Company.filter({ created_by: user.email });
-    const roles = await base44.entities.OpenRole.filter({ created_by: user.email });
-    const applications = await base44.entities.Application.filter({ created_by: user.email });
-    const pipelines = await base44.entities.JobPipeline.filter({ created_by: user.email });
-    const outreach = await base44.entities.OutreachMessage.filter({ created_by: user.email });
-    const activities = await base44.entities.ActivityLog.filter({ created_by: user.email });
-    const suggestions = await base44.entities.SuggestedCompany.filter({ created_by: user.email });
-    const runs = await base44.entities.DiscoveryRun.filter({ created_by: user.email });
-    const feeds = await base44.entities.RSSFeed.filter({ created_by: user.email });
-    const companyPipelines = await base44.entities.CompanyPipeline.filter({ created_by: user.email });
+    const profiles = await base44.entities.CandidateProfile.list();
+    const companies = await base44.entities.Company.list();
+    const roles = await base44.entities.OpenRole.list();
+    const applications = await base44.entities.Application.list();
+    const pipelines = await base44.entities.JobPipeline.list();
+    const outreach = await base44.entities.OutreachMessage.list();
+    const activities = await base44.entities.ActivityLog.list();
+    const suggestions = await base44.entities.SuggestedCompany.list();
+    const runs = await base44.entities.DiscoveryRun.list();
+    const feeds = await base44.entities.RSSFeed.list();
+    const companyPipelines = await base44.entities.CompanyPipeline.list();
 
-    // Delete all records
+    // Delete all records in parallel
     const deletePromises = [
       ...profiles.map(p => base44.entities.CandidateProfile.delete(p.id)),
       ...companies.map(c => base44.entities.Company.delete(c.id)),

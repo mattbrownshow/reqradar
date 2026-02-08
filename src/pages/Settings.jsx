@@ -99,11 +99,24 @@ export default function Settings() {
   });
 
   const resetDataMutation = useMutation({
-    mutationFn: () => base44.functions.invoke('resetUserData', {}),
-    onSuccess: () => {
+    mutationFn: async () => {
+      const response = await base44.functions.invoke('resetUserData', {});
+      // Clear all client-side caches
+      localStorage.clear();
+      sessionStorage.clear();
       queryClient.clear();
+      return response;
+    },
+    onSuccess: () => {
       setShowResetConfirm(false);
-      window.location.href = createPageUrl("CandidateSetup");
+      // Hard redirect to force page reload
+      setTimeout(() => {
+        window.location.href = createPageUrl("CandidateSetup");
+      }, 500);
+    },
+    onError: (error) => {
+      console.error('Reset failed:', error);
+      alert('Failed to reset data. Please try again.');
     }
   });
 
