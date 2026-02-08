@@ -11,40 +11,32 @@ Deno.serve(async (req) => {
 
     console.log('Starting data reset for user:', user.email);
 
-    // Get all user records to delete with proper limits
-    const [profiles, companies, roles, applications, pipelines, outreach, activities, suggestions, runs, feeds, companyPipelines] = await Promise.all([
-      base44.entities.CandidateProfile.list('', 1000).catch(() => []),
-      base44.entities.Company.list('', 1000).catch(() => []),
-      base44.entities.OpenRole.list('', 1000).catch(() => []),
-      base44.entities.Application.list('', 1000).catch(() => []),
-      base44.entities.JobPipeline.list('', 1000).catch(() => []),
-      base44.entities.OutreachMessage.list('', 1000).catch(() => []),
-      base44.entities.ActivityLog.list('', 1000).catch(() => []),
-      base44.entities.SuggestedCompany.list('', 1000).catch(() => []),
-      base44.entities.DiscoveryRun.list('', 1000).catch(() => []),
-      base44.entities.RSSFeed.list('', 1000).catch(() => []),
-      base44.entities.CompanyPipeline.list('', 1000).catch(() => [])
-    ]);
+    // Delete in order to avoid foreign key conflicts
+    // Start with dependent entities first
+    const deleteOperations = [
+      { name: 'ActivityLog', fn: () => base44.asServiceRole.entities.ActivityLog.list('-created_date', 500).then(items => Promise.all(items.map(i => base44.asServiceRole.entities.ActivityLog.delete(i.id).catch(() => null)))) },
+      { name: 'OutreachMessage', fn: () => base44.asServiceRole.entities.OutreachMessage.list('-created_date', 500).then(items => Promise.all(items.map(i => base44.asServiceRole.entities.OutreachMessage.delete(i.id).catch(() => null)))) },
+      { name: 'Application', fn: () => base44.asServiceRole.entities.Application.list('-created_date', 500).then(items => Promise.all(items.map(i => base44.asServiceRole.entities.Application.delete(i.id).catch(() => null)))) },
+      { name: 'JobPipeline', fn: () => base44.asServiceRole.entities.JobPipeline.list('-created_date', 500).then(items => Promise.all(items.map(i => base44.asServiceRole.entities.JobPipeline.delete(i.id).catch(() => null)))) },
+      { name: 'CompanyPipeline', fn: () => base44.asServiceRole.entities.CompanyPipeline.list('-created_date', 500).then(items => Promise.all(items.map(i => base44.asServiceRole.entities.CompanyPipeline.delete(i.id).catch(() => null)))) },
+      { name: 'SuggestedCompany', fn: () => base44.asServiceRole.entities.SuggestedCompany.list('-created_date', 500).then(items => Promise.all(items.map(i => base44.asServiceRole.entities.SuggestedCompany.delete(i.id).catch(() => null)))) },
+      { name: 'DiscoveryRun', fn: () => base44.asServiceRole.entities.DiscoveryRun.list('-created_date', 500).then(items => Promise.all(items.map(i => base44.asServiceRole.entities.DiscoveryRun.delete(i.id).catch(() => null)))) },
+      { name: 'RSSFeed', fn: () => base44.asServiceRole.entities.RSSFeed.list('-created_date', 500).then(items => Promise.all(items.map(i => base44.asServiceRole.entities.RSSFeed.delete(i.id).catch(() => null)))) },
+      { name: 'OpenRole', fn: () => base44.asServiceRole.entities.OpenRole.list('-created_date', 500).then(items => Promise.all(items.map(i => base44.asServiceRole.entities.OpenRole.delete(i.id).catch(() => null)))) },
+      { name: 'Company', fn: () => base44.asServiceRole.entities.Company.list('-created_date', 500).then(items => Promise.all(items.map(i => base44.asServiceRole.entities.Company.delete(i.id).catch(() => null)))) },
+      { name: 'CandidateProfile', fn: () => base44.asServiceRole.entities.CandidateProfile.list('-created_date', 500).then(items => Promise.all(items.map(i => base44.asServiceRole.entities.CandidateProfile.delete(i.id).catch(() => null)))) }
+    ];
 
-    console.log('Found records - profiles:', profiles.length, 'companies:', companies.length, 'roles:', roles.length);
-
-    // Delete all records in batches
-    const deletePromises = [];
-    
-    if (profiles.length > 0) deletePromises.push(...profiles.map(p => base44.entities.CandidateProfile.delete(p.id).catch(e => console.log('Delete profile error:', e))));
-    if (companies.length > 0) deletePromises.push(...companies.map(c => base44.entities.Company.delete(c.id).catch(e => console.log('Delete company error:', e))));
-    if (roles.length > 0) deletePromises.push(...roles.map(r => base44.entities.OpenRole.delete(r.id).catch(e => console.log('Delete role error:', e))));
-    if (applications.length > 0) deletePromises.push(...applications.map(a => base44.entities.Application.delete(a.id).catch(e => console.log('Delete application error:', e))));
-    if (pipelines.length > 0) deletePromises.push(...pipelines.map(p => base44.entities.JobPipeline.delete(p.id).catch(e => console.log('Delete pipeline error:', e))));
-    if (outreach.length > 0) deletePromises.push(...outreach.map(o => base44.entities.OutreachMessage.delete(o.id).catch(e => console.log('Delete outreach error:', e))));
-    if (activities.length > 0) deletePromises.push(...activities.map(a => base44.entities.ActivityLog.delete(a.id).catch(e => console.log('Delete activity error:', e))));
-    if (suggestions.length > 0) deletePromises.push(...suggestions.map(s => base44.entities.SuggestedCompany.delete(s.id).catch(e => console.log('Delete suggestion error:', e))));
-    if (runs.length > 0) deletePromises.push(...runs.map(r => base44.entities.DiscoveryRun.delete(r.id).catch(e => console.log('Delete run error:', e))));
-    if (feeds.length > 0) deletePromises.push(...feeds.map(f => base44.entities.RSSFeed.delete(f.id).catch(e => console.log('Delete feed error:', e))));
-    if (companyPipelines.length > 0) deletePromises.push(...companyPipelines.map(cp => base44.entities.CompanyPipeline.delete(cp.id).catch(e => console.log('Delete company pipeline error:', e))));
-
-    if (deletePromises.length > 0) {
-      await Promise.all(deletePromises);
+    // Execute deletions sequentially to handle dependencies
+    for (const op of deleteOperations) {
+      try {
+        console.log(`Deleting ${op.name}...`);
+        await op.fn();
+        console.log(`Successfully deleted ${op.name}`);
+      } catch (err) {
+        console.error(`Error deleting ${op.name}:`, err.message);
+        // Continue with next entity even if one fails
+      }
     }
 
     console.log('Data reset completed successfully');
@@ -54,7 +46,10 @@ Deno.serve(async (req) => {
       message: 'All user data has been reset'
     });
   } catch (error) {
-    console.error('Reset error:', error);
-    return Response.json({ error: error.message }, { status: 500 });
+    console.error('Reset error:', error.message);
+    return Response.json({ 
+      error: error.message,
+      success: false
+    }, { status: 500 });
   }
 });
