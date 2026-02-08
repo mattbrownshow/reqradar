@@ -318,7 +318,7 @@ export default function CandidateSetup() {
               <div className="border-t border-gray-100 pt-8 space-y-6">
                 <h2 className="text-xl font-semibold text-gray-900">Location Preferences</h2>
                 <div>
-                  <Label>Additional Preferred Locations</Label>
+                  <Label>Preferred Hiring Locations</Label>
                   <div className="flex gap-2 mt-1.5">
                     <Input value={locationInput} onChange={e => setLocationInput(e.target.value)} onKeyDown={e => e.key === "Enter" && (e.preventDefault(), addToList("preferred_locations", locationInput, setLocationInput))} className="rounded-xl" placeholder="City, State" />
                     <Button type="button" onClick={() => addToList("preferred_locations", locationInput, setLocationInput)} variant="outline" className="rounded-xl shrink-0">Add</Button>
