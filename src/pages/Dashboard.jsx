@@ -118,65 +118,27 @@ export default function Dashboard() {
     activationPhase = 'discover';
   }
 
+  // Calculate new opportunities stats by time period
+  const now = new Date();
+  const todayStart = new Date(now.getFullYear(), now.getMonth(), now.getDate());
+  const weekStart = new Date(now.getTime() - 7 * 24 * 60 * 60 * 1000);
+  const monthStart = new Date(now.getFullYear(), now.getMonth(), 1);
+  
+  const newToday = openRoles.filter(r => new Date(r.created_date) >= todayStart).length;
+  const newThisWeek = openRoles.filter(r => new Date(r.created_date) >= weekStart).length;
+  const newThisMonth = openRoles.filter(r => new Date(r.created_date) >= monthStart).length;
+
   // Dynamic action cards - reordered by opportunity progression
   let primaryCard, secondaryCard, tertiaryCard;
   
-  // Primary: Next best opportunity activation action
-  if (savedNotActivated > 0) {
-    // State 1: Opportunities awaiting activation
-    primaryCard = {
-      icon: Target,
-      title: `Activate ${savedNotActivated} ${savedNotActivated === 1 ? 'opportunity' : 'opportunity'} ready for executive engagement`,
-      description: 'Decision makers are mapped. Activation will initiate pursuit tracking.',
-      ctaText: 'Activate Opportunity →',
-      ctaLink: createPageUrl('JobsPipeline')
-    };
-  } else if (companiesWithoutOutreach > 0 && sentOutreach.length === 0) {
-    // State 2: Decision makers mapped, outreach not started
-    primaryCard = {
-      icon: Handshake,
-      title: `Executive access secured at ${companiesWithoutOutreach} ${companiesWithoutOutreach === 1 ? 'opportunity' : 'opportunity'}`,
-      description: 'Decision makers identified. Initiate engagement to begin pursuit.',
-      ctaText: 'Initiate Engagement →',
-      ctaLink: createPageUrl('CompanyDetail')
-    };
-  } else if (sentOutreach.length > 0 && responses.length === 0) {
-    // State 3: Outreach active, no replies
-    primaryCard = {
-      icon: Send,
-      title: `Engagement in motion across ${sentOutreach.length} ${sentOutreach.length === 1 ? 'executive' : 'executives'}`,
-      description: 'Outreach deployed. Monitoring replies and response signals.',
-      ctaText: 'View Conversations →',
-      ctaLink: createPageUrl('Outreach')
-    };
-  } else if (repliesAwaitingResponse > 0) {
-    // State 4: Replies received awaiting response
-    primaryCard = {
-      icon: MessageSquare,
-      title: `Executive ${repliesAwaitingResponse === 1 ? 'reply' : 'replies'} awaiting response`,
-      description: 'Active conversations require follow-up to maintain momentum.',
-      ctaText: 'Respond Now →',
-      ctaLink: createPageUrl('Outreach')
-    };
-  } else if (interviews.length > 0) {
-    // State 5: Interviews scheduled
-    primaryCard = {
-      icon: CalendarDays,
-      title: `${interviews.length} executive ${interviews.length === 1 ? 'meeting' : 'meetings'} scheduled`,
-      description: 'Prepare for conversations and advance opportunity progression.',
-      ctaText: 'View Schedule →',
-      ctaLink: createPageUrl('Dashboard')
-    };
-  } else {
-    // Fallback: No active pursuits
-    primaryCard = {
-      icon: Target,
-      title: 'No active pursuits in motion',
-      description: 'Discovery is surfacing opportunities. Activate targets to begin executive engagement.',
-      ctaText: 'Review Opportunities →',
-      ctaLink: createPageUrl('Discover')
-    };
-  }
+  // Primary: New opportunities discovered
+  primaryCard = {
+    icon: Search,
+    title: 'New opportunities identified',
+    description: `${newToday} today • ${newThisWeek} this week • ${newThisMonth} this month`,
+    ctaText: 'View Opportunities →',
+    ctaLink: createPageUrl('Discover')
+  };
 
   // Secondary: Pipeline momentum
   secondaryCard = {
