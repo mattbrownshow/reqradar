@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from "react";
-import { Link } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
 import { createPageUrl } from "../utils";
 import { base44 } from "@/api/base44Client";
 import { useQuery } from "@tanstack/react-query";
@@ -7,7 +7,7 @@ import {
   Building2, FileText, Handshake, CalendarDays,
   ArrowUpRight, Search, Target, Clock, CheckCircle2,
   Send, MessageSquare, TrendingUp, ChevronRight, MapPin, Users, ChevronDown,
-  BarChart3, Briefcase
+  BarChart3, Briefcase, Loader2
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import MetricCard from "../components/shared/MetricCard";
@@ -15,7 +15,20 @@ import StatusBadge from "../components/shared/StatusBadge";
 import { format } from "date-fns";
 
 export default function Dashboard() {
+  const navigate = useNavigate();
   const [userName, setUserName] = useState("User");
+  const [isReady, setIsReady] = useState(false);
+
+  const { data: user, isLoading: userLoading } = useQuery({
+    queryKey: ["currentUser"],
+    queryFn: async () => {
+      try {
+        return await base44.auth.me();
+      } catch (error) {
+        return null;
+      }
+    },
+  });
   
   const { data: profile, isLoading: profileLoading } = useQuery({
     queryKey: ["candidateProfile"],
@@ -23,14 +36,40 @@ export default function Dashboard() {
       const profiles = await base44.entities.CandidateProfile.list();
       return profiles[0] || null;
     },
+    enabled: !!user,
   });
 
   useEffect(() => {
-    if (profileLoading) return;
-    if (!profile || !profile.setup_complete) {
-      window.location.href = createPageUrl("CandidateSetup");
+    if (userLoading) return;
+    
+    if (!user) {
+      base44.auth.redirectToLogin(createPageUrl("Dashboard"));
+      return;
     }
-  }, [profile, profileLoading]);
+
+    if (profileLoading) return;
+    
+    if (!profile || !profile.setup_complete) {
+      navigate(createPageUrl("CandidateSetup"));
+      return;
+    }
+
+    setIsReady(true);
+  }, [user, userLoading, profile, profileLoading, navigate]);
+  
+  useEffect(() => {
+    if (user) {
+      setUserName(user.full_name?.split(' ')[0] || 'User');
+    }
+  }, [user]);
+
+  if (!isReady) {
+    return (
+      <div className="flex items-center justify-center min-h-screen">
+        <Loader2 className="w-8 h-8 animate-spin text-[#FF9E4D]" />
+      </div>
+    );
+  }
 
   const { data: companies = [] } = useQuery({
     queryKey: ["companies"],
@@ -67,17 +106,7 @@ export default function Dashboard() {
     queryFn: () => base44.entities.RSSFeed.list(),
   });
 
-  useEffect(() => {
-    const fetchUser = async () => {
-      try {
-        const user = await base44.auth.me();
-        setUserName(user?.full_name?.split(' ')[0] || 'User');
-      } catch (error) {
-        console.error("Failed to fetch user:", error);
-      }
-    };
-    fetchUser();
-  }, []);
+
 
   const interviews = applications.filter(a => a.status === "interview");
   const sentOutreach = outreach.filter(o => o.status !== "draft");
