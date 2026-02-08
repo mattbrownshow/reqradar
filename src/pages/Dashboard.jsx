@@ -82,20 +82,24 @@ export default function Dashboard() {
   });
 
   useEffect(() => {
-    if (userLoading || profileLoading) return;
+    if (userLoading) return;
     
     if (!user) {
       base44.auth.redirectToLogin(createPageUrl("Dashboard"));
       return;
     }
     
+    // Wait for profile query to fetch before making decisions
+    if (!profileFetched) return;
+    
+    // If no profile or setup not complete, redirect to setup
     if (!profile || !profile.setup_complete) {
       navigate(createPageUrl("CandidateSetup"), { replace: true });
       return;
     }
 
     setIsReady(true);
-  }, [user, userLoading, profile, profileLoading, navigate]);
+  }, [user, userLoading, profile, profileLoading, profileFetched, navigate]);
   
   useEffect(() => {
     if (user) {
