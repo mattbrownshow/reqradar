@@ -2,12 +2,12 @@ import React, { useState, useEffect } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import { createPageUrl } from "../utils";
 import { base44 } from "@/api/base44Client";
-import { useQuery } from "@tanstack/react-query";
+import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import {
   Building2, FileText, Handshake, CalendarDays,
   ArrowUpRight, Search, Target, Clock, CheckCircle2,
   Send, MessageSquare, TrendingUp, ChevronRight, MapPin, Users, ChevronDown,
-  BarChart3, Briefcase, Loader2
+  BarChart3, Briefcase, Loader2, Sparkles
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import MetricCard from "../components/shared/MetricCard";
