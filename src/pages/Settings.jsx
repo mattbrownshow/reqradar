@@ -130,13 +130,18 @@ export default function Settings() {
     try {
       const { file_url } = await base44.integrations.Core.UploadFile({ file });
       
-      if (!profile?.id || profilesLoading) {
-        alert('Please complete your profile setup first');
-        setIsUploadingResume(false);
-        return;
+      if (!profile?.id) {
+        // Create profile if it doesn't exist
+        const userEmail = user?.email || (await base44.auth.me()).email;
+        await base44.entities.CandidateProfile.create({
+          full_name: user?.full_name || '',
+          email: userEmail,
+          resume_url: file_url
+        });
+      } else {
+        await base44.entities.CandidateProfile.update(profile.id, { resume_url: file_url });
       }
-
-      await base44.entities.CandidateProfile.update(profile.id, { resume_url: file_url });
+      
       queryClient.invalidateQueries({ queryKey: ["candidateProfile"] });
     } catch (error) {
       console.error('Resume upload failed:', error);
