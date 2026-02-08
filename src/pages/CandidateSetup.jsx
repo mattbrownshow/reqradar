@@ -204,7 +204,8 @@ export default function CandidateSetup() {
       console.error('Failed to create default feeds:', error);
     }
     
-    navigate(createPageUrl("Dashboard"));
+    // Use replace to prevent going back
+    navigate(createPageUrl("Dashboard"), { replace: true });
   };
 
   const handleSaveStep = () => {
