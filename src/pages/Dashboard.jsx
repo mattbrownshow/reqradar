@@ -83,8 +83,6 @@ export default function Dashboard() {
     enabled: isReady && profile?.setup_complete,
   });
 
-  const activeMonitors = (rssFeeds || []).filter(f => f.status === 'active').length + 3;
-
   const runDiscoveryMutation = useMutation({
     mutationFn: () => base44.functions.invoke("runDailyDiscovery", {}),
     onMutate: () => {
