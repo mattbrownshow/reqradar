@@ -40,17 +40,15 @@ export default function Dashboard() {
   });
 
   useEffect(() => {
-    if (userLoading) return;
+    if (userLoading || profileLoading) return;
     
     if (!user) {
       base44.auth.redirectToLogin(createPageUrl("Dashboard"));
       return;
     }
-
-    if (profileLoading) return;
     
     if (!profile || !profile.setup_complete) {
-      navigate(createPageUrl("CandidateSetup"));
+      navigate(createPageUrl("CandidateSetup"), { replace: true });
       return;
     }
 
