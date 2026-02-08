@@ -36,24 +36,10 @@ const DECISION_MAKER_GROUPS = {
     { value: "cro_vp_sales", label: "CRO / VP Sales", helper: "Your direct hiring manager for sales roles" },
     { value: "ceo_founder", label: "CEO / Founder", helper: "Common hiring manager for exec roles at startups" }
   ],
-  "Executive Leadership": [
-    { value: "ceo_founder", label: "CEO / Founder", helper: "Final approver for executive hires" },
-    { value: "president", label: "President / Managing Director", helper: "" },
-    { value: "board_of_directors", label: "Board of Directors / Board Member", helper: "Often involved in C-suite hiring" }
-  ],
   "Talent & Recruiting": [
     { value: "head_of_talent", label: "Head of Talent / VP Recruiting", helper: "Manages executive search process" },
     { value: "vp_people", label: "VP People / Chief People Officer", helper: "" },
     { value: "director_talent", label: "Director of Talent Acquisition", helper: "" }
-  ],
-  "C-Suite & Department Heads": [
-    { value: "cto", label: "CTO / VP Engineering", helper: "" },
-    { value: "cpo", label: "CPO / VP Product", helper: "" },
-    { value: "cfo", label: "CFO / VP Finance", helper: "" },
-    { value: "coo", label: "COO / VP Operations", helper: "" },
-    { value: "cmo", label: "CMO / VP Marketing", helper: "" },
-    { value: "cro", label: "CRO / VP Sales", helper: "" },
-    { value: "general_counsel", label: "General Counsel / VP Legal", helper: "" }
   ],
   "Other Contacts": [
     { value: "department_director", label: "Department Director", helper: "Director-level leaders in your function" },
