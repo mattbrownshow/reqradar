@@ -683,7 +683,7 @@ export default function Settings() {
             <div className="pt-6 border-t border-gray-100 space-y-4">
               <div>
                 <h4 className="font-semibold text-sm text-gray-900 mb-2">Reset All Data</h4>
-                <p className="text-xs text-gray-500 mb-3">Clear all your profile information, companies, opportunities, and history to start fresh</p>
+                <p className="text-xs text-gray-500 mb-3">This will only clear all the data you've created within the application, such as your candidate profile, saved companies, job opportunities, applications, and activity logs. Your account itself will remain, but all your personalized data will be removed.</p>
               </div>
               {!showResetConfirm ? (
                 <Button
