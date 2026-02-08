@@ -486,27 +486,22 @@ export default function CandidateSetup() {
               </div>
 
               <div>
-                <h2 className="text-xl font-semibold text-gray-900">Funding Stage Preferences</h2>
-                <p className="text-sm text-gray-500 mb-3">Optional - Select preferred company funding stages</p>
-                <div className="grid grid-cols-2 sm:grid-cols-3 gap-3">
+                <h2 className="text-xl font-semibold text-gray-900">Funding Types</h2>
+                <p className="text-sm text-gray-500 mb-3">Optional - Select preferred company funding types</p>
+                <div className="space-y-2">
                   {[
-                    { label: "Bootstrapped", sublabel: "Self-funded", value: "Bootstrapped" },
-                    { label: "Seed", sublabel: "Early funding", value: "Seed" },
-                    { label: "Series A", sublabel: "$2-15M", value: "Series A" },
-                    { label: "Series B", sublabel: "$15-50M", value: "Series B" },
-                    { label: "Series C+", sublabel: "$50M+", value: "Series C+" },
-                    { label: "Public", sublabel: "IPO", value: "Public" }
+                    "Pre seed",
+                    "Seed",
+                    "Series A",
+                    "Series B",
+                    "Series C",
+                    "Series D",
+                    "Series E-J",
+                    "Other"
                   ].map(stage => (
-                    <label key={stage.value} className={`flex items-start gap-3 p-3 border rounded-xl cursor-pointer transition-colors ${
-                      (profile.funding_stages || []).includes(stage.value) 
-                        ? "border-[#F7931E] bg-[#FEF3E2]" 
-                        : "border-gray-100 hover:bg-gray-50"
-                    }`}>
-                      <Checkbox checked={(profile.funding_stages || []).includes(stage.value)} onCheckedChange={() => toggleInList("funding_stages", stage.value)} />
-                      <div>
-                        <div className="text-sm font-medium text-gray-700">{stage.label}</div>
-                        <div className="text-xs text-gray-500">{stage.sublabel}</div>
-                      </div>
+                    <label key={stage} className="flex items-center gap-3 p-3 border border-gray-100 rounded-xl cursor-pointer hover:bg-gray-50 transition-colors">
+                      <Checkbox checked={(profile.funding_stages || []).includes(stage)} onCheckedChange={() => toggleInList("funding_stages", stage)} />
+                      <span className="text-sm text-gray-700">{stage}</span>
                     </label>
                   ))}
                 </div>
