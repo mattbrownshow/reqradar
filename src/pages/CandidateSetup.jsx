@@ -479,6 +479,19 @@ export default function CandidateSetup() {
               <div>
                 <h2 className="text-xl font-semibold text-gray-900">Industry Preferences</h2>
                 <p className="text-sm text-gray-500 mb-3">Select all industries that interest you</p>
+                <label className="flex items-center gap-3 p-3 border border-gray-200 rounded-xl cursor-pointer hover:bg-gray-50 transition-colors bg-gray-50 mb-3 font-medium">
+                  <Checkbox 
+                    checked={(profile.industries || []).length === INDUSTRIES.length} 
+                    onCheckedChange={(checked) => {
+                      if (checked) {
+                        setProfile(prev => ({ ...prev, industries: INDUSTRIES }));
+                      } else {
+                        setProfile(prev => ({ ...prev, industries: [] }));
+                      }
+                    }} 
+                  />
+                  <span className="text-sm text-gray-900">All industries</span>
+                </label>
                 <div className="grid grid-cols-1 sm:grid-cols-2 gap-2">
                   {INDUSTRIES.map(ind => (
                     <label key={ind} className="flex items-center gap-3 p-3 border border-gray-100 rounded-xl cursor-pointer hover:bg-gray-50 transition-colors">
