@@ -138,10 +138,14 @@ export default function Settings() {
         await base44.entities.CandidateProfile.create({
           full_name: user?.full_name || '',
           email: userEmail,
-          resume_url: file_url
+          resume_url: file_url,
+          resume_filename: file.name
         });
       } else {
-        await base44.entities.CandidateProfile.update(profile.id, { resume_url: file_url });
+        await base44.entities.CandidateProfile.update(profile.id, { 
+          resume_url: file_url,
+          resume_filename: file.name
+        });
       }
       
       queryClient.invalidateQueries({ queryKey: ["candidateProfile"] });
@@ -219,7 +223,7 @@ export default function Settings() {
                       <FileText className="w-6 h-6 text-blue-600" />
                     </div>
                     <div>
-                      <p className="text-sm font-semibold text-gray-900">📄 Resume uploaded</p>
+                      <p className="text-sm font-semibold text-gray-900">{profile.resume_filename || 'Resume uploaded'}</p>
                       <p className="text-xs text-gray-500 mt-0.5">Last updated: {new Date(profile.updated_date || Date.now()).toLocaleDateString('en-US', { month: 'numeric', day: 'numeric', year: 'numeric' })}</p>
                     </div>
                   </div>
