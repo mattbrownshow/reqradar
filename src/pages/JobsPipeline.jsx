@@ -105,13 +105,6 @@ export default function JobsPipeline() {
           <PipelineMetrics pipelineItems={pipelineItems} outreachData={outreach} />
         </div>
 
-        {/* Stage Description */}
-        <div className="bg-orange-50 border border-orange-200 rounded-2xl p-4 mb-6">
-          <p className="text-sm text-gray-900">
-            <span className="font-semibold">Pipeline Journey:</span> Save opportunities → Gather intelligence on companies and decision makers → Launch and manage outreach campaigns → Engage in conversations → Schedule interviews → Close with outcome
-          </p>
-        </div>
-
         <DragDropContext onDragEnd={onDragEnd}>
           <div className="flex gap-4 overflow-x-auto pb-4">
             {stages.map((stage) => (
