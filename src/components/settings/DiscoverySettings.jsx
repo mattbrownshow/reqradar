@@ -32,8 +32,9 @@ export default function DiscoverySettings() {
   const { data: profile } = useQuery({
     queryKey: ["candidateProfile"],
     queryFn: async () => {
+      const user = await base44.auth.me();
       const profiles = await base44.entities.CandidateProfile.list();
-      return profiles[0];
+      return profiles.find(p => p.created_by === user.email);
     },
   });
 
@@ -181,7 +182,7 @@ export default function DiscoverySettings() {
 
         <div className="pt-4 border-t border-gray-200">
           <p className="text-xs text-gray-500">
-            Monitoring {feeds.filter(f => f.status === "active").length} active sources • {jobBoardRoles.length} opportunities found
+            Monitoring {feeds.filter(f => f.status === "active").length} active sources for {profile?.target_roles?.join(', ') || 'your target roles'} • {jobBoardRoles.length} opportunities found
           </p>
         </div>
       </div>
