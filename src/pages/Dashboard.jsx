@@ -30,7 +30,7 @@ export default function Dashboard() {
     },
   });
   
-  const { data: profile, isLoading: profileLoading } = useQuery({
+  const { data: profile, isLoading: profileLoading, isFetched: profileFetched } = useQuery({
     queryKey: ["candidateProfile"],
     queryFn: async () => {
       const profiles = await base44.entities.CandidateProfile.list();
