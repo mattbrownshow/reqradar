@@ -39,6 +39,48 @@ export default function Dashboard() {
     enabled: !!user,
   });
 
+  const { data: companies = [] } = useQuery({
+    queryKey: ["companies"],
+    queryFn: () => base44.entities.Company.list("-created_date", 100),
+    enabled: isReady,
+  });
+
+  const { data: openRoles = [] } = useQuery({
+    queryKey: ["openRoles"],
+    queryFn: () => base44.entities.OpenRole.list("-created_date", 100),
+    enabled: isReady,
+  });
+
+  const { data: jobPipeline = [] } = useQuery({
+    queryKey: ["jobPipeline"],
+    queryFn: () => base44.entities.JobPipeline.list("-created_date", 100),
+    enabled: isReady,
+  });
+
+  const { data: applications = [] } = useQuery({
+    queryKey: ["applications"],
+    queryFn: () => base44.entities.Application.list("-created_date", 100),
+    enabled: isReady,
+  });
+
+  const { data: outreach = [] } = useQuery({
+    queryKey: ["outreach"],
+    queryFn: () => base44.entities.OutreachMessage.list("-created_date", 100),
+    enabled: isReady,
+  });
+
+  const { data: activities = [] } = useQuery({
+    queryKey: ["activities"],
+    queryFn: () => base44.entities.ActivityLog.list("-created_date", 20),
+    enabled: isReady,
+  });
+
+  const { data: rssFeeds = [] } = useQuery({
+    queryKey: ["rssFeeds"],
+    queryFn: () => base44.entities.RSSFeed.list(),
+    enabled: isReady,
+  });
+
   useEffect(() => {
     if (userLoading || profileLoading) return;
     
@@ -68,41 +110,6 @@ export default function Dashboard() {
       </div>
     );
   }
-
-  const { data: companies = [] } = useQuery({
-    queryKey: ["companies"],
-    queryFn: () => base44.entities.Company.list("-created_date", 100),
-  });
-
-  const { data: openRoles = [] } = useQuery({
-    queryKey: ["openRoles"],
-    queryFn: () => base44.entities.OpenRole.list("-created_date", 100),
-  });
-
-  const { data: jobPipeline = [] } = useQuery({
-    queryKey: ["jobPipeline"],
-    queryFn: () => base44.entities.JobPipeline.list("-created_date", 100),
-  });
-
-  const { data: applications = [] } = useQuery({
-    queryKey: ["applications"],
-    queryFn: () => base44.entities.Application.list("-created_date", 100),
-  });
-
-  const { data: outreach = [] } = useQuery({
-    queryKey: ["outreach"],
-    queryFn: () => base44.entities.OutreachMessage.list("-created_date", 100),
-  });
-
-  const { data: activities = [] } = useQuery({
-    queryKey: ["activities"],
-    queryFn: () => base44.entities.ActivityLog.list("-created_date", 20),
-  });
-
-  const { data: rssFeeds = [] } = useQuery({
-    queryKey: ["rssFeeds"],
-    queryFn: () => base44.entities.RSSFeed.list(),
-  });
 
 
 
