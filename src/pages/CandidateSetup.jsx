@@ -27,7 +27,39 @@ const COMPANY_SIZES = [
 
 const EMPLOYEE_COUNTS = ["51-200 employees", "201-1000 employees", "1000+ employees"];
 
-const DECISION_MAKERS = ["CEO / Founder", "Board of Directors", "CFO", "COO", "Other C-Suite Executive"];
+const DECISION_MAKER_GROUPS = {
+  "Hiring Manager": [
+    { value: "cto_vp_engineering", label: "CTO / VP Engineering", helper: "Your direct hiring manager for tech roles" },
+    { value: "cfo_vp_finance", label: "CFO / VP Finance", helper: "Your direct hiring manager for finance roles" },
+    { value: "cmo_vp_marketing", label: "CMO / VP Marketing", helper: "Your direct hiring manager for marketing roles" },
+    { value: "coo_vp_operations", label: "COO / VP Operations", helper: "Your direct hiring manager for operations roles" },
+    { value: "cro_vp_sales", label: "CRO / VP Sales", helper: "Your direct hiring manager for sales roles" },
+    { value: "ceo_founder", label: "CEO / Founder", helper: "Common hiring manager for exec roles at startups" }
+  ],
+  "Executive Leadership": [
+    { value: "ceo_founder", label: "CEO / Founder", helper: "Final approver for executive hires" },
+    { value: "president", label: "President / Managing Director", helper: "" },
+    { value: "board_of_directors", label: "Board of Directors / Board Member", helper: "Often involved in C-suite hiring" }
+  ],
+  "Talent & Recruiting": [
+    { value: "head_of_talent", label: "Head of Talent / VP Recruiting", helper: "Manages executive search process" },
+    { value: "vp_people", label: "VP People / Chief People Officer", helper: "" },
+    { value: "director_talent", label: "Director of Talent Acquisition", helper: "" }
+  ],
+  "C-Suite & Department Heads": [
+    { value: "cto", label: "CTO / VP Engineering", helper: "" },
+    { value: "cpo", label: "CPO / VP Product", helper: "" },
+    { value: "cfo", label: "CFO / VP Finance", helper: "" },
+    { value: "coo", label: "COO / VP Operations", helper: "" },
+    { value: "cmo", label: "CMO / VP Marketing", helper: "" },
+    { value: "cro", label: "CRO / VP Sales", helper: "" },
+    { value: "general_counsel", label: "General Counsel / VP Legal", helper: "" }
+  ],
+  "Other Contacts": [
+    { value: "department_director", label: "Department Director", helper: "Director-level leaders in your function" },
+    { value: "other_executive", label: "Other Executive", helper: "" }
+  ]
+};
 
 const AVAILABILITY_OPTIONS = [
   "Immediately (within 1 week)", "2 weeks notice required",
@@ -49,7 +81,7 @@ export default function CandidateSetup() {
     min_salary: 150000, max_salary: 350000,
     remote_preferences: [], geographic_radius: 50,
     company_sizes: [], employee_counts: [],
-    ideal_decision_maker: "", availability: "",
+    ideal_decision_makers: [], availability: "",
     industries: [], funding_stages: [], setup_complete: false
   });
 
@@ -368,15 +400,39 @@ export default function CandidateSetup() {
                 </div>
               </div>
               <div>
-                <Label>Ideal Decision Maker (Who would you report to?)</Label>
-                <RadioGroup value={profile.ideal_decision_maker} onValueChange={v => setProfile(p => ({ ...p, ideal_decision_maker: v }))} className="mt-2 space-y-2">
-                  {DECISION_MAKERS.map(dm => (
-                    <label key={dm} className="flex items-center gap-3 p-3 border border-gray-100 rounded-xl cursor-pointer hover:bg-gray-50 transition-colors">
-                      <RadioGroupItem value={dm} />
-                      <span className="text-sm text-gray-700">{dm}</span>
-                    </label>
+                <Label className="text-base font-semibold">Ideal Decision Makers You'd Like To Reach At Hiring Companies</Label>
+                <p className="text-sm text-gray-500 mt-1 mb-4">
+                  Select all contacts who would typically be involved in hiring for your target role. 
+                  We'll prioritize finding these people at every company.
+                </p>
+                <div className="space-y-6">
+                  {Object.entries(DECISION_MAKER_GROUPS).map(([groupName, contacts]) => (
+                    <div key={groupName} className="border border-gray-200 rounded-xl p-4">
+                      <h4 className="font-semibold text-sm text-gray-900 mb-3">{groupName}</h4>
+                      <div className="space-y-2">
+                        {contacts.map(dm => (
+                          <label key={dm.value} className="flex items-start gap-3 p-3 border border-gray-100 rounded-lg cursor-pointer hover:bg-gray-50 transition-colors">
+                            <Checkbox 
+                              checked={(profile.ideal_decision_makers || []).includes(dm.value)} 
+                              onCheckedChange={() => toggleInList("ideal_decision_makers", dm.value)} 
+                            />
+                            <div className="flex-1">
+                              <span className="text-sm font-medium text-gray-700">{dm.label}</span>
+                              {dm.helper && <p className="text-xs text-gray-500 mt-0.5">{dm.helper}</p>}
+                            </div>
+                          </label>
+                        ))}
+                      </div>
+                    </div>
                   ))}
-                </RadioGroup>
+                </div>
+                {(profile.ideal_decision_makers || []).length > 0 && (
+                  <div className="mt-4 p-3 bg-emerald-50 border border-emerald-200 rounded-xl">
+                    <p className="text-sm text-emerald-800">
+                      ✓ <strong>{(profile.ideal_decision_makers || []).length} decision maker types selected</strong> — We'll search for these contacts at every target company.
+                    </p>
+                  </div>
+                )}
               </div>
             </div>
           )}
