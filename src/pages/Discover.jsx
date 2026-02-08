@@ -17,7 +17,7 @@ import { toast } from "sonner";
 import { format } from "date-fns";
 
 export default function Discover() {
-  const [activeTab, setActiveTab] = useState("all");
+  const [activeTab, setActiveTab] = useState("high-match");
   const [targetRole, setTargetRole] = useState("target role");
   const [searchTerm, setSearchTerm] = useState("");
   const [viewMode, setViewMode] = useState("grid");
