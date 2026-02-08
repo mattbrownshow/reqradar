@@ -26,7 +26,16 @@ const COMPANY_SIZES = [
   "Enterprise ($500M - $1B)", "Large Enterprise ($1B+)"
 ];
 
-const EMPLOYEE_COUNTS = ["51-200 employees", "201-1000 employees", "1000+ employees"];
+const EMPLOYEE_COUNTS = [
+  "1-10 employees",
+  "11-50 employees", 
+  "51-200 employees",
+  "201-500 employees",
+  "501-1,000 employees",
+  "1,001-5,000 employees",
+  "5,001-10,000 employees",
+  "10,000+ employees"
+];
 
 const DEPARTMENTS = [
   "Executive / Leadership",
