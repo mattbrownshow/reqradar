@@ -156,7 +156,6 @@ export default function Layout({ children, currentPageName }) {
                 <Link to={createPageUrl("Outreach")} onClick={() => setMobileMenuOpen(false)} className="block px-3 py-2 rounded-lg text-sm font-medium text-gray-600 hover:bg-gray-50">Outreach</Link>
                 <Link to={createPageUrl("Analytics")} onClick={() => setMobileMenuOpen(false)} className="block px-3 py-2 rounded-lg text-sm font-medium text-gray-600 hover:bg-gray-50">Analytics</Link>
                 <Link to={createPageUrl("Settings")} onClick={() => setMobileMenuOpen(false)} className="block px-3 py-2 rounded-lg text-sm font-medium text-gray-600 hover:bg-gray-50">Settings</Link>
-                <Link to={createPageUrl("CandidateSetup")} onClick={() => setMobileMenuOpen(false)} className="block px-3 py-2 rounded-lg text-sm font-medium text-gray-600 hover:bg-gray-50">Profile</Link>
                 <button onClick={async () => await base44.auth.logout()} className="flex items-center gap-1.5 px-3 py-2 rounded-lg text-sm font-medium text-gray-600 hover:bg-gray-50 cursor-pointer w-full text-left">
                   <LogOut className="w-4 h-4" /> Logout
                 </button>
