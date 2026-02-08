@@ -315,23 +315,29 @@ export default function CandidateSetup() {
                 <div className="space-y-4">
                   <div>
                     <Label>Minimum Salary</Label>
-                    <Input
-                      type="number"
-                      value={profile.min_salary || 150000}
-                      onChange={(e) => setProfile(p => ({ ...p, min_salary: parseInt(e.target.value) || 0 }))}
-                      className="rounded-xl mt-1.5"
-                      placeholder="150000"
-                    />
+                    <div className="relative mt-1.5">
+                      <span className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-500">$</span>
+                      <Input
+                        type="number"
+                        value={profile.min_salary || 150000}
+                        onChange={(e) => setProfile(p => ({ ...p, min_salary: parseInt(e.target.value) || 0 }))}
+                        className="rounded-xl pl-7"
+                        placeholder="150000"
+                      />
+                    </div>
                   </div>
                   <div>
                     <Label>Maximum Salary</Label>
-                    <Input
-                      type="number"
-                      value={profile.max_salary || 350000}
-                      onChange={(e) => setProfile(p => ({ ...p, max_salary: parseInt(e.target.value) || 0 }))}
-                      className="rounded-xl mt-1.5"
-                      placeholder="350000"
-                    />
+                    <div className="relative mt-1.5">
+                      <span className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-500">$</span>
+                      <Input
+                        type="number"
+                        value={profile.max_salary || 350000}
+                        onChange={(e) => setProfile(p => ({ ...p, max_salary: parseInt(e.target.value) || 0 }))}
+                        className="rounded-xl pl-7"
+                        placeholder="350000"
+                      />
+                    </div>
                   </div>
                 </div>
               </div>
