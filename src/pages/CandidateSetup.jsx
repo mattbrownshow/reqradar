@@ -287,7 +287,6 @@ export default function CandidateSetup() {
                     ))}
                   </div>
                 </div>
-              </div>
             </div>
           )}
 
