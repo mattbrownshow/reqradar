@@ -189,7 +189,7 @@ export default function CandidateSetup() {
     }));
   };
 
-  const totalSteps = 7;
+  const totalSteps = 4;
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-[#FEF3E2] via-white to-orange-50">
@@ -204,9 +204,13 @@ export default function CandidateSetup() {
           {/* Progress */}
           <div className="mt-6 flex gap-1.5 justify-center">
             {Array.from({ length: totalSteps }, (_, i) => (
-              <div
+              <button
                 key={i}
-                className={`h-1.5 rounded-full transition-all duration-300 ${
+                onClick={() => {
+                  handleSaveStep();
+                  setStep(i + 1);
+                }}
+                className={`h-1.5 rounded-full transition-all duration-300 cursor-pointer hover:opacity-80 ${
                   i + 1 <= step ? "bg-[#F7931E] w-10" : "bg-gray-200 w-6"
                 }`}
               />
@@ -216,153 +220,163 @@ export default function CandidateSetup() {
 
         {/* Card */}
         <div className="bg-white rounded-3xl shadow-sm border border-gray-100 p-6 sm:p-10">
-          {/* Step 1: Basic Info */}
+          {/* Step 1: Basic Info + Resume */}
           {step === 1 && (
-            <div className="space-y-6">
-              <h2 className="text-xl font-semibold text-gray-900">Basic Information</h2>
-              <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-                <div>
-                  <Label>Full Name</Label>
-                  <Input value={profile.full_name} onChange={e => setProfile(p => ({ ...p, full_name: e.target.value }))} className="mt-1.5 rounded-xl" />
-                </div>
-                <div>
-                  <Label>Email Address</Label>
-                  <Input type="email" value={profile.email} onChange={e => setProfile(p => ({ ...p, email: e.target.value }))} className="mt-1.5 rounded-xl" />
-                </div>
-                <div>
-                  <Label>Phone Number</Label>
-                  <Input value={profile.phone} onChange={e => setProfile(p => ({ ...p, phone: e.target.value }))} className="mt-1.5 rounded-xl" />
-                </div>
-                <div>
-                  <Label>LinkedIn Profile URL</Label>
-                  <Input value={profile.linkedin_url} onChange={e => setProfile(p => ({ ...p, linkedin_url: e.target.value }))} className="mt-1.5 rounded-xl" placeholder="https://linkedin.com/in/..." />
-                </div>
-                <div className="sm:col-span-2">
-                  <Label>Current Location</Label>
-                  <Input value={profile.current_location} onChange={e => setProfile(p => ({ ...p, current_location: e.target.value }))} className="mt-1.5 rounded-xl" placeholder="City, State" />
+            <div className="space-y-8">
+              <div className="space-y-6">
+                <h2 className="text-xl font-semibold text-gray-900">Basic Information</h2>
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                  <div>
+                    <Label>Full Name</Label>
+                    <Input value={profile.full_name} onChange={e => setProfile(p => ({ ...p, full_name: e.target.value }))} className="mt-1.5 rounded-xl" />
+                  </div>
+                  <div>
+                    <Label>Email Address</Label>
+                    <Input type="email" value={profile.email} onChange={e => setProfile(p => ({ ...p, email: e.target.value }))} className="mt-1.5 rounded-xl" />
+                  </div>
+                  <div>
+                    <Label>Phone Number</Label>
+                    <Input value={profile.phone} onChange={e => setProfile(p => ({ ...p, phone: e.target.value }))} className="mt-1.5 rounded-xl" />
+                  </div>
+                  <div>
+                    <Label>LinkedIn Profile URL</Label>
+                    <Input value={profile.linkedin_url} onChange={e => setProfile(p => ({ ...p, linkedin_url: e.target.value }))} className="mt-1.5 rounded-xl" placeholder="https://linkedin.com/in/..." />
+                  </div>
+                  <div className="sm:col-span-2">
+                    <Label>Current Location</Label>
+                    <Input value={profile.current_location} onChange={e => setProfile(p => ({ ...p, current_location: e.target.value }))} className="mt-1.5 rounded-xl" placeholder="City, State" />
+                  </div>
                 </div>
               </div>
-            </div>
-          )}
 
-          {/* Step 2: Resume Upload */}
-          {step === 2 && (
-            <div className="space-y-6">
-              <h2 className="text-xl font-semibold text-gray-900">Resume Upload</h2>
-              <p className="text-sm text-gray-500">Upload your resume and we'll auto-populate your profile</p>
-              <div className="border-2 border-dashed border-gray-200 rounded-2xl p-8 text-center hover:border-[#F7931E] transition-colors">
-                {profile.resume_url ? (
-                  <div className="flex flex-col items-center gap-3">
-                    <div className="w-14 h-14 bg-emerald-50 rounded-xl flex items-center justify-center">
-                      <FileText className="w-7 h-7 text-emerald-500" />
+              <div className="border-t border-gray-100 pt-8 space-y-6">
+                <h2 className="text-xl font-semibold text-gray-900">Resume Upload</h2>
+                <p className="text-sm text-gray-500">Upload your resume and we'll auto-populate your profile</p>
+                <div className="border-2 border-dashed border-gray-200 rounded-2xl p-8 text-center hover:border-[#F7931E] transition-colors">
+                  {profile.resume_url ? (
+                    <div className="flex flex-col items-center gap-3">
+                      <div className="w-14 h-14 bg-emerald-50 rounded-xl flex items-center justify-center">
+                        <FileText className="w-7 h-7 text-emerald-500" />
+                      </div>
+                      <p className="text-sm font-medium text-gray-700">Resume uploaded</p>
+                      <label className="text-sm text-[#F7931E] cursor-pointer hover:underline">
+                        Replace file
+                        <input type="file" accept=".pdf,.docx" className="hidden" onChange={handleResumeUpload} />
+                      </label>
                     </div>
-                    <p className="text-sm font-medium text-gray-700">Resume uploaded</p>
-                    <label className="text-sm text-[#F7931E] cursor-pointer hover:underline">
-                      Replace file
+                  ) : (
+                    <label className="cursor-pointer flex flex-col items-center gap-3">
+                      {isUploading ? (
+                        <Loader2 className="w-8 h-8 text-[#F7931E] animate-spin" />
+                      ) : (
+                        <div className="w-14 h-14 bg-orange-50 rounded-xl flex items-center justify-center">
+                          <Upload className="w-7 h-7 text-[#F7931E]" />
+                        </div>
+                      )}
+                      <span className="text-sm font-medium text-gray-700">
+                        {isUploading ? "Uploading..." : "Click to upload resume (PDF or DOCX)"}
+                      </span>
                       <input type="file" accept=".pdf,.docx" className="hidden" onChange={handleResumeUpload} />
                     </label>
+                  )}
+                </div>
+                {isExtracting && (
+                  <div className="flex items-center gap-2 text-sm text-[#F7931E]">
+                    <Loader2 className="w-4 h-4 animate-spin" />
+                    Extracting profile data from resume...
                   </div>
-                ) : (
-                  <label className="cursor-pointer flex flex-col items-center gap-3">
-                    {isUploading ? (
-                      <Loader2 className="w-8 h-8 text-[#F7931E] animate-spin" />
-                    ) : (
-                      <div className="w-14 h-14 bg-orange-50 rounded-xl flex items-center justify-center">
-                        <Upload className="w-7 h-7 text-[#F7931E]" />
-                      </div>
-                    )}
-                    <span className="text-sm font-medium text-gray-700">
-                      {isUploading ? "Uploading..." : "Click to upload resume (PDF or DOCX)"}
-                    </span>
-                    <input type="file" accept=".pdf,.docx" className="hidden" onChange={handleResumeUpload} />
-                  </label>
                 )}
-              </div>
-              {isExtracting && (
-                <div className="flex items-center gap-2 text-sm text-[#F7931E]">
-                  <Loader2 className="w-4 h-4 animate-spin" />
-                  Extracting profile data from resume...
-                </div>
-              )}
-              {/* Target Roles */}
-              <div>
-                <Label>Target Executive Roles</Label>
-                <div className="flex gap-2 mt-1.5">
-                  <Input value={roleInput} onChange={e => setRoleInput(e.target.value)} onKeyDown={e => e.key === "Enter" && (e.preventDefault(), addToList("target_roles", roleInput, setRoleInput))} className="rounded-xl" placeholder="e.g., Chief Financial Officer (CFO)" />
-                  <Button type="button" onClick={() => addToList("target_roles", roleInput, setRoleInput)} variant="outline" className="rounded-xl shrink-0">Add</Button>
-                </div>
-                <div className="flex flex-wrap gap-2 mt-3">
-                  {(profile.target_roles || []).map(role => (
-                    <Badge key={role} variant="secondary" className="bg-orange-50 text-[#F7931E] rounded-lg py-1 px-3 gap-1">
-                      {role}
-                      <X className="w-3 h-3 cursor-pointer" onClick={() => removeFromList("target_roles", role)} />
-                    </Badge>
-                  ))}
+                {/* Target Roles */}
+                <div>
+                  <Label>Target Executive Roles</Label>
+                  <div className="flex gap-2 mt-1.5">
+                    <Input value={roleInput} onChange={e => setRoleInput(e.target.value)} onKeyDown={e => e.key === "Enter" && (e.preventDefault(), addToList("target_roles", roleInput, setRoleInput))} className="rounded-xl" placeholder="e.g., Chief Financial Officer (CFO)" />
+                    <Button type="button" onClick={() => addToList("target_roles", roleInput, setRoleInput)} variant="outline" className="rounded-xl shrink-0">Add</Button>
+                  </div>
+                  <div className="flex flex-wrap gap-2 mt-3">
+                    {(profile.target_roles || []).map(role => (
+                      <Badge key={role} variant="secondary" className="bg-orange-50 text-[#F7931E] rounded-lg py-1 px-3 gap-1">
+                        {role}
+                        <X className="w-3 h-3 cursor-pointer" onClick={() => removeFromList("target_roles", role)} />
+                      </Badge>
+                    ))}
+                  </div>
                 </div>
               </div>
             </div>
           )}
 
-          {/* Step 3: Compensation */}
-          {step === 3 && (
-            <div className="space-y-6">
-              <h2 className="text-xl font-semibold text-gray-900">Compensation Requirements</h2>
-              <div className="space-y-4">
-                <div className="flex justify-between text-sm font-medium text-gray-700">
-                  <span>Minimum: ${(profile.min_salary || 150000).toLocaleString()}</span>
-                  <span>Maximum: ${(profile.max_salary || 350000).toLocaleString()}</span>
-                </div>
-                <Slider
-                  value={[profile.min_salary || 150000, profile.max_salary || 350000]}
-                  min={100000}
-                  max={500000}
-                  step={10000}
-                  onValueChange={([min, max]) => setProfile(p => ({ ...p, min_salary: min, max_salary: max }))}
-                  className="py-4"
-                />
-                <div className="flex justify-between text-xs text-gray-400">
-                  <span>$100K</span>
-                  <span>$500K+</span>
+          {/* Step 2: Compensation + Location + Availability */}
+          {step === 2 && (
+            <div className="space-y-8">
+              <div className="space-y-6">
+                <h2 className="text-xl font-semibold text-gray-900">Compensation Requirements</h2>
+                <div className="space-y-4">
+                  <div className="flex justify-between text-sm font-medium text-gray-700">
+                    <span>Minimum: ${(profile.min_salary || 150000).toLocaleString()}</span>
+                    <span>Maximum: ${(profile.max_salary || 350000).toLocaleString()}</span>
+                  </div>
+                  <Slider
+                    value={[profile.min_salary || 150000, profile.max_salary || 350000]}
+                    min={100000}
+                    max={500000}
+                    step={10000}
+                    onValueChange={([min, max]) => setProfile(p => ({ ...p, min_salary: min, max_salary: max }))}
+                    className="py-4"
+                  />
+                  <div className="flex justify-between text-xs text-gray-400">
+                    <span>$100K</span>
+                    <span>$500K+</span>
+                  </div>
                 </div>
               </div>
-            </div>
-          )}
 
-          {/* Step 4: Location */}
-          {step === 4 && (
-            <div className="space-y-6">
-              <h2 className="text-xl font-semibold text-gray-900">Location Preferences</h2>
-              <div>
-                <Label>Additional Preferred Locations</Label>
-                <div className="flex gap-2 mt-1.5">
-                  <Input value={locationInput} onChange={e => setLocationInput(e.target.value)} onKeyDown={e => e.key === "Enter" && (e.preventDefault(), addToList("preferred_locations", locationInput, setLocationInput))} className="rounded-xl" placeholder="City, State" />
-                  <Button type="button" onClick={() => addToList("preferred_locations", locationInput, setLocationInput)} variant="outline" className="rounded-xl shrink-0">Add</Button>
+              <div className="border-t border-gray-100 pt-8 space-y-6">
+                <h2 className="text-xl font-semibold text-gray-900">Location Preferences</h2>
+                <div>
+                  <Label>Additional Preferred Locations</Label>
+                  <div className="flex gap-2 mt-1.5">
+                    <Input value={locationInput} onChange={e => setLocationInput(e.target.value)} onKeyDown={e => e.key === "Enter" && (e.preventDefault(), addToList("preferred_locations", locationInput, setLocationInput))} className="rounded-xl" placeholder="City, State" />
+                    <Button type="button" onClick={() => addToList("preferred_locations", locationInput, setLocationInput)} variant="outline" className="rounded-xl shrink-0">Add</Button>
+                  </div>
+                  <div className="flex flex-wrap gap-2 mt-3">
+                    {(profile.preferred_locations || []).map(loc => (
+                      <Badge key={loc} variant="secondary" className="bg-blue-50 text-blue-700 rounded-lg py-1 px-3 gap-1">
+                        {loc}
+                        <X className="w-3 h-3 cursor-pointer" onClick={() => removeFromList("preferred_locations", loc)} />
+                      </Badge>
+                    ))}
+                  </div>
                 </div>
-                <div className="flex flex-wrap gap-2 mt-3">
-                  {(profile.preferred_locations || []).map(loc => (
-                    <Badge key={loc} variant="secondary" className="bg-blue-50 text-blue-700 rounded-lg py-1 px-3 gap-1">
-                      {loc}
-                      <X className="w-3 h-3 cursor-pointer" onClick={() => removeFromList("preferred_locations", loc)} />
-                    </Badge>
-                  ))}
+                <div>
+                  <Label>Remote Work Preferences</Label>
+                  <div className="mt-2 space-y-2">
+                    {["Fully Remote", "Hybrid (2-3 days/week)", "Relocation Considered"].map(opt => (
+                      <label key={opt} className="flex items-center gap-3 p-3 border border-gray-100 rounded-xl cursor-pointer hover:bg-gray-50 transition-colors">
+                        <Checkbox checked={(profile.remote_preferences || []).includes(opt)} onCheckedChange={() => toggleInList("remote_preferences", opt)} />
+                        <span className="text-sm text-gray-700">{opt}</span>
+                      </label>
+                    ))}
+                  </div>
                 </div>
               </div>
-              <div>
-                <Label>Remote Work Preferences</Label>
-                <div className="mt-2 space-y-2">
-                  {["Fully Remote", "Hybrid (2-3 days/week)", "Relocation Considered"].map(opt => (
-                    <label key={opt} className="flex items-center gap-3 p-3 border border-gray-100 rounded-xl cursor-pointer hover:bg-gray-50 transition-colors">
-                      <Checkbox checked={(profile.remote_preferences || []).includes(opt)} onCheckedChange={() => toggleInList("remote_preferences", opt)} />
+
+              <div className="border-t border-gray-100 pt-8 space-y-6">
+                <h2 className="text-xl font-semibold text-gray-900">Availability</h2>
+                <RadioGroup value={profile.availability} onValueChange={v => setProfile(p => ({ ...p, availability: v }))} className="space-y-2">
+                  {AVAILABILITY_OPTIONS.map(opt => (
+                    <label key={opt} className="flex items-center gap-3 p-4 border border-gray-100 rounded-xl cursor-pointer hover:bg-gray-50 transition-colors">
+                      <RadioGroupItem value={opt} />
                       <span className="text-sm text-gray-700">{opt}</span>
                     </label>
                   ))}
-                </div>
+                </RadioGroup>
               </div>
             </div>
           )}
 
-          {/* Step 5: Company Preferences */}
-          {step === 5 && (
+          {/* Step 3: Company Preferences */}
+          {step === 3 && (
             <div className="space-y-6">
               <h2 className="text-xl font-semibold text-gray-900">Company Preferences</h2>
               <div>
@@ -438,23 +452,8 @@ export default function CandidateSetup() {
             </div>
           )}
 
-          {/* Step 6: Availability */}
-          {step === 6 && (
-            <div className="space-y-6">
-              <h2 className="text-xl font-semibold text-gray-900">Availability</h2>
-              <RadioGroup value={profile.availability} onValueChange={v => setProfile(p => ({ ...p, availability: v }))} className="space-y-2">
-                {AVAILABILITY_OPTIONS.map(opt => (
-                  <label key={opt} className="flex items-center gap-3 p-4 border border-gray-100 rounded-xl cursor-pointer hover:bg-gray-50 transition-colors">
-                    <RadioGroupItem value={opt} />
-                    <span className="text-sm text-gray-700">{opt}</span>
-                  </label>
-                ))}
-              </RadioGroup>
-            </div>
-          )}
-
-          {/* Step 7: Industries & Funding */}
-          {step === 7 && (
+          {/* Step 4: Industries & Funding */}
+          {step === 4 && (
             <div className="space-y-8">
               <div>
                 <h2 className="text-xl font-semibold text-gray-900">Industry Preferences</h2>
@@ -514,7 +513,7 @@ export default function CandidateSetup() {
             ) : (
               <Button onClick={handleFinish} className="bg-[#F7931E] hover:bg-[#E07A0A] text-white rounded-xl gap-2" disabled={saveMutation.isPending}>
                 {saveMutation.isPending ? <Loader2 className="w-4 h-4 animate-spin" /> : <Check className="w-4 h-4" />}
-                Save Profile & Find Companies
+                Complete Setup & Find Opportunities
               </Button>
             )}
           </div>
