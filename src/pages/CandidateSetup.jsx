@@ -196,6 +196,7 @@ export default function CandidateSetup() {
 
   const handleFinish = async () => {
     await saveMutation.mutateAsync({ ...profile, setup_complete: true });
+    await queryClient.refetchQueries({ queryKey: ["candidateProfile"] });
     
     // Auto-create default RSS feeds for new user
     try {
