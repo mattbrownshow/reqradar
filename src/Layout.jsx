@@ -135,9 +135,9 @@ export default function Layout({ children, currentPageName }) {
                 <Link to={createPageUrl("CandidateSetup")} className={`px-3 py-2 rounded-lg text-sm ${currentPageName === "CandidateSetup" ? "text-gray-900 font-semibold" : "text-gray-600 hover:text-gray-900"}`}>
                   Profile
                 </Link>
-                <a onClick={() => base44.auth.logout()} className="flex items-center gap-1.5 px-3 py-2 rounded-lg text-sm text-gray-600 hover:text-gray-900 cursor-pointer">
+                <button onClick={async () => await base44.auth.logout()} className="flex items-center gap-1.5 px-3 py-2 rounded-lg text-sm text-gray-600 hover:text-gray-900 cursor-pointer">
                   <LogOut className="w-4 h-4" /> Logout
-                </a>
+                </button>
               </div>
 
               {/* Mobile menu button */}
@@ -162,9 +162,9 @@ export default function Layout({ children, currentPageName }) {
                 <Link to={createPageUrl("Analytics")} onClick={() => setMobileMenuOpen(false)} className="block px-3 py-2 rounded-lg text-sm font-medium text-gray-600 hover:bg-gray-50">Analytics</Link>
                 <Link to={createPageUrl("Settings")} onClick={() => setMobileMenuOpen(false)} className="block px-3 py-2 rounded-lg text-sm font-medium text-gray-600 hover:bg-gray-50">Settings</Link>
                 <Link to={createPageUrl("CandidateSetup")} onClick={() => setMobileMenuOpen(false)} className="block px-3 py-2 rounded-lg text-sm font-medium text-gray-600 hover:bg-gray-50">Profile</Link>
-                <a onClick={() => base44.auth.logout()} className="flex items-center gap-1.5 px-3 py-2 rounded-lg text-sm font-medium text-gray-600 hover:bg-gray-50 cursor-pointer">
+                <button onClick={async () => await base44.auth.logout()} className="flex items-center gap-1.5 px-3 py-2 rounded-lg text-sm font-medium text-gray-600 hover:bg-gray-50 cursor-pointer w-full text-left">
                   <LogOut className="w-4 h-4" /> Logout
-                </a>
+                </button>
               </div>
             </div>
           )}
