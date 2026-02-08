@@ -18,6 +18,7 @@ export default function Dashboard() {
   const navigate = useNavigate();
   const [userName, setUserName] = useState("User");
   const [isReady, setIsReady] = useState(false);
+  const [discoveryMessage, setDiscoveryMessage] = useState("");
   const queryClient = useQueryClient();
 
   const { data: user, isLoading: userLoading } = useQuery({
@@ -82,11 +83,22 @@ export default function Dashboard() {
     enabled: isReady && profile?.setup_complete,
   });
 
+  const activeMonitors = (rssFeeds || []).filter(f => f.status === 'active').length + 3;
+
   const runDiscoveryMutation = useMutation({
     mutationFn: () => base44.functions.invoke("runDailyDiscovery", {}),
+    onMutate: () => {
+      setDiscoveryMessage(`Searching ${activeMonitors} data feeds... This may take a few minutes.`);
+    },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["openRoles"] });
       queryClient.invalidateQueries({ queryKey: ["activities"] });
+      setDiscoveryMessage("✓ Discovery complete!");
+      setTimeout(() => setDiscoveryMessage(""), 3000);
+    },
+    onError: () => {
+      setDiscoveryMessage("Discovery failed. Please try again.");
+      setTimeout(() => setDiscoveryMessage(""), 3000);
     }
   });
 
@@ -363,12 +375,17 @@ export default function Dashboard() {
       <div className="dashboard-header flex items-center justify-between">
         <div>
           <h1>Good morning, {userName}</h1>
-          <p className="status-message">{statusMessage}</p>
+          <p className="status-message">{newRoles > 0 ? `${newRoles} new executive ${newRoles === 1 ? 'opportunity' : 'opportunities'} just discovered.` : statusMessage}</p>
         </div>
-        <Button onClick={() => runDiscoveryMutation.mutate()} disabled={runDiscoveryMutation.isPending} className="bg-[#FF9E4D] hover:bg-[#E8893D] text-white rounded-xl gap-2">
-          {runDiscoveryMutation.isPending ? <Loader2 className="w-4 h-4 animate-spin" /> : <Sparkles className="w-4 h-4" />}
-          Find New Opportunities
-        </Button>
+        <div className="flex flex-col items-end gap-2">
+          <Button onClick={() => runDiscoveryMutation.mutate()} disabled={runDiscoveryMutation.isPending} className="bg-[#FF9E4D] hover:bg-[#E8893D] text-white rounded-xl gap-2">
+            {runDiscoveryMutation.isPending ? <Loader2 className="w-4 h-4 animate-spin" /> : <Sparkles className="w-4 h-4" />}
+            Find New Opportunities
+          </Button>
+          {discoveryMessage && (
+            <p className="text-sm text-gray-600 animate-pulse">{discoveryMessage}</p>
+          )}
+        </div>
       </div>
 
       {/* Action Cards */}
