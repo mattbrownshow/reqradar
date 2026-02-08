@@ -82,22 +82,25 @@ export default function Dashboard() {
   });
 
   useEffect(() => {
+    // Don't proceed until we have definitive data
     if (userLoading) return;
     
+    // No user - redirect to login
     if (!user) {
       base44.auth.redirectToLogin(createPageUrl("Dashboard"));
       return;
     }
     
-    // Wait for profile query to fetch before making decisions
-    if (!profileFetched) return;
+    // User exists but profile data not loaded yet - wait
+    if (profileLoading || !profileFetched) return;
     
-    // If no profile or setup not complete, redirect to setup
+    // Profile check: redirect to setup if incomplete
     if (!profile || !profile.setup_complete) {
       navigate(createPageUrl("CandidateSetup"), { replace: true });
       return;
     }
 
+    // Only mark as ready if user is authenticated AND profile is complete
     setIsReady(true);
   }, [user, userLoading, profile, profileLoading, profileFetched, navigate]);
   
