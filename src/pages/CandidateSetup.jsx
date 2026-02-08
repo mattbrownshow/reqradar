@@ -117,7 +117,7 @@ export default function CandidateSetup() {
     try {
       setIsUploading(true);
       const { file_url } = await base44.integrations.Core.UploadFile({ file });
-      setProfile(prev => ({ ...prev, resume_url: file_url }));
+      setProfile(prev => ({ ...prev, resume_url: file_url, resume_filename: file.name }));
       setIsUploading(false);
 
       // Extract data from resume
@@ -243,7 +243,7 @@ export default function CandidateSetup() {
                       <div className="w-14 h-14 bg-emerald-50 rounded-xl flex items-center justify-center">
                         <FileText className="w-7 h-7 text-emerald-500" />
                       </div>
-                      <p className="text-sm font-medium text-gray-700">Resume uploaded</p>
+                      <p className="text-sm font-medium text-gray-700">{profile.resume_filename || 'Resume uploaded'}</p>
                       <label className="text-sm text-[#F7931E] cursor-pointer hover:underline">
                         Replace file
                         <input type="file" accept=".pdf,.docx" className="hidden" onChange={handleResumeUpload} />
