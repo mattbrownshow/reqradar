@@ -57,7 +57,7 @@ export default function JobsPipeline() {
     { id: "saved", title: "Saved", color: "#3B82F6", emptyTitle: "Start saving opportunities", emptyText: "Save opportunities you want to explore. Begin gathering intelligence on companies and decision makers." },
     { id: "intel_gathering", title: "Intel Gathering", color: "#8B5CF6", emptyTitle: "Gather intelligence", emptyText: "Research companies and identify decision makers. Once you've mapped contacts, launch outreach." },
     { id: "outreach_active", title: "Outreach Active", color: "#F59E0B", emptyTitle: "No active campaigns", emptyText: "Outreach campaigns underway to decision makers. Track message delivery and engagement." },
-    { id: "conversation", title: "Conversation", color: "#10B981", emptyTitle: "No conversations yet", emptyText: "Decision makers have replied. Move here to manage ongoing dialogue and next steps." },
+    { id: "conversation", title: "Interview Booked", color: "#10B981", emptyTitle: "No interviews booked yet", emptyText: "Interviews scheduled with decision makers. Track meeting details, preparation tasks, and follow-up actions." },
     { id: "interview_scheduled", title: "Interview Scheduled", color: "#059669", emptyTitle: "No scheduled interviews", emptyText: "Interviews booked and confirmed. Track meeting details and follow-ups here." },
     { id: "closed", title: "Closed", color: "#065F46", emptyTitle: "No closed opportunities", emptyText: "Outcome decided—offer accepted, declined, or rejected." }
   ];
