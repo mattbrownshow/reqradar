@@ -13,11 +13,13 @@ import { Button } from "@/components/ui/button";
 import MetricCard from "../components/shared/MetricCard";
 import StatusBadge from "../components/shared/StatusBadge";
 import { format } from "date-fns";
+import { useMutation } from "@tanstack/react-query";
 
 export default function Dashboard() {
   const navigate = useNavigate();
   const [userName, setUserName] = useState("User");
   const [isReady, setIsReady] = useState(false);
+  const queryClient = useQueryClient();
 
   const { data: user, isLoading: userLoading } = useQuery({
     queryKey: ["currentUser"],
@@ -79,6 +81,14 @@ export default function Dashboard() {
     queryKey: ["rssFeeds"],
     queryFn: () => base44.entities.RSSFeed.list(),
     enabled: isReady && profile?.setup_complete,
+  });
+
+  const runDiscoveryMutation = useMutation({
+    mutationFn: () => base44.functions.invoke("runDailyDiscovery", {}),
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ["openRoles"] });
+      queryClient.invalidateQueries({ queryKey: ["activities"] });
+    }
   });
 
   useEffect(() => {
@@ -351,9 +361,15 @@ export default function Dashboard() {
       `}</style>
 
       {/* Dashboard Header */}
-      <div className="dashboard-header">
-        <h1>Good morning, {userName}</h1>
-        <p className="status-message">{statusMessage}</p>
+      <div className="dashboard-header flex items-center justify-between">
+        <div>
+          <h1>Good morning, {userName}</h1>
+          <p className="status-message">{statusMessage}</p>
+        </div>
+        <Button onClick={() => runDiscoveryMutation.mutate()} disabled={runDiscoveryMutation.isPending} className="bg-[#FF9E4D] hover:bg-[#E8893D] text-white rounded-xl gap-2">
+          {runDiscoveryMutation.isPending ? <Loader2 className="w-4 h-4 animate-spin" /> : <Sparkles className="w-4 h-4" />}
+          Find New Opportunities
+        </Button>
       </div>
 
       {/* Action Cards */}

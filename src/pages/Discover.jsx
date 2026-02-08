@@ -75,6 +75,7 @@ export default function Discover() {
       queryClient.invalidateQueries({ queryKey: ["suggestions"] });
       queryClient.invalidateQueries({ queryKey: ["discoveryRuns"] });
       queryClient.invalidateQueries({ queryKey: ["openRoles"] });
+      queryClient.invalidateQueries({ queryKey: ["companies"] });
     }
   });
 
@@ -203,21 +204,31 @@ export default function Discover() {
         </div>
 
         {/* Last Run Info */}
-        {lastRun && (
-          <div className="bg-white border border-gray-200 rounded-xl p-4 mb-6 flex flex-wrap items-center gap-3 text-sm">
-            <span className="text-gray-600 font-semibold">Last run:</span>
-            <span className="text-gray-900">{format(new Date(lastRun.run_at), "M/d/yyyy, h:mm:ss a")}</span>
-            <span className="text-gray-300">•</span>
-            <span className="font-semibold text-[#FF9E4D]">{lastRun.companies_found}</span>
-            <span className="text-gray-600">Companies</span>
-            <span className="text-gray-300">•</span>
-            <span className="font-semibold text-[#FF9E4D]">{lastRun.jobs_found}</span>
-            <span className="text-gray-600">Jobs</span>
-            <span className="text-gray-300">•</span>
-            <span className="font-semibold text-[#FF9E4D]">{lastRun.career_pages_scanned}</span>
-            <span className="text-gray-600">Scanned</span>
+        <div className="bg-white border border-gray-200 rounded-xl p-4 mb-6 flex flex-wrap items-center justify-between gap-4">
+          <div className="flex flex-wrap items-center gap-3 text-sm">
+            {lastRun ? (
+              <>
+                <span className="text-gray-600 font-semibold">Last run:</span>
+                <span className="text-gray-900">{format(new Date(lastRun.run_at), "M/d/yyyy, h:mm:ss a")}</span>
+                <span className="text-gray-300">•</span>
+                <span className="font-semibold text-[#FF9E4D]">{lastRun.companies_found}</span>
+                <span className="text-gray-600">Companies</span>
+                <span className="text-gray-300">•</span>
+                <span className="font-semibold text-[#FF9E4D]">{lastRun.jobs_found}</span>
+                <span className="text-gray-600">Jobs</span>
+                <span className="text-gray-300">•</span>
+                <span className="font-semibold text-[#FF9E4D]">{lastRun.career_pages_scanned}</span>
+                <span className="text-gray-600">Scanned</span>
+              </>
+            ) : (
+              <span className="text-gray-600">No discovery runs yet</span>
+            )}
           </div>
-        )}
+          <Button onClick={() => runDiscoveryMutation.mutate()} disabled={runDiscoveryMutation.isPending} className="bg-[#FF9E4D] hover:bg-[#E8893D] text-white rounded-xl gap-2 shrink-0">
+            {runDiscoveryMutation.isPending ? <Loader2 className="w-4 h-4 animate-spin" /> : <Play className="w-4 h-4" />}
+            Run Discovery Now
+          </Button>
+        </div>
 
         {/* Tab Navigation */}
         <div className="discover-tabs">
