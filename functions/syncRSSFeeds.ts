@@ -69,6 +69,18 @@ Deno.serve(async (req) => {
     const remoteToAdd = remoteFeeds.filter(f => !existingUrls.has(f.feed_url));
     feedsToAdd.push(...remoteToAdd);
     
+    // Delete old role-based feeds that don't match current roles
+    const oldRoleFeeds = existingFeeds.filter(f => 
+      f.feed_name && f.feed_name.startsWith('Indeed - ') && !f.feed_name.includes('Remote')
+    );
+    
+    for (const oldFeed of oldRoleFeeds) {
+      const isStillValid = newFeeds.some(nf => nf.feed_url === oldFeed.feed_url);
+      if (!isStillValid) {
+        await base44.entities.RSSFeed.delete(oldFeed.id);
+      }
+    }
+    
     // Create new feeds
     if (feedsToAdd.length > 0) {
       await base44.entities.RSSFeed.bulkCreate(
