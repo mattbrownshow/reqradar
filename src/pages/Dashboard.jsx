@@ -72,7 +72,8 @@ export default function Dashboard() {
   const newRoles = openRoles.filter(r => r.status === 'new').length;
   const highestMatch = newRoles > 0 ? Math.max(...openRoles.filter(r => r.status === 'new').map(r => r.match_score || 0)) : 0;
   const applicationsInProgress = jobPipeline.filter(j => !['rejected', 'not_interested', 'offer'].includes(j.stage)).length;
-  const activeMonitors = rssFeeds.filter(f => f.status === 'active').length;
+  // Count all active discovery sources (RSS feeds + API integrations)
+  const activeMonitors = rssFeeds.filter(f => f.status === 'active').length + 3; // +3 for Adzuna, SerpAPI, Serper APIs
   const companiesWithoutOutreach = companies.filter(c => {
     const hasOutreach = outreach.some(o => o.company_id === c.id);
     return !hasOutreach;
