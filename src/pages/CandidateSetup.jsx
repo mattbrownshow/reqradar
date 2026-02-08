@@ -169,7 +169,7 @@ export default function CandidateSetup() {
       <div className="max-w-3xl mx-auto px-4 py-8 sm:py-16">
         {/* Header */}
         <div className="text-center mb-10">
-          <img src="https://qtrypzzcjebvfcihiynt.supabase.co/storage/v1/object/public/base44-prod/public/69874d93ef5c22ad8b35ad6f/37707629d_ChatGPTImageFeb8202608_42_21AM-Photoroom.png" alt="ReqRadar" className="h-10 mx-auto" />
+          <img src="https://qtrypzzcjebvfcihiynt.supabase.co/storage/v1/object/public/base44-prod/public/69874d93ef5c22ad8b35ad6f/1b28eb63c_Screenshot2026-02-08at85127AM.png" alt="ReqRadar" className="h-10 mx-auto" />
           <h1 className="mt-4 text-2xl sm:text-3xl font-bold text-gray-900 tracking-tight">
             Complete Your Profile
           </h1>
