@@ -13,7 +13,6 @@ import { Button } from "@/components/ui/button";
 import MetricCard from "../components/shared/MetricCard";
 import StatusBadge from "../components/shared/StatusBadge";
 import { format } from "date-fns";
-import { useMutation } from "@tanstack/react-query";
 
 export default function Dashboard() {
   const navigate = useNavigate();
