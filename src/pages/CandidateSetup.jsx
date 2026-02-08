@@ -87,6 +87,10 @@ export default function CandidateSetup() {
   const [isUploading, setIsUploading] = useState(false);
   const [isExtracting, setIsExtracting] = useState(false);
 
+  useEffect(() => {
+    window.scrollTo(0, 0);
+  }, [step]);
+
   const [profile, setProfile] = useState({
     full_name: "", email: "", phone: "", linkedin_url: "",
     resume_url: "", current_location: "", preferred_locations: [],
