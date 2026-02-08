@@ -17,7 +17,7 @@ import { format } from "date-fns";
 export default function Dashboard() {
   const [userName, setUserName] = useState("User");
   
-  const { data: profile } = useQuery({
+  const { data: profile, isLoading: profileLoading } = useQuery({
     queryKey: ["candidateProfile"],
     queryFn: async () => {
       const profiles = await base44.entities.CandidateProfile.list();
@@ -26,10 +26,11 @@ export default function Dashboard() {
   });
 
   useEffect(() => {
-    if (profile && !profile.setup_complete) {
+    if (profileLoading) return;
+    if (!profile || !profile.setup_complete) {
       window.location.href = createPageUrl("CandidateSetup");
     }
-  }, [profile]);
+  }, [profile, profileLoading]);
 
   const { data: companies = [] } = useQuery({
     queryKey: ["companies"],
