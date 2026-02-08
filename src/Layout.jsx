@@ -89,10 +89,8 @@ export default function Layout({ children, currentPageName }) {
           <div className="max-w-[1440px] mx-auto px-4 sm:px-6">
             <div className="flex items-center justify-between h-16">
               {/* Logo */}
-              <Link to={createPageUrl("Dashboard")} className="flex items-center gap-1 shrink-0">
-                <span className="text-2xl font-bold tracking-tight" style={{ color: "#FF9E4D" }}>
-                  Flowzyn
-                </span>
+              <Link to={createPageUrl("Dashboard")} className="flex items-center gap-2 shrink-0">
+                <img src="https://qtrypzzcjebvfcihiynt.supabase.co/storage/v1/object/public/base44-prod/public/69874d93ef5c22ad8b35ad6f/dc86cfab6_ChatGPTImageFeb8202608_42_21AM.png" alt="ReqRadar" className="h-8" />
               </Link>
 
               {/* Desktop Workflow Nav */}
