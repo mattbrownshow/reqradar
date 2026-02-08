@@ -46,6 +46,11 @@ export default function Dashboard() {
       base44.auth.redirectToLogin(createPageUrl("Dashboard"));
       return;
     }
+    
+    if (!profile || !profile.setup_complete) {
+      navigate(createPageUrl("CandidateSetup"), { replace: true });
+      return;
+    }
 
     setIsReady(true);
   }, [user, userLoading, profile, profileLoading, navigate]);
