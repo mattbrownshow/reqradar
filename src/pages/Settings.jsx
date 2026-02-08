@@ -103,7 +103,7 @@ export default function Settings() {
     onSuccess: () => {
       queryClient.clear();
       setShowResetConfirm(false);
-      navigate(createPageUrl("CandidateSetup"), { replace: true });
+      window.location.href = createPageUrl("CandidateSetup");
     }
   });
 
