@@ -42,14 +42,14 @@ export default function DiscoverySettings() {
     queryFn: () => base44.entities.DiscoveryRun.list("-run_at", 5)
   });
 
-  // Auto-create default feeds if none exist
+  // Auto-create default feeds if none exist or if we need to refresh them
   React.useEffect(() => {
-    if (!feedsLoading && feeds.length === 0) {
+    if (!feedsLoading && (feeds.length === 0 || (profile?.target_roles?.length > 0 && !feeds.some(f => f.feed_name?.includes('Indeed'))))) {
       base44.functions.invoke('createDefaultFeeds', {}).then(() => {
         queryClient.invalidateQueries({ queryKey: ["feeds"] });
       }).catch(err => console.error('Failed to create default feeds:', err));
     }
-  }, [feedsLoading, feeds.length, queryClient]);
+  }, [feedsLoading, feeds.length, profile?.target_roles, queryClient]);
 
   const runDiscoveryMutation = useMutation({
     mutationFn: () => base44.functions.invoke("runDailyDiscovery", {}),
