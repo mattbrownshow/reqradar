@@ -11,6 +11,7 @@ import { Slider } from "@/components/ui/slider";
 import { Upload, X, FileText, ArrowRight, ArrowLeft, Check, Loader2 } from "lucide-react";
 import { useNavigate } from "react-router-dom";
 import { createPageUrl } from "../utils";
+import SearchableMultiSelect from "../components/shared/SearchableMultiSelect";
 
 const INDUSTRIES = [
   "Technology / SaaS", "Healthcare", "Financial Services", "Manufacturing",
@@ -52,6 +53,22 @@ const SENIORITY_LEVELS = [
 const AVAILABILITY_OPTIONS = [
   "Immediately (within 1 week)", "2 weeks notice required",
   "4 weeks notice required", "6-8 weeks notice required", "Flexible timing"
+];
+
+const US_CITIES = [
+  "New York, NY", "Los Angeles, CA", "San Francisco, CA", "Chicago, IL",
+  "Houston, TX", "Phoenix, AZ", "Philadelphia, PA", "San Antonio, TX",
+  "San Diego, CA", "Dallas, TX", "San Jose, CA", "Austin, TX",
+  "Jacksonville, FL", "Fort Worth, TX", "Columbus, OH", "Charlotte, NC",
+  "San Francisco Bay Area, CA", "Seattle, WA", "Denver, CO", "Boston, MA",
+  "Portland, OR", "Las Vegas, NV", "Detroit, MI", "Nashville, TN",
+  "Oklahoma City, OK", "El Paso, TX", "Washington, DC", "Las Vegas, NV",
+  "Louisville, KY", "Baltimore, MD", "Milwaukee, WI", "Albuquerque, NM",
+  "Tucson, AZ", "Fresno, CA", "Mesa, AZ", "Sacramento, CA",
+  "Atlanta, GA", "Kansas City, MO", "Colorado Springs, CO", "Raleigh, NC",
+  "Miami, FL", "Long Beach, CA", "Virginia Beach, VA", "Omaha, NE",
+  "Oakland, CA", "Minneapolis, MN", "Tulsa, OK", "Tampa, FL",
+  "Arlington, TX", "New Orleans, LA", "Wichita, KS", "Cleveland, OH"
 ];
 
 export default function CandidateSetup() {
@@ -303,14 +320,14 @@ export default function CandidateSetup() {
                   <Slider
                     value={[profile.min_salary || 150000, profile.max_salary || 350000]}
                     min={100000}
-                    max={500000}
+                    max={2000000}
                     step={10000}
                     onValueChange={([min, max]) => setProfile(p => ({ ...p, min_salary: min, max_salary: max }))}
                     className="py-4"
                   />
                   <div className="flex justify-between text-xs text-gray-400">
                     <span>$100K</span>
-                    <span>$500K+</span>
+                    <span>$2M</span>
                   </div>
                 </div>
               </div>
@@ -319,17 +336,14 @@ export default function CandidateSetup() {
                 <h2 className="text-xl font-semibold text-gray-900">Location Preferences</h2>
                 <div>
                   <Label>Preferred Hiring Locations</Label>
-                  <div className="flex gap-2 mt-1.5">
-                    <Input value={locationInput} onChange={e => setLocationInput(e.target.value)} onKeyDown={e => e.key === "Enter" && (e.preventDefault(), addToList("preferred_locations", locationInput, setLocationInput))} className="rounded-xl" placeholder="City, State" />
-                    <Button type="button" onClick={() => addToList("preferred_locations", locationInput, setLocationInput)} variant="outline" className="rounded-xl shrink-0">Add</Button>
-                  </div>
-                  <div className="flex flex-wrap gap-2 mt-3">
-                    {(profile.preferred_locations || []).map(loc => (
-                      <Badge key={loc} variant="secondary" className="bg-blue-50 text-blue-700 rounded-lg py-1 px-3 gap-1">
-                        {loc}
-                        <X className="w-3 h-3 cursor-pointer" onClick={() => removeFromList("preferred_locations", loc)} />
-                      </Badge>
-                    ))}
+                  <div className="mt-1.5">
+                    <SearchableMultiSelect
+                      items={US_CITIES}
+                      selected={profile.preferred_locations || []}
+                      onSelect={(city) => setProfile(p => ({ ...p, preferred_locations: [...(p.preferred_locations || []), city] }))}
+                      onRemove={(city) => setProfile(p => ({ ...p, preferred_locations: (p.preferred_locations || []).filter(c => c !== city) }))}
+                      placeholder="Search cities..."
+                    />
                   </div>
                 </div>
                 <div>
