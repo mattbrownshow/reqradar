@@ -81,48 +81,55 @@ export default function CandidateSetup() {
   const handleResumeUpload = async (e) => {
     const file = e.target.files[0];
     if (!file) return;
-    setIsUploading(true);
-    const { file_url } = await base44.integrations.Core.UploadFile({ file });
-    setProfile(prev => ({ ...prev, resume_url: file_url }));
-    setIsUploading(false);
+    
+    try {
+      setIsUploading(true);
+      const { file_url } = await base44.integrations.Core.UploadFile({ file });
+      setProfile(prev => ({ ...prev, resume_url: file_url }));
+      setIsUploading(false);
 
-    // Extract data from resume
-    setIsExtracting(true);
-    const result = await base44.integrations.Core.ExtractDataFromUploadedFile({
-      file_url,
-      json_schema: {
-        type: "object",
-        properties: {
-          full_name: { type: "string" },
-          email: { type: "string" },
-          phone: { type: "string" },
-          current_title: { type: "string" },
-          current_location: { type: "string" },
-          years_experience: { type: "number" },
-          education: { type: "string" },
-          skills: { type: "array", items: { type: "string" } },
-          previous_employers: { type: "array", items: { type: "string" } },
-          target_roles: { type: "array", items: { type: "string" } }
+      // Extract data from resume
+      setIsExtracting(true);
+      const result = await base44.integrations.Core.ExtractDataFromUploadedFile({
+        file_url,
+        json_schema: {
+          type: "object",
+          properties: {
+            full_name: { type: "string" },
+            email: { type: "string" },
+            phone: { type: "string" },
+            current_title: { type: "string" },
+            current_location: { type: "string" },
+            years_experience: { type: "number" },
+            education: { type: "string" },
+            skills: { type: "array", items: { type: "string" } },
+            previous_employers: { type: "array", items: { type: "string" } },
+            target_roles: { type: "array", items: { type: "string" } }
+          }
         }
+      });
+      
+      if (result.status === "success" && result.output) {
+        const d = result.output;
+        setProfile(prev => ({
+          ...prev,
+          full_name: d.full_name || prev.full_name,
+          email: d.email || prev.email,
+          phone: d.phone || prev.phone,
+          current_title: d.current_title || prev.current_title,
+          current_location: d.current_location || prev.current_location,
+          years_experience: d.years_experience || prev.years_experience,
+          education: d.education || prev.education,
+          skills: d.skills || prev.skills,
+          previous_employers: d.previous_employers || prev.previous_employers,
+          target_roles: d.target_roles || prev.target_roles,
+        }));
       }
-    });
-    if (result.status === "success" && result.output) {
-      const d = result.output;
-      setProfile(prev => ({
-        ...prev,
-        full_name: d.full_name || prev.full_name,
-        email: d.email || prev.email,
-        phone: d.phone || prev.phone,
-        current_title: d.current_title || prev.current_title,
-        current_location: d.current_location || prev.current_location,
-        years_experience: d.years_experience || prev.years_experience,
-        education: d.education || prev.education,
-        skills: d.skills || prev.skills,
-        previous_employers: d.previous_employers || prev.previous_employers,
-        target_roles: d.target_roles || prev.target_roles,
-      }));
+    } catch (error) {
+      console.error("Resume extraction failed:", error);
+    } finally {
+      setIsExtracting(false);
     }
-    setIsExtracting(false);
   };
 
   const handleFinish = async () => {
