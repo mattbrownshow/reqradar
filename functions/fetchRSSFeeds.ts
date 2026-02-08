@@ -76,6 +76,24 @@ Deno.serve(async (req) => {
       console.error('Error fetching SerpAPI jobs:', error);
     }
 
+    // Fetch from Serper API (Google Jobs)
+    try {
+      console.log('Fetching jobs from Serper API (Google Jobs)...');
+      const serperJobs = await fetchSerperJobs(targetRoles);
+      console.log(`Fetched ${serperJobs.length} jobs from Serper`);
+      
+      if (serperJobs.length > 0) {
+        const newSerperJobs = serperJobs.filter(j => !existingUrls.has(j.source_url));
+        if (newSerperJobs.length > 0) {
+          await base44.asServiceRole.entities.OpenRole.bulkCreate(newSerperJobs);
+          totalJobsCreated += newSerperJobs.length;
+          console.log(`Created ${newSerperJobs.length} new jobs from Serper`);
+        }
+      }
+    } catch (error) {
+      console.error('Error fetching Serper jobs:', error);
+    }
+
     // Fetch and parse each feed
     for (const feed of feeds) {
       try {
@@ -350,6 +368,59 @@ async function fetchSerpAPIJobs(targetRoles) {
     }
   } catch (error) {
     console.error('Error in fetchSerpAPIJobs:', error.message);
+  }
+  return jobs;
+}
+
+async function fetchSerperJobs(targetRoles) {
+  const jobs = [];
+  try {
+    const apiKey = Deno.env.get('SERPER_API_KEY');
+    if (!apiKey) {
+      console.error('SERPER_API_KEY not set');
+      return jobs;
+    }
+
+    // Fetch jobs for each target role
+    for (const role of targetRoles.slice(0, 3)) {  // Limit to first 3 roles to avoid rate limiting
+      try {
+        const response = await fetch('https://google.serper.dev/jobs', {
+          method: 'POST',
+          headers: {
+            'X-API-KEY': apiKey,
+            'Content-Type': 'application/json'
+          },
+          body: JSON.stringify({
+            q: role,
+            location: 'United States',
+            num: 30
+          })
+        });
+
+        if (response.ok) {
+          const data = await response.json();
+          if (data.jobs && Array.isArray(data.jobs)) {
+            jobs.push(...data.jobs.map(job => ({
+              title: job.title.substring(0, 200),
+              company_name: job.company.substring(0, 100),
+              description: job.description ? job.description.substring(0, 1000) : '',
+              location: job.location || 'United States',
+              work_type: job.employmentType || 'Full-time',
+              source: 'Google Jobs (Serper)',
+              source_type: 'rss_feed',
+              source_url: job.link,
+              posted_date: job.date ? new Date(job.date).toISOString().split('T')[0] : new Date().toISOString().split('T')[0],
+              status: 'new',
+              match_score: 0
+            })));
+          }
+        }
+      } catch (error) {
+        console.error(`Error fetching Serper jobs for role "${role}":`, error.message);
+      }
+    }
+  } catch (error) {
+    console.error('Error in fetchSerperJobs:', error.message);
   }
   return jobs;
 }
