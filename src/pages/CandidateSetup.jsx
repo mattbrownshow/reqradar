@@ -27,25 +27,27 @@ const COMPANY_SIZES = [
 
 const EMPLOYEE_COUNTS = ["51-200 employees", "201-1000 employees", "1000+ employees"];
 
-const DECISION_MAKER_GROUPS = {
-  "Hiring Manager": [
-    { value: "cto_vp_engineering", label: "CTO / VP Engineering", helper: "Your direct hiring manager for tech roles" },
-    { value: "cfo_vp_finance", label: "CFO / VP Finance", helper: "Your direct hiring manager for finance roles" },
-    { value: "cmo_vp_marketing", label: "CMO / VP Marketing", helper: "Your direct hiring manager for marketing roles" },
-    { value: "coo_vp_operations", label: "COO / VP Operations", helper: "Your direct hiring manager for operations roles" },
-    { value: "cro_vp_sales", label: "CRO / VP Sales", helper: "Your direct hiring manager for sales roles" },
-    { value: "ceo_founder", label: "CEO / Founder", helper: "Common hiring manager for exec roles at startups" }
-  ],
-  "Talent & Recruiting": [
-    { value: "head_of_talent", label: "Head of Talent / VP Recruiting", helper: "Manages executive search process" },
-    { value: "vp_people", label: "VP People / Chief People Officer", helper: "" },
-    { value: "director_talent", label: "Director of Talent Acquisition", helper: "" }
-  ],
-  "Other Contacts": [
-    { value: "department_director", label: "Department Director", helper: "Director-level leaders in your function" },
-    { value: "other_executive", label: "Other Executive", helper: "" }
-  ]
-};
+const DEPARTMENTS = [
+  "Executive / Leadership",
+  "Engineering / Technology",
+  "Product",
+  "Sales / Revenue",
+  "Marketing",
+  "Finance",
+  "Operations",
+  "Human Resources / Talent",
+  "Legal"
+];
+
+const SENIORITY_LEVELS = [
+  "Founder / Owner",
+  "C-Suite",
+  "Partner",
+  "Vice President",
+  "Head",
+  "Director",
+  "Manager"
+];
 
 const AVAILABILITY_OPTIONS = [
   "Immediately (within 1 week)", "2 weeks notice required",
@@ -67,7 +69,7 @@ export default function CandidateSetup() {
     min_salary: 150000, max_salary: 350000,
     remote_preferences: [], geographic_radius: 50,
     company_sizes: [], employee_counts: [],
-    ideal_decision_makers: [], availability: "",
+    target_departments: [], target_seniority_levels: [], availability: "",
     industries: [], funding_stages: [], setup_complete: false
   });
 
@@ -386,36 +388,49 @@ export default function CandidateSetup() {
                 </div>
               </div>
               <div>
-                <Label className="text-base font-semibold">Ideal Decision Makers You'd Like To Reach At Hiring Companies</Label>
+                <Label className="text-base font-semibold">Decision Makers You'd Like To Reach At Hiring Companies</Label>
                 <p className="text-sm text-gray-500 mt-1 mb-4">
-                  Select all contacts who would typically be involved in hiring for your target role. 
-                  We'll prioritize finding these people at every company.
+                  Select the departments and seniority levels you want to target. We'll find matching contacts at every company.
                 </p>
+                
                 <div className="space-y-6">
-                  {Object.entries(DECISION_MAKER_GROUPS).map(([groupName, contacts]) => (
-                    <div key={groupName} className="border border-gray-200 rounded-xl p-4">
-                      <h4 className="font-semibold text-sm text-gray-900 mb-3">{groupName}</h4>
-                      <div className="space-y-2">
-                        {contacts.map(dm => (
-                          <label key={dm.value} className="flex items-start gap-3 p-3 border border-gray-100 rounded-lg cursor-pointer hover:bg-gray-50 transition-colors">
-                            <Checkbox 
-                              checked={(profile.ideal_decision_makers || []).includes(dm.value)} 
-                              onCheckedChange={() => toggleInList("ideal_decision_makers", dm.value)} 
-                            />
-                            <div className="flex-1">
-                              <span className="text-sm font-medium text-gray-700">{dm.label}</span>
-                              {dm.helper && <p className="text-xs text-gray-500 mt-0.5">{dm.helper}</p>}
-                            </div>
-                          </label>
-                        ))}
-                      </div>
+                  {/* Departments */}
+                  <div className="border border-gray-200 rounded-xl p-4">
+                    <h4 className="font-semibold text-sm text-gray-900 mb-3">Departments</h4>
+                    <div className="grid grid-cols-1 sm:grid-cols-2 gap-2">
+                      {DEPARTMENTS.map(dept => (
+                        <label key={dept} className="flex items-center gap-3 p-3 border border-gray-100 rounded-lg cursor-pointer hover:bg-gray-50 transition-colors">
+                          <Checkbox 
+                            checked={(profile.target_departments || []).includes(dept)} 
+                            onCheckedChange={() => toggleInList("target_departments", dept)} 
+                          />
+                          <span className="text-sm font-medium text-gray-700">{dept}</span>
+                        </label>
+                      ))}
                     </div>
-                  ))}
+                  </div>
+
+                  {/* Seniority Levels */}
+                  <div className="border border-gray-200 rounded-xl p-4">
+                    <h4 className="font-semibold text-sm text-gray-900 mb-3">Seniority Levels</h4>
+                    <div className="grid grid-cols-1 sm:grid-cols-2 gap-2">
+                      {SENIORITY_LEVELS.map(level => (
+                        <label key={level} className="flex items-center gap-3 p-3 border border-gray-100 rounded-lg cursor-pointer hover:bg-gray-50 transition-colors">
+                          <Checkbox 
+                            checked={(profile.target_seniority_levels || []).includes(level)} 
+                            onCheckedChange={() => toggleInList("target_seniority_levels", level)} 
+                          />
+                          <span className="text-sm font-medium text-gray-700">{level}</span>
+                        </label>
+                      ))}
+                    </div>
+                  </div>
                 </div>
-                {(profile.ideal_decision_makers || []).length > 0 && (
+
+                {((profile.target_departments || []).length > 0 || (profile.target_seniority_levels || []).length > 0) && (
                   <div className="mt-4 p-3 bg-emerald-50 border border-emerald-200 rounded-xl">
                     <p className="text-sm text-emerald-800">
-                      ✓ <strong>{(profile.ideal_decision_makers || []).length} decision maker types selected</strong> — We'll search for these contacts at every target company.
+                      ✓ <strong>{(profile.target_departments || []).length} departments</strong> and <strong>{(profile.target_seniority_levels || []).length} seniority levels selected</strong> — We'll search for matching contacts at every target company.
                     </p>
                   </div>
                 )}
