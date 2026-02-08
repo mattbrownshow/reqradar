@@ -16,6 +16,21 @@ import { format } from "date-fns";
 
 export default function Dashboard() {
   const [userName, setUserName] = useState("User");
+  
+  const { data: profile } = useQuery({
+    queryKey: ["candidateProfile"],
+    queryFn: async () => {
+      const profiles = await base44.entities.CandidateProfile.list();
+      return profiles[0] || null;
+    },
+  });
+
+  useEffect(() => {
+    if (profile && !profile.setup_complete) {
+      window.location.href = createPageUrl("CandidateSetup");
+    }
+  }, [profile]);
+
   const { data: companies = [] } = useQuery({
     queryKey: ["companies"],
     queryFn: () => base44.entities.Company.list("-created_date", 100),
