@@ -221,8 +221,8 @@ export default function CandidateSetup() {
   };
 
   const addToList = (key, value, setInput) => {
-    if (value.trim() && !profile[key].includes(value.trim())) {
-      setProfile(prev => ({ ...prev, [key]: [...prev[key], value.trim()] }));
+    if (value.trim() && !(profile[key] || []).includes(value.trim())) {
+      setProfile(prev => ({ ...prev, [key]: [...(prev[key] || []), value.trim()] }));
       setInput("");
     }
   };
