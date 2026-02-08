@@ -76,6 +76,11 @@ export default function CandidateSetup() {
   const [locationInput, setLocationInput] = useState("");
   const [roleInput, setRoleInput] = useState("");
 
+  const { data: user } = useQuery({
+    queryKey: ["currentUser"],
+    queryFn: () => base44.auth.me(),
+  });
+
   const { data: existingProfiles = [] } = useQuery({
     queryKey: ["candidateProfile"],
     queryFn: () => base44.entities.CandidateProfile.list("-created_date", 1),
@@ -85,8 +90,15 @@ export default function CandidateSetup() {
     if (existingProfiles.length > 0) {
       const p = existingProfiles[0];
       setProfile(prev => ({ ...prev, ...p }));
+    } else if (user) {
+      // Pre-populate name and email from auth
+      setProfile(prev => ({
+        ...prev,
+        full_name: user.full_name || '',
+        email: user.email || ''
+      }));
     }
-  }, [existingProfiles]);
+  }, [existingProfiles, user]);
 
   const saveMutation = useMutation({
     mutationFn: async (data) => {
@@ -220,37 +232,10 @@ export default function CandidateSetup() {
 
         {/* Card */}
         <div className="bg-white rounded-3xl shadow-sm border border-gray-100 p-6 sm:p-10">
-          {/* Step 1: Basic Info + Resume */}
+          {/* Step 1: Resume + Target Roles */}
           {step === 1 && (
-            <div className="space-y-8">
-              <div className="space-y-6">
-                <h2 className="text-xl font-semibold text-gray-900">Basic Information</h2>
-                <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-                  <div>
-                    <Label>Full Name</Label>
-                    <Input value={profile.full_name} onChange={e => setProfile(p => ({ ...p, full_name: e.target.value }))} className="mt-1.5 rounded-xl" />
-                  </div>
-                  <div>
-                    <Label>Email Address</Label>
-                    <Input type="email" value={profile.email} onChange={e => setProfile(p => ({ ...p, email: e.target.value }))} className="mt-1.5 rounded-xl" />
-                  </div>
-                  <div>
-                    <Label>Phone Number</Label>
-                    <Input value={profile.phone} onChange={e => setProfile(p => ({ ...p, phone: e.target.value }))} className="mt-1.5 rounded-xl" />
-                  </div>
-                  <div>
-                    <Label>LinkedIn Profile URL</Label>
-                    <Input value={profile.linkedin_url} onChange={e => setProfile(p => ({ ...p, linkedin_url: e.target.value }))} className="mt-1.5 rounded-xl" placeholder="https://linkedin.com/in/..." />
-                  </div>
-                  <div className="sm:col-span-2">
-                    <Label>Current Location</Label>
-                    <Input value={profile.current_location} onChange={e => setProfile(p => ({ ...p, current_location: e.target.value }))} className="mt-1.5 rounded-xl" placeholder="City, State" />
-                  </div>
-                </div>
-              </div>
-
-              <div className="border-t border-gray-100 pt-8 space-y-6">
-                <h2 className="text-xl font-semibold text-gray-900">Resume Upload</h2>
+            <div className="space-y-6">
+              <h2 className="text-xl font-semibold text-gray-900">Resume & Target Roles</h2>
                 <p className="text-sm text-gray-500">Upload your resume and we'll auto-populate your profile</p>
                 <div className="border-2 border-dashed border-gray-200 rounded-2xl p-8 text-center hover:border-[#F7931E] transition-colors">
                   {profile.resume_url ? (
