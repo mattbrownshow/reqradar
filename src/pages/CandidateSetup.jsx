@@ -204,6 +204,13 @@ export default function CandidateSetup() {
     } catch (error) {
       console.error('Failed to create default feeds:', error);
     }
+
+    // Trigger initial discovery run
+    try {
+      await base44.functions.invoke('runDailyDiscovery', {});
+    } catch (error) {
+      console.error('Failed to run initial discovery:', error);
+    }
     
     // Use replace to prevent going back
     navigate(createPageUrl("Dashboard"), { replace: true });
