@@ -184,29 +184,6 @@ export default function Settings() {
             </TabsList>
 
           <TabsContent value="profile" className="mt-6 space-y-6">
-            {/* Account Information */}
-            <div className="bg-white border border-gray-200 rounded-2xl p-6 space-y-4">
-              <h3 className="font-bold text-gray-900 text-lg">Account Information</h3>
-              <div className="grid grid-cols-1 sm:grid-cols-2 gap-6">
-                <div>
-                  <Label className="text-sm text-gray-500">Name</Label>
-                  <p className="text-gray-900 mt-1 font-medium">{user?.full_name || profile.full_name || "—"}</p>
-                </div>
-                <div>
-                  <Label className="text-sm text-gray-500">Email</Label>
-                  <p className="text-gray-900 mt-1 font-medium">{user?.email || profile.email || "—"}</p>
-                </div>
-                <div>
-                  <Label className="text-sm text-gray-500">Phone</Label>
-                  <p className="text-gray-900 mt-1 font-medium">{profile.phone || "—"}</p>
-                </div>
-                <div>
-                  <Label className="text-sm text-gray-500">Current Title</Label>
-                  <p className="text-gray-900 mt-1 font-medium">{profile.current_title || "—"}</p>
-                </div>
-              </div>
-            </div>
-
             {/* Resume Section */}
             <div className="bg-white border border-gray-200 rounded-2xl p-6 space-y-4">
               <h3 className="font-bold text-gray-900 text-lg">Resume</h3>
