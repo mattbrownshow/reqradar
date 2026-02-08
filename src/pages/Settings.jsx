@@ -101,6 +101,7 @@ export default function Settings() {
   const resetDataMutation = useMutation({
     mutationFn: () => base44.functions.invoke('resetUserData', {}),
     onSuccess: () => {
+      queryClient.clear();
       setShowResetConfirm(false);
       navigate(createPageUrl("CandidateSetup"), { replace: true });
     }
