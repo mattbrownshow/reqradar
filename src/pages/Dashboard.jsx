@@ -42,43 +42,43 @@ export default function Dashboard() {
   const { data: companies = [] } = useQuery({
     queryKey: ["companies"],
     queryFn: () => base44.entities.Company.list("-created_date", 100),
-    enabled: isReady,
+    enabled: isReady && profile?.setup_complete,
   });
 
   const { data: openRoles = [] } = useQuery({
     queryKey: ["openRoles"],
     queryFn: () => base44.entities.OpenRole.list("-created_date", 100),
-    enabled: isReady,
+    enabled: isReady && profile?.setup_complete,
   });
 
   const { data: jobPipeline = [] } = useQuery({
     queryKey: ["jobPipeline"],
     queryFn: () => base44.entities.JobPipeline.list("-created_date", 100),
-    enabled: isReady,
+    enabled: isReady && profile?.setup_complete,
   });
 
   const { data: applications = [] } = useQuery({
     queryKey: ["applications"],
     queryFn: () => base44.entities.Application.list("-created_date", 100),
-    enabled: isReady,
+    enabled: isReady && profile?.setup_complete,
   });
 
   const { data: outreach = [] } = useQuery({
     queryKey: ["outreach"],
     queryFn: () => base44.entities.OutreachMessage.list("-created_date", 100),
-    enabled: isReady,
+    enabled: isReady && profile?.setup_complete,
   });
 
   const { data: activities = [] } = useQuery({
     queryKey: ["activities"],
     queryFn: () => base44.entities.ActivityLog.list("-created_date", 20),
-    enabled: isReady,
+    enabled: isReady && profile?.setup_complete,
   });
 
   const { data: rssFeeds = [] } = useQuery({
     queryKey: ["rssFeeds"],
     queryFn: () => base44.entities.RSSFeed.list(),
-    enabled: isReady,
+    enabled: isReady && profile?.setup_complete,
   });
 
   useEffect(() => {
