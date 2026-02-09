@@ -293,9 +293,14 @@ function OpportunitiesTabContent({ opportunities, loading, emptyMessage, emptyDe
 
   const saveJobMutation = useMutation({
     mutationFn: (job_id) => 
-      base44.functions.invoke("manageJobPipeline", { action: "save", job_id }),
+      base44.functions.invoke("saveJobToPipeline", { job_id }),
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["jobPipeline"] });
+      queryClient.invalidateQueries({ queryKey: ["companies"] });
+      toast.success("Job saved to pipeline");
+    },
+    onError: (error) => {
+      toast.error(error.message || "Failed to save job");
     }
   });
 
