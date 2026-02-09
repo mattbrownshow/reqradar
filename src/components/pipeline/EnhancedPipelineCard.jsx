@@ -60,36 +60,35 @@ export default function EnhancedPipelineCard({ item, job, onStatusChange, onLaun
 
   return (
     <div className="bg-white border-2 border-gray-200 rounded-xl hover:shadow-lg hover:border-[#FF9E4D] transition-all overflow-hidden">
-      {/* Header */}
-      <div className="p-4 space-y-3 cursor-pointer" onClick={() => setExpanded(!expanded)}>
+      <div className="p-4 space-y-3">
         {/* Company & Role */}
         <div>
           <div className="flex items-start justify-between gap-2 mb-2">
             <div className="flex-1 min-w-0">
-              <h4 className="font-bold text-gray-900 text-sm">{job.title}</h4>
-              <p className="text-xs text-gray-600 flex items-center gap-1 mt-1">
-                <Building2 className="w-3 h-3" />
+              <h4 className="font-bold text-gray-900 text-lg">{job.title}</h4>
+              <p className="text-sm text-gray-600 flex items-center gap-1 mt-1">
+                <Building2 className="w-4 h-4" />
                 {job.company_name}
               </p>
             </div>
             {job.match_score && (
-              <div className="px-2 py-1 bg-orange-50 text-[#FF9E4D] rounded text-xs font-bold shrink-0">
+              <div className="px-3 py-1.5 bg-orange-50 text-[#FF9E4D] rounded-lg text-sm font-bold shrink-0">
                 {Math.round(job.match_score)}%
               </div>
             )}
           </div>
 
           {/* Salary & Location */}
-          <div className="flex flex-wrap gap-x-3 gap-y-1 text-xs text-gray-600">
+          <div className="flex flex-wrap gap-x-4 gap-y-2 text-sm text-gray-600">
             {(job.salary_min || job.salary_max) && (
-              <span className="flex items-center gap-1">
-                <DollarSign className="w-3 h-3" />
+              <span className="flex items-center gap-1.5">
+                <DollarSign className="w-4 h-4" />
                 ${(job.salary_min / 1000).toFixed(0)}K - ${(job.salary_max / 1000).toFixed(0)}K
               </span>
             )}
             {job.location && (
-              <span className="flex items-center gap-1">
-                <MapPin className="w-3 h-3" />
+              <span className="flex items-center gap-1.5">
+                <MapPin className="w-4 h-4" />
                 {job.location}
               </span>
             )}
@@ -97,10 +96,8 @@ export default function EnhancedPipelineCard({ item, job, onStatusChange, onLaun
           </div>
         </div>
 
-
-
         {/* Timeline & Status */}
-        <div className="space-y-1.5">
+        <div className="space-y-2">
           <div className="text-xs text-gray-500 flex items-center gap-2">
             {item.applied_at && <span>Activated: {new Date(item.applied_at).toLocaleDateString()}</span>}
             {item.interview_date && <span>Interview: {new Date(item.interview_date).toLocaleDateString()}</span>}
@@ -110,10 +107,13 @@ export default function EnhancedPipelineCard({ item, job, onStatusChange, onLaun
           {item.stage === "intel_gathering" && contacts.length > 0 && sortedOutreach.length === 0 && (
             <Button
               size="sm"
-              className="w-full bg-orange-500 hover:bg-orange-600 text-white rounded-lg text-xs h-8 gap-1.5"
-              onClick={() => onLaunchOutreach(contacts.map(c => c.id))}
+              className="w-full bg-orange-500 hover:bg-orange-600 text-white rounded-lg text-sm gap-2"
+              onClick={(e) => {
+                e.stopPropagation();
+                onLaunchOutreach(contacts.map(c => c.id));
+              }}
             >
-              <Send className="w-3 h-3" />
+              <Send className="w-4 h-4" />
               Launch Outreach
             </Button>
           )}
@@ -123,65 +123,56 @@ export default function EnhancedPipelineCard({ item, job, onStatusChange, onLaun
             <Button
               size="sm"
               variant="outline"
-              className="w-full rounded-lg text-xs h-8 gap-1.5"
+              className="w-full rounded-lg text-sm gap-2"
             >
-              <MessageSquare className="w-3 h-3" />
+              <MessageSquare className="w-4 h-4" />
               Continue Conversations
             </Button>
           )}
-
-
         </div>
       </div>
 
-      {/* Expanded Details */}
-      {expanded && (
-        <div className="border-t border-gray-200 bg-gray-50 p-4 space-y-4">
-          {/* Decision Makers Panel */}
-          {contacts.length > 0 && (
-            <div>
-              <p className="text-xs font-semibold text-gray-900 mb-2 uppercase">Decision Makers</p>
-              <DecisionMakersPanel
-                decisionMakers={contacts}
-                companyName={job.company_name}
-                onLaunchOutreach={onLaunchOutreach}
-              />
-            </div>
-          )}
-
-          {/* Actions */}
-          <div className="flex flex-col gap-2 pt-2 border-t border-gray-200">
-            {(() => {
-              const companyName = job?.company_name;
-              return (
-                <>
-                  <Link to={createPageUrl("CompanyDetail") + `?name=${encodeURIComponent(companyName)}`}>
-                    <Button variant="outline" size="sm" className="w-full text-xs rounded-lg">
-                      View Company Intelligence →
-                    </Button>
-                  </Link>
-                  <Button
-                    size="sm"
-                    variant="outline"
-                    className="w-full text-xs rounded-lg text-red-600 border-red-300 hover:bg-red-50"
-                    onClick={() => {
-                      if (confirm('Remove this opportunity from your pipeline?')) {
-                        onStatusChange(item.id, 'closed');
-                      }
-                    }}
-                  >
-                    Remove from Pipeline
-                  </Button>
-                </>
-              );
-              })()}
+      {/* Details Section - Always Visible */}
+      <div className="border-t border-gray-200 bg-gray-50 p-4 space-y-4">
+        {/* Decision Makers Panel */}
+        {contacts.length > 0 && (
+          <div>
+            <p className="text-xs font-semibold text-gray-900 mb-2 uppercase">Decision Makers</p>
+            <DecisionMakersPanel
+              decisionMakers={contacts}
+              companyName={job.company_name}
+              onLaunchOutreach={onLaunchOutreach}
+            />
           </div>
-        </div>
-      )}
+        )}
 
-      {/* Expand/Collapse Indicator */}
-      <div className="px-4 py-2 border-t border-gray-100 flex justify-center text-gray-400 hover:text-gray-600 transition-colors">
-        {expanded ? <ChevronUp className="w-4 h-4" /> : <ChevronDown className="w-4 h-4" />}
+        {/* Actions */}
+        <div className="flex flex-col gap-2 pt-2 border-t border-gray-200">
+          {(() => {
+            const companyName = job?.company_name;
+            return (
+              <>
+                <Link to={createPageUrl("CompanyDetail") + `?name=${encodeURIComponent(companyName)}`}>
+                  <Button className="w-full bg-orange-600 hover:bg-orange-700 text-white rounded-lg text-sm">
+                    View Company Intelligence →
+                  </Button>
+                </Link>
+                <Button
+                  size="sm"
+                  variant="outline"
+                  className="w-full text-sm rounded-lg text-red-600 border-red-300 hover:bg-red-50"
+                  onClick={() => {
+                    if (confirm('Remove this opportunity from your pipeline?')) {
+                      onStatusChange(item.id, 'closed');
+                    }
+                  }}
+                >
+                  Remove from Pipeline
+                </Button>
+              </>
+            );
+            })()}
+        </div>
       </div>
     </div>
   );
