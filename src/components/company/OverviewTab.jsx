@@ -1,5 +1,117 @@
-import React from 'react';
-import { Building2, Users, MapPin, Calendar, TrendingUp } from 'lucide-react';
+import React, { useState } from 'react';
+import { Building2, Users, MapPin, Calendar, TrendingUp, DollarSign, ChevronDown, ChevronUp, Briefcase } from 'lucide-react';
+
+function RoleCard({ role }) {
+  const [expanded, setExpanded] = useState(false);
+
+  return (
+    <div className="bg-white border-2 border-gray-200 rounded-xl hover:shadow-lg hover:border-orange-200 transition-all overflow-hidden">
+      <div className="p-5 space-y-3">
+        <div className="flex items-start justify-between gap-3">
+          <div className="flex-1">
+            <h3 className="font-bold text-gray-900 text-lg mb-1">{role.title}</h3>
+            <div className="flex items-center gap-2 text-sm text-gray-600">
+              <Building2 className="w-4 h-4" />
+              <span>{role.company_name}</span>
+            </div>
+          </div>
+          {role.match_score && (
+            <div className="px-3 py-1.5 bg-orange-50 text-orange-700 rounded-lg text-sm font-bold shrink-0">
+              {Math.round(role.match_score)}%
+            </div>
+          )}
+        </div>
+
+        <div className="flex flex-wrap gap-x-4 gap-y-2 text-sm text-gray-600">
+          {role.location && (
+            <span className="flex items-center gap-1.5">
+              <MapPin className="w-4 h-4" />
+              {role.location}
+            </span>
+          )}
+          {(role.salary_min || role.salary_max) && (
+            <span className="flex items-center gap-1.5 font-medium">
+              <DollarSign className="w-4 h-4" />
+              ${(role.salary_min / 1000).toFixed(0)}K - ${(role.salary_max / 1000).toFixed(0)}K
+            </span>
+          )}
+          {role.work_type && (
+            <span className="flex items-center gap-1.5">
+              <Briefcase className="w-4 h-4" />
+              {role.work_type}
+            </span>
+          )}
+        </div>
+
+        {expanded && (
+          <div className="pt-3 border-t border-gray-100 space-y-3">
+            {role.description && (
+              <div>
+                <p className="text-xs font-semibold text-gray-600 mb-1">DESCRIPTION</p>
+                <p className="text-sm text-gray-700">{role.description}</p>
+              </div>
+            )}
+            
+            {role.requirements && role.requirements.length > 0 && (
+              <div>
+                <p className="text-xs font-semibold text-gray-600 mb-2">REQUIREMENTS</p>
+                <ul className="space-y-1">
+                  {role.requirements.map((req, idx) => (
+                    <li key={idx} className="text-sm text-gray-700 flex items-start gap-2">
+                      <span className="text-orange-500 mt-0.5">•</span>
+                      {req}
+                    </li>
+                  ))}
+                </ul>
+              </div>
+            )}
+
+            {role.match_reasons && role.match_reasons.length > 0 && (
+              <div>
+                <p className="text-xs font-semibold text-gray-600 mb-2">WHY THIS MATCHES</p>
+                <ul className="space-y-1">
+                  {role.match_reasons.map((reason, idx) => (
+                    <li key={idx} className="text-sm text-emerald-700 flex items-start gap-2">
+                      <span className="text-emerald-500 mt-0.5">✓</span>
+                      {reason}
+                    </li>
+                  ))}
+                </ul>
+              </div>
+            )}
+
+            <div className="flex items-center justify-between pt-2 border-t border-gray-100">
+              {role.source && (
+                <span className="text-xs text-gray-500">Source: {role.source}</span>
+              )}
+              {role.posted_date && (
+                <span className="text-xs text-gray-500">Posted: {new Date(role.posted_date).toLocaleDateString()}</span>
+              )}
+            </div>
+
+            {role.source_url && (
+              <a 
+                href={role.source_url} 
+                target="_blank" 
+                rel="noopener noreferrer"
+                className="block w-full text-center py-2 px-4 bg-blue-50 text-blue-600 hover:bg-blue-100 rounded-lg text-sm font-medium transition-colors"
+              >
+                View on {role.source || 'job board'} →
+              </a>
+            )}
+          </div>
+        )}
+      </div>
+
+      <button
+        onClick={() => setExpanded(!expanded)}
+        className="w-full px-4 py-2 border-t border-gray-100 flex items-center justify-center text-gray-400 hover:text-gray-600 hover:bg-gray-50 transition-colors"
+      >
+        {expanded ? <ChevronUp className="w-4 h-4" /> : <ChevronDown className="w-4 h-4" />}
+      </button>
+    </div>
+  );
+}
 
 export default function OverviewTab({ company, roles }) {
   return (
@@ -13,46 +125,9 @@ export default function OverviewTab({ company, roles }) {
             <p className="text-gray-600">No active roles saved for this company</p>
           </div>
         ) : (
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+          <div className="space-y-4">
             {roles.map(role => (
-              <div key={role.id} className="bg-white border border-gray-200 rounded-xl p-5 hover:shadow-lg transition-shadow">
-                <div className="flex items-start justify-between mb-3">
-                  <div className="flex-1">
-                    <h3 className="font-bold text-gray-900">{role.title}</h3>
-                    <p className="text-sm text-gray-600">{role.location || 'Unknown location'}</p>
-                  </div>
-                  {role.match_score && (
-                    <div className="px-2 py-1 bg-orange-50 text-orange-700 rounded text-sm font-bold">
-                      {Math.round(role.match_score)}%
-                    </div>
-                  )}
-                </div>
-
-                <div className="space-y-2 text-sm text-gray-600 mb-4">
-                  {(role.salary_min || role.salary_max) && (
-                    <p className="flex items-center gap-2">
-                      💰 ${(role.salary_min / 1000).toFixed(0)}K - ${(role.salary_max / 1000).toFixed(0)}K
-                    </p>
-                  )}
-                  {role.work_type && <p>• {role.work_type}</p>}
-                  {role.source && <p>• Posted on {role.source}</p>}
-                </div>
-
-                {role.description && (
-                  <p className="text-sm text-gray-700 line-clamp-2 mb-3">{role.description}</p>
-                )}
-                
-                {role.source_url && (
-                  <a 
-                    href={role.source_url} 
-                    target="_blank" 
-                    rel="noopener noreferrer"
-                    className="inline-block text-sm text-blue-600 hover:underline"
-                  >
-                    View on {role.source || 'job board'} →
-                  </a>
-                )}
-              </div>
+              <RoleCard key={role.id} role={role} />
             ))}
           </div>
         )}
