@@ -15,9 +15,9 @@ export default function Layout({ children, currentPageName }) {
   const phaseMap = {
     "Discover": 'discover',
     "DiscoverySources": 'discover',
-    "ActiveOpportunities": 'qualify',
-    "JobsPipeline": 'pursue',
-    "Outreach": 'pursue',
+    "ActiveOpportunities": 'manage',
+    "Manage": 'manage',
+    "OutreachInbox": 'outreach',
     "Analytics": 'analyze'
   };
 
@@ -107,16 +107,16 @@ export default function Layout({ children, currentPageName }) {
 
                 <div className="phase-separator">→</div>
 
-                {/* Qualify Phase */}
-                <Link to={createPageUrl("ActiveOpportunities")} className={`phase-group ${currentPhase === 'qualify' ? 'active' : ''}`} data-phase="qualify">
-                  <div className="phase-label">Qualify</div>
+                {/* Manage Phase */}
+                <Link to={createPageUrl("Manage")} className={`phase-group ${currentPhase === 'manage' ? 'active' : ''}`} data-phase="manage">
+                  <div className="phase-label">Manage</div>
                 </Link>
                 
                 <div className="phase-separator">→</div>
                 
-                {/* Pursue Phase */}
-                <Link to={createPageUrl("JobsPipeline")} className={`phase-group ${currentPhase === 'pursue' ? 'active' : ''}`} data-phase="pursue">
-                  <div className="phase-label">Pursue</div>
+                {/* Outreach Phase */}
+                <Link to={createPageUrl("OutreachInbox")} className={`phase-group ${currentPhase === 'outreach' ? 'active' : ''}`} data-phase="outreach">
+                  <div className="phase-label">Outreach</div>
                 </Link>
 
                 <div className="phase-separator">→</div>
@@ -156,9 +156,8 @@ export default function Layout({ children, currentPageName }) {
               <div className="px-4 py-3 space-y-1">
                 <Link to={createPageUrl("Dashboard")} onClick={() => setMobileMenuOpen(false)} className="block px-3 py-2 rounded-lg text-sm font-medium text-gray-600 hover:bg-gray-50">Dashboard</Link>
                 <Link to={createPageUrl("Discover")} onClick={() => setMobileMenuOpen(false)} className="block px-3 py-2 rounded-lg text-sm font-medium text-gray-600 hover:bg-gray-50">Discover</Link>
-                <Link to={createPageUrl("ActiveOpportunities")} onClick={() => setMobileMenuOpen(false)} className="block px-3 py-2 rounded-lg text-sm font-medium text-gray-600 hover:bg-gray-50">Active Opportunities</Link>
-                <Link to={createPageUrl("JobsPipeline")} onClick={() => setMobileMenuOpen(false)} className="block px-3 py-2 rounded-lg text-sm font-medium text-gray-600 hover:bg-gray-50">Pipeline</Link>
-                <Link to={createPageUrl("Outreach")} onClick={() => setMobileMenuOpen(false)} className="block px-3 py-2 rounded-lg text-sm font-medium text-gray-600 hover:bg-gray-50">Outreach</Link>
+                <Link to={createPageUrl("Manage")} onClick={() => setMobileMenuOpen(false)} className="block px-3 py-2 rounded-lg text-sm font-medium text-gray-600 hover:bg-gray-50">Manage</Link>
+                <Link to={createPageUrl("OutreachInbox")} onClick={() => setMobileMenuOpen(false)} className="block px-3 py-2 rounded-lg text-sm font-medium text-gray-600 hover:bg-gray-50">Outreach</Link>
                 <Link to={createPageUrl("Analytics")} onClick={() => setMobileMenuOpen(false)} className="block px-3 py-2 rounded-lg text-sm font-medium text-gray-600 hover:bg-gray-50">Analytics</Link>
                 <Link to={createPageUrl("Settings")} onClick={() => setMobileMenuOpen(false)} className="block px-3 py-2 rounded-lg text-sm font-medium text-gray-600 hover:bg-gray-50">Settings</Link>
                 <button onClick={async () => await base44.auth.logout()} title={user?.email || ''} className="flex items-center gap-1.5 px-3 py-2 rounded-lg text-sm font-medium text-gray-600 hover:bg-gray-50 cursor-pointer w-full text-left">

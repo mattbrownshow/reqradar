@@ -58,12 +58,12 @@ import Discover from './pages/Discover';
 import DiscoverySources from './pages/DiscoverySources';
 import GmailCallback from './pages/GmailCallback';
 import JobBoards from './pages/JobBoards';
-import JobsPipeline from './pages/JobsPipeline';
 import OpenRoles from './pages/OpenRoles';
 import OutlookCallback from './pages/OutlookCallback';
-import Outreach from './pages/Outreach';
 import Pipeline from './pages/Pipeline';
 import Settings from './pages/Settings';
+import Manage from './pages/Manage';
+import OutreachInbox from './pages/OutreachInbox';
 import __Layout from './Layout.jsx';
 
 
@@ -79,12 +79,12 @@ export const PAGES = {
     "DiscoverySources": DiscoverySources,
     "GmailCallback": GmailCallback,
     "JobBoards": JobBoards,
-    "JobsPipeline": JobsPipeline,
     "OpenRoles": OpenRoles,
     "OutlookCallback": OutlookCallback,
-    "Outreach": Outreach,
     "Pipeline": Pipeline,
     "Settings": Settings,
+    "Manage": Manage,
+    "OutreachInbox": OutreachInbox,
 }
 
 export const pagesConfig = {
