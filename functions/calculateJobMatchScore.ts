@@ -25,14 +25,30 @@ function matchesRole(jobTitle, targetRoles) {
   if (!jobTitle) return { matches: false, score: 0 };
   
   const normalizedJob = jobTitle.toLowerCase();
-  const roleKeywords = buildRoleKeywords(targetRoles);
   
-  // Check for exact or substring match
+  // First check for exact title match
+  for (const targetRole of targetRoles) {
+    const normalizedTarget = targetRole.toLowerCase().trim();
+    
+    // Exact match (e.g. "chief marketing officer (cmo)" matches "Chief Marketing Officer (CMO)")
+    if (normalizedJob === normalizedTarget) {
+      return { matches: true, score: 50 };
+    }
+    
+    // Very close match - all words present in same order
+    const targetWords = normalizedTarget.replace(/[()]/g, '').split(/\s+/);
+    const jobWords = normalizedJob.replace(/[()]/g, '').split(/\s+/);
+    
+    if (targetWords.every(word => jobWords.includes(word))) {
+      return { matches: true, score: 48 };
+    }
+  }
+  
+  // Then check keywords
+  const roleKeywords = buildRoleKeywords(targetRoles);
   for (const keyword of roleKeywords) {
     if (normalizedJob.includes(keyword)) {
-      // Exact match gets higher score
-      const isExact = targetRoles.some(tr => normalizedJob === tr.toLowerCase());
-      return { matches: true, score: isExact ? 40 : 30 };
+      return { matches: true, score: 35 };
     }
   }
   
@@ -52,7 +68,7 @@ function matchesIndustry(jobIndustry, preferredIndustries) {
     
     if (normalizedJob.includes(normalizedPreferred.split(' / ')[0]) || 
         normalizedPreferred.includes(normalizedJob)) {
-      return { matches: true, score: 30 };
+      return { matches: true, score: 20 };
     }
     
     // Check related industries
@@ -61,13 +77,13 @@ function matchesIndustry(jobIndustry, preferredIndustries) {
     const teleTerms = ['telecom', 'telecommunications', 'wireless', 'mobile'];
     
     if ((preferred.includes('Technology') || preferred.includes('SaaS')) && saasTerms.some(t => normalizedJob.includes(t))) {
-      return { matches: true, score: 25 };
+      return { matches: true, score: 18 };
     }
     if ((preferred.includes('Media') || preferred.includes('Entertainment')) && mediaTerms.some(t => normalizedJob.includes(t))) {
-      return { matches: true, score: 25 };
+      return { matches: true, score: 18 };
     }
     if (preferred.includes('Telecommunications') && teleTerms.some(t => normalizedJob.includes(t))) {
-      return { matches: true, score: 25 };
+      return { matches: true, score: 18 };
     }
   }
   
@@ -139,6 +155,9 @@ function calculateMatchScore(job, userProfile) {
   }
   
   // Only jobs matching ALL criteria get scored
+  // Role score is now 48-50 for exact matches, industry 0-20, location 15-20, base 10
+  // Exact role match with location = 48 + 20 + 10 = 78 minimum
+  // Exact role + industry + location = 48 + 20 + 20 + 10 = 98 (near perfect)
   const totalScore = roleMatch.score + industryScore + locationMatch.score + 10;
   return Math.min(totalScore, 100);
 }
