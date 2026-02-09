@@ -114,15 +114,17 @@ export default function CandidateSetup() {
     enabled: isAuthenticated,
   });
 
-  const { data: existingProfiles = [] } = useQuery({
+  const { data: existingProfiles } = useQuery({
     queryKey: ["candidateProfile"],
     queryFn: () => base44.entities.CandidateProfile.list("-created_date", 1),
     enabled: isAuthenticated,
   });
 
+  const profiles = existingProfiles || [];
+
   useEffect(() => {
-    if (existingProfiles.length > 0) {
-      const p = existingProfiles[0];
+    if (profiles.length > 0) {
+      const p = profiles[0];
       setProfile(prev => ({ ...prev, ...p }));
     } else if (user) {
       // Pre-populate name and email from auth
@@ -132,12 +134,12 @@ export default function CandidateSetup() {
         email: user.email || ''
       }));
     }
-  }, [existingProfiles, user]);
+  }, [profiles, user]);
 
   const saveMutation = useMutation({
     mutationFn: async (data) => {
-      if (existingProfiles.length > 0) {
-        return base44.entities.CandidateProfile.update(existingProfiles[0].id, data);
+      if (profiles.length > 0) {
+        return base44.entities.CandidateProfile.update(profiles[0].id, data);
       }
       return base44.entities.CandidateProfile.create(data);
     },
