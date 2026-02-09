@@ -39,7 +39,18 @@ export default function OverviewTab({ company, roles }) {
                 </div>
 
                 {role.description && (
-                  <p className="text-sm text-gray-700 line-clamp-2">{role.description}</p>
+                  <p className="text-sm text-gray-700 line-clamp-2 mb-3">{role.description}</p>
+                )}
+                
+                {role.source_url && (
+                  <a 
+                    href={role.source_url} 
+                    target="_blank" 
+                    rel="noopener noreferrer"
+                    className="inline-block text-sm text-blue-600 hover:underline"
+                  >
+                    View on {role.source || 'job board'} →
+                  </a>
                 )}
               </div>
             ))}
