@@ -1,9 +1,7 @@
-import React, { useState } from 'react';
-import { Building2, Users, MapPin, Calendar, TrendingUp, DollarSign, ChevronDown, ChevronUp, Briefcase } from 'lucide-react';
+import React from 'react';
+import { Building2, Users, MapPin, Calendar, TrendingUp, DollarSign, Briefcase } from 'lucide-react';
 
 function RoleCard({ role }) {
-  const [expanded, setExpanded] = useState(false);
-
   return (
     <div className="bg-white border-2 border-gray-200 rounded-xl hover:shadow-lg hover:border-orange-200 transition-all overflow-hidden">
       <div className="p-5 space-y-3">
@@ -43,72 +41,63 @@ function RoleCard({ role }) {
           )}
         </div>
 
-        {expanded && (
-          <div className="pt-3 border-t border-gray-100 space-y-3">
-            {role.description && (
-              <div>
-                <p className="text-xs font-semibold text-gray-600 mb-1">DESCRIPTION</p>
-                <p className="text-sm text-gray-700">{role.description}</p>
-              </div>
-            )}
-            
-            {role.requirements && role.requirements.length > 0 && (
-              <div>
-                <p className="text-xs font-semibold text-gray-600 mb-2">REQUIREMENTS</p>
-                <ul className="space-y-1">
-                  {role.requirements.map((req, idx) => (
-                    <li key={idx} className="text-sm text-gray-700 flex items-start gap-2">
-                      <span className="text-orange-500 mt-0.5">•</span>
-                      {req}
-                    </li>
-                  ))}
-                </ul>
-              </div>
-            )}
-
-            {role.match_reasons && role.match_reasons.length > 0 && (
-              <div>
-                <p className="text-xs font-semibold text-gray-600 mb-2">WHY THIS MATCHES</p>
-                <ul className="space-y-1">
-                  {role.match_reasons.map((reason, idx) => (
-                    <li key={idx} className="text-sm text-emerald-700 flex items-start gap-2">
-                      <span className="text-emerald-500 mt-0.5">✓</span>
-                      {reason}
-                    </li>
-                  ))}
-                </ul>
-              </div>
-            )}
-
-            <div className="flex items-center justify-between pt-2 border-t border-gray-100">
-              {role.source && (
-                <span className="text-xs text-gray-500">Source: {role.source}</span>
-              )}
-              {role.posted_date && (
-                <span className="text-xs text-gray-500">Posted: {new Date(role.posted_date).toLocaleDateString()}</span>
-              )}
+        <div className="pt-3 border-t border-gray-100 space-y-3">
+          {role.description && (
+            <div>
+              <p className="text-xs font-semibold text-gray-600 mb-1">DESCRIPTION</p>
+              <p className="text-sm text-gray-700">{role.description}</p>
             </div>
+          )}
+          
+          {role.requirements && role.requirements.length > 0 && (
+            <div>
+              <p className="text-xs font-semibold text-gray-600 mb-2">REQUIREMENTS</p>
+              <ul className="space-y-1">
+                {role.requirements.map((req, idx) => (
+                  <li key={idx} className="text-sm text-gray-700 flex items-start gap-2">
+                    <span className="text-orange-500 mt-0.5">•</span>
+                    {req}
+                  </li>
+                ))}
+              </ul>
+            </div>
+          )}
 
-            {role.source_url && (
-              <a 
-                href={role.source_url} 
-                target="_blank" 
-                rel="noopener noreferrer"
-                className="block w-full text-center py-2 px-4 bg-blue-50 text-blue-600 hover:bg-blue-100 rounded-lg text-sm font-medium transition-colors"
-              >
-                View on {role.source || 'job board'} →
-              </a>
+          {role.match_reasons && role.match_reasons.length > 0 && (
+            <div>
+              <p className="text-xs font-semibold text-gray-600 mb-2">WHY THIS MATCHES</p>
+              <ul className="space-y-1">
+                {role.match_reasons.map((reason, idx) => (
+                  <li key={idx} className="text-sm text-emerald-700 flex items-start gap-2">
+                    <span className="text-emerald-500 mt-0.5">✓</span>
+                    {reason}
+                  </li>
+                ))}
+              </ul>
+            </div>
+          )}
+
+          <div className="flex items-center justify-between pt-2 border-t border-gray-100">
+            {role.source && (
+              <span className="text-xs text-gray-500">Source: {role.source}</span>
+            )}
+            {role.posted_date && (
+              <span className="text-xs text-gray-500">Posted: {new Date(role.posted_date).toLocaleDateString()}</span>
             )}
           </div>
-        )}
-      </div>
 
-      <button
-        onClick={() => setExpanded(!expanded)}
-        className="w-full px-4 py-2 border-t border-gray-100 flex items-center justify-center text-gray-400 hover:text-gray-600 hover:bg-gray-50 transition-colors"
-      >
-        {expanded ? <ChevronUp className="w-4 h-4" /> : <ChevronDown className="w-4 h-4" />}
-      </button>
+          {role.source_url && (
+            <a 
+              href={role.source_url} 
+              target="_blank" 
+              rel="noopener noreferrer"
+              className="block w-full text-center py-2 px-4 bg-blue-50 text-blue-600 hover:bg-blue-100 rounded-lg text-sm font-medium transition-colors"
+            >
+              View on {role.source || 'job board'} →
+            </a>
+          )}
+        </div>
+      </div>
     </div>
   );
 }
