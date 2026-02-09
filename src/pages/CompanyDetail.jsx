@@ -347,9 +347,19 @@ export default function CompanyDetail() {
               roles.map(role => (
                 <div key={role.id} className="bg-white border border-gray-200 rounded-xl p-5">
                   <div className="flex items-start justify-between mb-2">
-                    <div>
+                    <div className="flex-1">
                       <h4 className="font-semibold text-gray-900">{role.title}</h4>
                       <p className="text-sm text-gray-600">{role.location || 'Remote'}</p>
+                      {role.source_url && (
+                        <a 
+                          href={role.source_url} 
+                          target="_blank" 
+                          rel="noopener noreferrer"
+                          className="text-sm text-blue-600 hover:underline mt-1 inline-block"
+                        >
+                          View on {role.source || 'job board'} →
+                        </a>
+                      )}
                     </div>
                     {role.match_score && <div className="text-sm font-bold text-orange-600">{role.match_score}%</div>}
                   </div>
