@@ -28,7 +28,9 @@ export default function CompanyDetail() {
   const [highlightedJob, setHighlightedJob] = useState(highlightJobId);
 
   useEffect(() => {
-    base44.auth.me().then(setUser).catch(() => {});
+    base44.auth.me().then(setUser).catch(() => {
+      base44.auth.redirectToLogin(window.location.href);
+    });
   }, []);
 
   useEffect(() => {
