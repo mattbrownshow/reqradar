@@ -46,6 +46,7 @@ export default function Settings() {
     min_salary: 150000,
     max_salary: 350000,
     company_sizes: [],
+    employee_counts: [],
     funding_stages: [],
     target_departments: [],
     target_seniority_levels: [],
@@ -77,6 +78,7 @@ export default function Settings() {
         min_salary: profile.min_salary || 150000,
         max_salary: profile.max_salary || 350000,
         company_sizes: profile.company_sizes || [],
+        employee_counts: profile.employee_counts || [],
         funding_stages: profile.funding_stages || [],
         target_departments: profile.target_departments || [],
         target_seniority_levels: profile.target_seniority_levels || [],
@@ -439,35 +441,68 @@ export default function Settings() {
               </div>
             </div>
 
-            {/* Company Size */}
+            {/* Company Size (Revenue Range) */}
             <div>
-              <Label className="text-base font-semibold">Company Size (Employees)</Label>
+              <Label className="text-base font-semibold">Company Size (Revenue Range)</Label>
               <p className="text-xs text-gray-500 mt-1 mb-3">Select all that apply</p>
-              <div className="grid grid-cols-2 gap-3">
+              <div className="space-y-2">
                 {[
-                  { label: "Startup", sublabel: "1-50 employees", value: "1-50" },
-                  { label: "Small", sublabel: "51-200 employees", value: "51-200" },
-                  { label: "Mid-size", sublabel: "201-1000 employees", value: "201-1000" },
-                  { label: "Enterprise", sublabel: "1000+ employees", value: "1000+" }
+                  "Startup ($1M - $10M)",
+                  "Growth ($10M - $50M)",
+                  "Mid-Market ($50M - $500M)",
+                  "Enterprise ($500M - $1B)",
+                  "Large Enterprise ($1B+)"
                 ].map(size => (
-                  <label key={size.value} className={`flex items-start gap-3 p-3 border rounded-xl cursor-pointer transition-colors ${
-                    jobSearchPrefs.company_sizes.includes(size.value) ? "border-[#F7931E] bg-[#FEF3E2]" : "border-gray-200 hover:bg-gray-50"
+                  <label key={size} className={`flex items-center gap-3 p-3 border rounded-xl cursor-pointer transition-colors ${
+                    jobSearchPrefs.company_sizes.includes(size) ? "border-[#F7931E] bg-[#FEF3E2]" : "border-gray-200 hover:bg-gray-50"
                   }`}>
                     <Checkbox
-                      checked={jobSearchPrefs.company_sizes.includes(size.value)}
+                      checked={jobSearchPrefs.company_sizes.includes(size)}
                       onCheckedChange={(checked) => {
                         setJobSearchPrefs(p => ({
                           ...p,
                           company_sizes: checked 
-                            ? [...p.company_sizes, size.value]
-                            : p.company_sizes.filter(s => s !== size.value)
+                            ? [...p.company_sizes, size]
+                            : p.company_sizes.filter(s => s !== size)
                         }));
                       }}
                     />
-                    <div>
-                      <div className="text-sm font-medium">{size.label}</div>
-                      <div className="text-xs text-gray-500">{size.sublabel}</div>
-                    </div>
+                    <span className="text-sm font-medium">{size}</span>
+                  </label>
+                ))}
+              </div>
+            </div>
+
+            {/* Employee Count */}
+            <div>
+              <Label className="text-base font-semibold">Employee Count</Label>
+              <p className="text-xs text-gray-500 mt-1 mb-3">Select all that apply</p>
+              <div className="grid grid-cols-2 gap-2">
+                {[
+                  "1-10 employees",
+                  "11-50 employees",
+                  "51-200 employees",
+                  "201-500 employees",
+                  "501-1,000 employees",
+                  "1,001-5,000 employees",
+                  "5,001-10,000 employees",
+                  "10,000+ employees"
+                ].map(count => (
+                  <label key={count} className={`flex items-center gap-3 p-3 border rounded-xl cursor-pointer transition-colors ${
+                    jobSearchPrefs.employee_counts?.includes(count) ? "border-[#F7931E] bg-[#FEF3E2]" : "border-gray-200 hover:bg-gray-50"
+                  }`}>
+                    <Checkbox
+                      checked={(jobSearchPrefs.employee_counts || []).includes(count)}
+                      onCheckedChange={(checked) => {
+                        setJobSearchPrefs(p => ({
+                          ...p,
+                          employee_counts: checked 
+                            ? [...(p.employee_counts || []), count]
+                            : (p.employee_counts || []).filter(c => c !== count)
+                        }));
+                      }}
+                    />
+                    <span className="text-sm font-medium">{count}</span>
                   </label>
                 ))}
               </div>
@@ -477,33 +512,32 @@ export default function Settings() {
             <div>
               <Label className="text-base font-semibold">Company Funding Stage</Label>
               <p className="text-xs text-gray-500 mt-1 mb-3">Optional - filter by fundraising stage</p>
-              <div className="grid grid-cols-2 sm:grid-cols-3 gap-3">
+              <div className="space-y-2">
                 {[
-                  { label: "Bootstrapped", sublabel: "Self-funded", value: "Bootstrapped" },
-                  { label: "Seed", sublabel: "Early funding", value: "Seed" },
-                  { label: "Series A", sublabel: "$2-15M", value: "Series A" },
-                  { label: "Series B", sublabel: "$15-50M", value: "Series B" },
-                  { label: "Series C+", sublabel: "$50M+", value: "Series C+" },
-                  { label: "Public", sublabel: "IPO", value: "Public" }
+                  "Pre seed",
+                  "Seed",
+                  "Series A",
+                  "Series B",
+                  "Series C",
+                  "Series D",
+                  "Series E-J",
+                  "Other"
                 ].map(stage => (
-                  <label key={stage.value} className={`flex items-start gap-3 p-3 border rounded-xl cursor-pointer transition-colors ${
-                    jobSearchPrefs.funding_stages.includes(stage.value) ? "border-[#F7931E] bg-[#FEF3E2]" : "border-gray-200 hover:bg-gray-50"
+                  <label key={stage} className={`flex items-center gap-3 p-3 border rounded-xl cursor-pointer transition-colors ${
+                    jobSearchPrefs.funding_stages.includes(stage) ? "border-[#F7931E] bg-[#FEF3E2]" : "border-gray-200 hover:bg-gray-50"
                   }`}>
                     <Checkbox
-                      checked={jobSearchPrefs.funding_stages.includes(stage.value)}
+                      checked={jobSearchPrefs.funding_stages.includes(stage)}
                       onCheckedChange={(checked) => {
                         setJobSearchPrefs(p => ({
                           ...p,
                           funding_stages: checked 
-                            ? [...p.funding_stages, stage.value]
-                            : p.funding_stages.filter(s => s !== stage.value)
+                            ? [...p.funding_stages, stage]
+                            : p.funding_stages.filter(s => s !== stage)
                         }));
                       }}
                     />
-                    <div>
-                      <div className="text-sm font-medium">{stage.label}</div>
-                      <div className="text-xs text-gray-500">{stage.sublabel}</div>
-                    </div>
+                    <span className="text-sm font-medium">{stage}</span>
                   </label>
                 ))}
               </div>
