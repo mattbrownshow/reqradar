@@ -10,7 +10,7 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Checkbox } from "@/components/ui/checkbox";
 import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
 import {
-  User, Bell, Sliders, Shield, Save, Loader2, LogOut, Briefcase, Upload, FileText, ExternalLink, ChevronRight, Trash2, Sparkles, Play, Rss, Mail
+  User, Bell, Sliders, Shield, Save, Loader2, LogOut, Briefcase, Upload, FileText, ExternalLink, ChevronRight, Trash2, Sparkles, Play, Rss, Mail, Check
 } from "lucide-react";
 import SearchableMultiSelect from "../components/shared/SearchableMultiSelect";
 import DiscoverySettings from "../components/settings/DiscoverySettings";
@@ -95,6 +95,10 @@ export default function Settings() {
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["candidateProfile"] });
       queryClient.invalidateQueries({ queryKey: ["feeds"] });
+    },
+    onError: (error) => {
+      console.error('Save failed:', error);
+      alert('Failed to save preferences. Please try again.');
     }
   });
 
@@ -604,11 +608,13 @@ export default function Settings() {
             <div className="flex justify-end pt-4 border-t">
               <Button 
                 onClick={() => saveJobSearchMutation.mutate()} 
-                disabled={saveJobSearchMutation.isPending || !profile.id}
+                disabled={saveJobSearchMutation.isPending || profilesLoading || !profile?.id}
                 className="bg-[#F7931E] hover:bg-[#E07A0A] text-white rounded-xl gap-2"
               >
                 {saveJobSearchMutation.isPending ? (
                   <><Loader2 className="w-4 h-4 animate-spin" /> Saving...</>
+                ) : saveJobSearchMutation.isSuccess ? (
+                  <><Check className="w-4 h-4" /> Saved</>
                 ) : (
                   <><Save className="w-4 h-4" /> Save Preferences</>
                 )}
