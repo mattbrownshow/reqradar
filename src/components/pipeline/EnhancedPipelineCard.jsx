@@ -2,7 +2,7 @@ import React, { useState, useEffect } from "react";
 import { base44 } from "@/api/base44Client";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { Button } from "@/components/ui/button";
-import { Building2, MapPin, DollarSign, ChevronDown, ChevronUp, Send, MessageSquare, Loader2 } from "lucide-react";
+import { Building2, MapPin, DollarSign, Send, MessageSquare } from "lucide-react";
 import DecisionMakersPanel from "./DecisionMakersPanel";
 import OutreachStatusBar from "./OutreachStatusBar";
 import ActivationSignals from "./ActivationSignals";
@@ -10,7 +10,6 @@ import { Link } from "react-router-dom";
 import { createPageUrl } from "../../utils";
 
 export default function EnhancedPipelineCard({ item, job, onStatusChange, onLaunchOutreach }) {
-  const [expanded, setExpanded] = useState(false);
   const [enrichedAt, setEnrichedAt] = useState(item.enriched_at);
   const queryClient = useQueryClient();
 
