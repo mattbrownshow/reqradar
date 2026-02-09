@@ -24,56 +24,45 @@ Deno.serve(async (req) => {
       const roles = profile.target_roles || [];
       const locations = profile.preferred_locations || [''];
       
-      for (const role of roles) {
-        for (const location of locations.slice(0, 3)) { // Limit to top 3 locations
-          const encodedRole = encodeURIComponent(role);
-          const encodedLocation = encodeURIComponent(location);
-          
+      // Create role-specific Indeed feeds (without location to get more results)
+      for (const role of roles.slice(0, 3)) { // Limit to top 3 roles
+        const encodedRole = encodeURIComponent(role);
+        
+        feeds.push({
+          feed_name: `Indeed - ${role}`,
+          feed_url: `https://www.indeed.com/rss?q=${encodedRole}&sort=date`,
+          refresh_frequency: "every_4_hours",
+          status: "active"
+        });
+        
+        // Add location-specific feed for first location only
+        if (locations.length > 0 && locations[0]) {
+          const encodedLocation = encodeURIComponent(locations[0]);
           feeds.push({
-            feed_name: `Indeed - ${role}${location ? ` in ${location}` : ''}`,
-            feed_url: `https://www.indeed.com/rss?q=${encodedRole}${location ? `&l=${encodedLocation}` : ''}&sort=date`,
+            feed_name: `Indeed - ${role} in ${locations[0]}`,
+            feed_url: `https://www.indeed.com/rss?q=${encodedRole}&l=${encodedLocation}&sort=date`,
             refresh_frequency: "every_4_hours",
             status: "active"
           });
         }
       }
       
-      // Add general remote job feeds
-      feeds.push({
-        feed_name: "We Work Remotely",
-        feed_url: "https://weworkremotely.com/remote-jobs.rss",
-        refresh_frequency: "every_4_hours",
-        status: "active"
-      });
-      
-      feeds.push({
-        feed_name: "RemoteOK - Remote Jobs",
-        feed_url: "https://remoteok.com/remote-jobs.rss",
-        refresh_frequency: "every_4_hours",
-        status: "active"
-      });
-
-      // Add public API-based job feeds
-      feeds.push({
-        feed_name: "Remotive - Remote Jobs API",
-        feed_url: "https://remotive.com/api/remote-jobs",
-        refresh_frequency: "every_4_hours",
-        status: "active"
-      });
-
-      feeds.push({
-        feed_name: "Arbeitnow - Job Board API",
-        feed_url: "https://www.arbeitnow.com/api/job-board-api",
-        refresh_frequency: "every_4_hours",
-        status: "active"
-      });
-
-      feeds.push({
-        feed_name: "The Muse - Jobs API",
-        feed_url: "https://www.themuse.com/developers/api/v2/jobs",
-        refresh_frequency: "every_4_hours",
-        status: "active"
-      });
+      // Only add remote feeds if user prefers remote work
+      if (profile.remote_preferences && profile.remote_preferences.length > 0) {
+        feeds.push({
+          feed_name: "We Work Remotely",
+          feed_url: "https://weworkremotely.com/remote-jobs.rss",
+          refresh_frequency: "every_4_hours",
+          status: "active"
+        });
+        
+        feeds.push({
+          feed_name: "RemoteOK - Remote Jobs",
+          feed_url: "https://remoteok.com/remote-jobs.rss",
+          refresh_frequency: "every_4_hours",
+          status: "active"
+        });
+      }
     } else {
       // Fallback to default executive feeds if no profile
       feeds.push(
