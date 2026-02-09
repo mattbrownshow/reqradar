@@ -86,9 +86,11 @@ export default function CandidateSetup() {
   const [step, setStep] = useState(1);
   const [isUploading, setIsUploading] = useState(false);
   const [isExtracting, setIsExtracting] = useState(false);
+  const [isAuthenticated, setIsAuthenticated] = useState(false);
 
   useEffect(() => {
     window.scrollTo(0, 0);
+    base44.auth.isAuthenticated().then(setIsAuthenticated);
   }, [step]);
 
   const [profile, setProfile] = useState({
@@ -109,11 +111,13 @@ export default function CandidateSetup() {
   const { data: user } = useQuery({
     queryKey: ["currentUser"],
     queryFn: () => base44.auth.me(),
+    enabled: isAuthenticated,
   });
 
   const { data: existingProfiles = [] } = useQuery({
     queryKey: ["candidateProfile"],
     queryFn: () => base44.entities.CandidateProfile.list("-created_date", 1),
+    enabled: isAuthenticated,
   });
 
   useEffect(() => {
