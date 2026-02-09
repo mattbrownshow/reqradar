@@ -16,6 +16,8 @@ export default function CompanyDetail() {
   const params = new URLSearchParams(window.location.search);
   const companyName = params.get("name");
   const companyIdParam = params.get("id");
+  const highlightJobId = params.get("highlightJob");
+  const source = params.get("source");
   
   const [companyId, setCompanyId] = useState(companyIdParam);
   const [enriching, setEnriching] = useState(!companyIdParam);
@@ -23,10 +25,24 @@ export default function CompanyDetail() {
   const [generatingContactId, setGeneratingContactId] = useState(null);
   const [showOutreachModal, setShowOutreachModal] = useState(false);
   const [user, setUser] = useState(null);
+  const [highlightedJob, setHighlightedJob] = useState(highlightJobId);
 
   useEffect(() => {
     base44.auth.me().then(setUser).catch(() => {});
   }, []);
+
+  useEffect(() => {
+    if (highlightJobId) {
+      setTimeout(() => {
+        const element = document.getElementById(`job-${highlightJobId}`);
+        if (element) {
+          element.scrollIntoView({ behavior: 'smooth', block: 'center' });
+        }
+      }, 500);
+      
+      setTimeout(() => setHighlightedJob(null), 3500);
+    }
+  }, [highlightJobId]);
 
   useEffect(() => {
     if (companyName && !companyId) {
@@ -169,13 +185,22 @@ export default function CompanyDetail() {
 
   return (
     <div className="min-h-screen bg-gray-50">
-      {/* Breadcrumb */}
+      {/* Back Button / Breadcrumb */}
       <div className="px-6 py-4 border-b border-gray-200 bg-white sticky top-16 z-40">
-        <div className="flex items-center gap-2 text-sm text-gray-600">
-          <Link to={createPageUrl("Discover")} className="hover:text-gray-900">Discover</Link>
-          <span>/</span>
-          <span className="text-gray-900 font-medium">{company.name}</span>
-        </div>
+        {source === "pipeline" ? (
+          <Link to={createPageUrl("Manage")}>
+            <Button variant="ghost" className="gap-2 text-gray-700 hover:text-gray-900 -ml-2">
+              <ArrowLeft className="w-4 h-4" />
+              Back to Pipeline
+            </Button>
+          </Link>
+        ) : (
+          <div className="flex items-center gap-2 text-sm text-gray-600">
+            <Link to={createPageUrl("Discover")} className="hover:text-gray-900">Discover</Link>
+            <span>/</span>
+            <span className="text-gray-900 font-medium">{company.name}</span>
+          </div>
+        )}
       </div>
 
       {/* Header with Outreach Button */}
@@ -339,13 +364,28 @@ export default function CompanyDetail() {
 
           {/* Roles Tab */}
           <TabsContent value="roles" className="space-y-3">
+            <style>{`
+              @keyframes pulse-border {
+                0%, 100% { border-color: #FF9E4D; box-shadow: 0 0 0 0 rgba(255, 158, 77, 0.4); }
+                50% { border-color: #FF9E4D; box-shadow: 0 0 0 8px rgba(255, 158, 77, 0); }
+              }
+              .highlight-job {
+                animation: pulse-border 1.5s ease-in-out 2;
+              }
+            `}</style>
             {roles.length === 0 ? (
               <div className="bg-white border border-gray-200 rounded-xl p-8 text-center text-gray-500">
                 No open roles found
               </div>
             ) : (
               roles.map(role => (
-                <div key={role.id} className="bg-white border border-gray-200 rounded-xl p-5">
+                <div 
+                  key={role.id} 
+                  id={`job-${role.id}`}
+                  className={`bg-white border border-gray-200 rounded-xl p-5 transition-all ${
+                    highlightedJob === role.id ? 'highlight-job' : ''
+                  }`}
+                >
                   <div className="flex items-start justify-between mb-2">
                     <div className="flex-1">
                       <h4 className="font-semibold text-gray-900">{role.title}</h4>

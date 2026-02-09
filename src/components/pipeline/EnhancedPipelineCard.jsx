@@ -152,7 +152,7 @@ export default function EnhancedPipelineCard({ item, job, onStatusChange, onLaun
             const companyName = job?.company_name;
             return (
               <>
-                <Link to={createPageUrl("CompanyDetail") + `?name=${encodeURIComponent(companyName)}`}>
+                <Link to={createPageUrl("CompanyDetail") + `?id=${job.company_id || ''}&name=${encodeURIComponent(companyName)}&highlightJob=${job.id}&source=pipeline`}>
                   <Button className="w-full bg-orange-600 hover:bg-orange-700 text-white rounded-lg text-sm">
                     View Company Intelligence →
                   </Button>
