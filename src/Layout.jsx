@@ -6,6 +6,11 @@ import { base44 } from "@/api/base44Client";
 
 export default function Layout({ children, currentPageName }) {
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
+  const [user, setUser] = useState(null);
+
+  React.useEffect(() => {
+    base44.auth.me().then(setUser).catch(() => {});
+  }, []);
 
   const phaseMap = {
     "Discover": 'discover',
@@ -130,7 +135,7 @@ export default function Layout({ children, currentPageName }) {
                 <Link to={createPageUrl("Settings")} className={`px-3 py-2 rounded-lg text-sm ${currentPageName === "Settings" ? "text-gray-900 font-semibold" : "text-gray-600 hover:text-gray-900"}`}>
                   Settings
                 </Link>
-                <button onClick={async () => await base44.auth.logout()} className="flex items-center gap-1.5 px-3 py-2 rounded-lg text-sm text-gray-600 hover:text-gray-900 cursor-pointer">
+                <button onClick={async () => await base44.auth.logout()} title={user?.email || ''} className="flex items-center gap-1.5 px-3 py-2 rounded-lg text-sm text-gray-600 hover:text-gray-900 cursor-pointer">
                   <LogOut className="w-4 h-4" /> Logout
                 </button>
               </div>
@@ -156,7 +161,7 @@ export default function Layout({ children, currentPageName }) {
                 <Link to={createPageUrl("Outreach")} onClick={() => setMobileMenuOpen(false)} className="block px-3 py-2 rounded-lg text-sm font-medium text-gray-600 hover:bg-gray-50">Outreach</Link>
                 <Link to={createPageUrl("Analytics")} onClick={() => setMobileMenuOpen(false)} className="block px-3 py-2 rounded-lg text-sm font-medium text-gray-600 hover:bg-gray-50">Analytics</Link>
                 <Link to={createPageUrl("Settings")} onClick={() => setMobileMenuOpen(false)} className="block px-3 py-2 rounded-lg text-sm font-medium text-gray-600 hover:bg-gray-50">Settings</Link>
-                <button onClick={async () => await base44.auth.logout()} className="flex items-center gap-1.5 px-3 py-2 rounded-lg text-sm font-medium text-gray-600 hover:bg-gray-50 cursor-pointer w-full text-left">
+                <button onClick={async () => await base44.auth.logout()} title={user?.email || ''} className="flex items-center gap-1.5 px-3 py-2 rounded-lg text-sm font-medium text-gray-600 hover:bg-gray-50 cursor-pointer w-full text-left">
                   <LogOut className="w-4 h-4" /> Logout
                 </button>
               </div>
