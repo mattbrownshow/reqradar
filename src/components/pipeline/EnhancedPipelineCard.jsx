@@ -98,14 +98,7 @@ export default function EnhancedPipelineCard({ item, job, onStatusChange, onLaun
           </div>
         </div>
 
-        {/* Activation Signals */}
-        <ActivationSignals 
-          stage={item.stage}
-          contacts={contacts}
-          outreach={sortedOutreach}
-          item={item}
-          enrichedAt={enrichedAt}
-        />
+
 
         {/* Timeline & Status */}
         <div className="space-y-1.5">
