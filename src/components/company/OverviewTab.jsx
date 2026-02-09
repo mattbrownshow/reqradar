@@ -91,9 +91,9 @@ function RoleCard({ role }) {
               href={role.source_url} 
               target="_blank" 
               rel="noopener noreferrer"
-              className="block w-full text-center py-2 px-4 bg-blue-50 text-blue-600 hover:bg-blue-100 rounded-lg text-sm font-medium transition-colors"
+              className="block w-full text-center py-2.5 px-4 bg-orange-600 hover:bg-orange-700 text-white rounded-lg text-sm font-semibold transition-colors"
             >
-              View on {role.source || 'job board'} →
+              View Job →
             </a>
           )}
         </div>
