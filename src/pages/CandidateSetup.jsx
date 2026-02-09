@@ -142,7 +142,7 @@ export default function CandidateSetup() {
   useEffect(() => {
     if (profiles.length > 0) {
       const p = profiles[0];
-      setProfile(prev => ({ ...prev, ...p }));
+      setProfile(p);
     } else if (user) {
       // Pre-populate name and email from auth
       setProfile(prev => ({
@@ -151,7 +151,7 @@ export default function CandidateSetup() {
         email: user.email || ''
       }));
     }
-  }, [profiles, user]);
+  }, [profiles.length, user?.email]);
 
   const saveMutation = useMutation({
     mutationFn: async (data) => {
