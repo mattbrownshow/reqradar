@@ -88,7 +88,7 @@ export default function CompanyDetail() {
   const { data: company, isLoading, error } = useQuery({
     queryKey: ["company", companyId],
     queryFn: () => base44.entities.Company.get(companyId),
-    enabled: !!companyId,
+    enabled: !!companyId && !!user,
   });
 
   const { data: contacts = [] } = useQuery({
@@ -102,7 +102,7 @@ export default function CompanyDetail() {
       }
       return [];
     },
-    enabled: !!companyId || !!companyName,
+    enabled: (!!companyId || !!companyName) && !!user,
   });
 
   // Fetch pipeline items for this company
@@ -116,7 +116,7 @@ export default function CompanyDetail() {
         ['saved', 'researching', 'intel_gathering', 'outreach_active', 'interviewing'].includes(item.stage)
       );
     },
-    enabled: !!companyId,
+    enabled: !!companyId && !!user,
   });
 
   // Fetch the actual job details for each pipeline item
