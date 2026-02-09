@@ -103,18 +103,50 @@ export default function CompanyDetail() {
     enabled: !!companyId || !!companyName,
   });
 
-  const { data: roles = [] } = useQuery({
-    queryKey: ["roles", companyId, companyName],
+  // Fetch pipeline items for this company
+  const { data: pipelineItems = [] } = useQuery({
+    queryKey: ["pipelineItems", companyId],
     queryFn: async () => {
-      if (companyId) {
-        return base44.entities.OpenRole.filter({ company_id: companyId });
-      } else if (companyName) {
-        const decodedName = decodeURIComponent(companyName);
-        return base44.entities.OpenRole.filter({ company_name: decodedName });
-      }
-      return [];
+      if (!companyId) return [];
+      const items = await base44.entities.JobPipeline.filter({ company_id: companyId });
+      // Filter for active pipeline stages only
+      return items.filter(item => 
+        ['saved', 'researching', 'intel_gathering', 'outreach_active', 'interviewing'].includes(item.stage)
+      );
     },
-    enabled: !!companyId || !!companyName,
+    enabled: !!companyId,
+  });
+
+  // Fetch the actual job details for each pipeline item
+  const { data: roles = [] } = useQuery({
+    queryKey: ["pipelineJobs", pipelineItems.map(p => p.job_id).join(',')],
+    queryFn: async () => {
+      if (pipelineItems.length === 0) return [];
+      
+      const jobPromises = pipelineItems.map(async (item) => {
+        try {
+          const job = await base44.entities.OpenRole.get(item.job_id);
+          return { ...job, pipeline_stage: item.stage, pipeline_priority: item.priority };
+        } catch (error) {
+          console.error(`Failed to fetch job ${item.job_id}:`, error);
+          return null;
+        }
+      });
+      
+      const jobs = await Promise.all(jobPromises);
+      return jobs.filter(job => job !== null).sort((a, b) => {
+        // Sort by pipeline stage priority, then by posted date
+        const stageOrder = { 'outreach_active': 1, 'intel_gathering': 2, 'researching': 3, 'saved': 4, 'interviewing': 0 };
+        const stageDiff = (stageOrder[a.pipeline_stage] || 99) - (stageOrder[b.pipeline_stage] || 99);
+        if (stageDiff !== 0) return stageDiff;
+        
+        // Then sort by posted date (newest first)
+        const dateA = new Date(a.posted_date || a.created_date);
+        const dateB = new Date(b.posted_date || b.created_date);
+        return dateB - dateA;
+      });
+    },
+    enabled: pipelineItems.length > 0,
   });
 
   const handleGenerateMessage = async (contact) => {

@@ -2,99 +2,101 @@ import React from 'react';
 import { Building2, Users, MapPin, Calendar, TrendingUp, DollarSign, Briefcase } from 'lucide-react';
 
 function RoleCard({ role }) {
-  return (
-    <div className="bg-white border-2 border-gray-200 rounded-xl hover:shadow-lg hover:border-orange-200 transition-all overflow-hidden">
-      <div className="p-5 space-y-3">
-        <div className="flex items-start justify-between gap-3">
-          <div className="flex-1">
-            <h3 className="font-bold text-gray-900 text-lg mb-1">{role.title}</h3>
-            <div className="flex items-center gap-2 text-sm text-gray-600">
-              <Building2 className="w-4 h-4" />
-              <span>{role.company_name}</span>
-            </div>
-          </div>
-          {role.match_score && (
-            <div className="px-3 py-1.5 bg-orange-50 text-orange-700 rounded-lg text-sm font-bold shrink-0">
-              {Math.round(role.match_score)}%
-            </div>
-          )}
-        </div>
+  const [expanded, setExpanded] = React.useState(false);
+  
+  const daysAgo = role.posted_date 
+    ? Math.floor((new Date() - new Date(role.posted_date)) / (1000 * 60 * 60 * 24))
+    : null;
 
-        <div className="flex flex-wrap gap-x-4 gap-y-2 text-sm text-gray-600">
+  const truncatedDescription = role.description && role.description.length > 300
+    ? role.description.substring(0, 300) + '...'
+    : role.description;
+
+  const stageBadgeStyle = {
+    'saved': 'bg-blue-600 text-white',
+    'researching': 'bg-blue-600 text-white',
+    'intel_gathering': 'bg-purple-600 text-white',
+    'outreach_active': 'bg-orange-600 text-white',
+    'interviewing': 'bg-green-600 text-white'
+  };
+
+  const stageLabel = {
+    'saved': 'Saved',
+    'researching': 'Researching',
+    'intel_gathering': 'Intel Gathering',
+    'outreach_active': 'Outreach Active',
+    'interviewing': 'Interviewing'
+  };
+
+  return (
+    <div className="bg-white border border-gray-200 rounded-lg hover:shadow-md transition-all p-6">
+      <div className="space-y-4">
+        {/* Title */}
+        <h3 className="font-bold text-gray-900 text-xl">{role.title}</h3>
+
+        {/* Meta Info */}
+        <div className="flex flex-wrap items-center gap-x-3 gap-y-1 text-sm text-gray-600">
           {role.location && (
             <span className="flex items-center gap-1.5">
               <MapPin className="w-4 h-4" />
               {role.location}
             </span>
           )}
-          {(role.salary_min || role.salary_max) && (
-            <span className="flex items-center gap-1.5 font-medium">
-              <DollarSign className="w-4 h-4" />
-              ${(role.salary_min / 1000).toFixed(0)}K - ${(role.salary_max / 1000).toFixed(0)}K
-            </span>
-          )}
-          {role.work_type && (
-            <span className="flex items-center gap-1.5">
-              <Briefcase className="w-4 h-4" />
-              {role.work_type}
-            </span>
-          )}
+          {role.work_type && <span>• {role.work_type}</span>}
+          {daysAgo !== null && <span>• Posted {daysAgo} days ago</span>}
         </div>
 
-        <div className="pt-3 border-t border-gray-100 space-y-3">
-          {role.description && (
-            <div>
-              <p className="text-xs font-semibold text-gray-600 mb-1">DESCRIPTION</p>
-              <p className="text-sm text-gray-700">{role.description}</p>
-            </div>
-          )}
-          
-          {role.requirements && role.requirements.length > 0 && (
-            <div>
-              <p className="text-xs font-semibold text-gray-600 mb-2">REQUIREMENTS</p>
-              <ul className="space-y-1">
-                {role.requirements.map((req, idx) => (
-                  <li key={idx} className="text-sm text-gray-700 flex items-start gap-2">
-                    <span className="text-orange-500 mt-0.5">•</span>
-                    {req}
-                  </li>
-                ))}
-              </ul>
-            </div>
-          )}
-
-          {role.match_reasons && role.match_reasons.length > 0 && (
-            <div>
-              <p className="text-xs font-semibold text-gray-600 mb-2">WHY THIS MATCHES</p>
-              <ul className="space-y-1">
-                {role.match_reasons.map((reason, idx) => (
-                  <li key={idx} className="text-sm text-emerald-700 flex items-start gap-2">
-                    <span className="text-emerald-500 mt-0.5">✓</span>
-                    {reason}
-                  </li>
-                ))}
-              </ul>
-            </div>
-          )}
-
-          <div className="flex items-center justify-between pt-2 border-t border-gray-100">
-            {role.source && (
-              <span className="text-xs text-gray-500">Source: {role.source}</span>
-            )}
-            {role.posted_date && (
-              <span className="text-xs text-gray-500">Posted: {new Date(role.posted_date).toLocaleDateString()}</span>
+        {/* Description */}
+        {role.description && (
+          <div>
+            <p className="text-gray-700 leading-relaxed">
+              {expanded ? role.description : truncatedDescription}
+            </p>
+            {role.description.length > 300 && (
+              <button 
+                onClick={() => setExpanded(!expanded)}
+                className="text-orange-600 hover:text-orange-700 text-sm font-medium mt-1"
+              >
+                {expanded ? 'Show less' : 'Read more'}
+              </button>
             )}
           </div>
+        )}
 
+        {/* Requirements */}
+        {role.requirements && role.requirements.length > 0 && (
+          <div>
+            <p className="font-semibold text-gray-900 mb-2">Requirements:</p>
+            <ul className="space-y-1">
+              {role.requirements.slice(0, 3).map((req, idx) => (
+                <li key={idx} className="text-gray-700 flex items-start gap-2">
+                  <span className="text-orange-600 mt-1">•</span>
+                  <span>{req}</span>
+                </li>
+              ))}
+            </ul>
+            {role.requirements.length > 3 && (
+              <p className="text-sm text-gray-500 mt-2">+ {role.requirements.length - 3} more</p>
+            )}
+          </div>
+        )}
+
+        {/* Actions */}
+        <div className="flex items-center gap-3 pt-4 border-t border-gray-100">
           {role.source_url && (
             <a 
               href={role.source_url} 
               target="_blank" 
               rel="noopener noreferrer"
-              className="block w-full text-center py-2.5 px-4 bg-orange-600 hover:bg-orange-700 text-white rounded-lg text-sm font-semibold transition-colors"
+              className="flex-1 text-center py-2.5 px-4 bg-orange-600 hover:bg-orange-700 text-white rounded-lg font-semibold transition-colors"
             >
               View Job →
             </a>
+          )}
+          {role.pipeline_stage && (
+            <div className={`px-3 py-2 rounded-full text-sm font-semibold ${stageBadgeStyle[role.pipeline_stage] || 'bg-gray-600 text-white'}`}>
+              Pipeline: {stageLabel[role.pipeline_stage] || role.pipeline_stage}
+            </div>
           )}
         </div>
       </div>
@@ -105,13 +107,14 @@ function RoleCard({ role }) {
 export default function OverviewTab({ company, roles }) {
   return (
     <div className="space-y-6">
-      {/* Active Roles Section */}
+      {/* Active Opportunities Section */}
       <div>
         <h2 className="text-2xl font-bold text-gray-900 mb-4">Active Opportunities ({roles.length})</h2>
         
         {roles.length === 0 ? (
-          <div className="bg-gray-50 border border-gray-200 rounded-xl p-8 text-center">
-            <p className="text-gray-600">No active roles saved for this company</p>
+          <div className="bg-white border border-gray-200 rounded-xl p-8 text-center">
+            <p className="text-gray-600 mb-2">No active roles saved for this company</p>
+            <p className="text-sm text-gray-500">Jobs you save to your pipeline will appear here</p>
           </div>
         ) : (
           <div className="space-y-4">
