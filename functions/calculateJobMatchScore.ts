@@ -129,48 +129,61 @@ function matchesLocation(jobLocation, preferredLocations, isRemote, userRemotePr
 // Calculate match score
 function calculateMatchScore(job, userProfile) {
   if (!userProfile || !userProfile.target_roles || userProfile.target_roles.length === 0) {
-    return 0;
+    return { score: 0, matches: false, reasons: [] };
   }
   
-  // Role match is required
+  let totalScore = 0;
+  const matchReasons = [];
+
+  // Role match is REQUIRED - this is the only hard requirement
   const roleMatch = matchesRole(job.title, userProfile.target_roles);
   if (!roleMatch.matches) {
-    return 0;
+    return { score: 0, matches: false, reasons: [] };
   }
   
-  // Industry match is required (if industries are specified)
-  let industryScore = 0;
+  // Role matched - start with base score
+  totalScore += roleMatch.score;
+  if (roleMatch.score === 50) matchReasons.push("Exact role match");
+  else if (roleMatch.score === 48) matchReasons.push("Close role match");
+  else matchReasons.push("Role keyword match");
+  
+  // Industry match is OPTIONAL - adds to score but not required
   if (userProfile.industries && userProfile.industries.length > 0) {
     const industryMatch = matchesIndustry(job.industry, userProfile.industries);
-    if (!industryMatch.matches) {
-      return 0;
+    if (industryMatch.matches) {
+      totalScore += industryMatch.score;
+      matchReasons.push("Industry match");
     }
-    industryScore = industryMatch.score;
   }
-  
-  // Location match is required (or remote OK)
-  const locationMatch = matchesLocation(job.location, userProfile.preferred_locations, job.remote, userProfile.remote_preferences && userProfile.remote_preferences.includes('Fully Remote'));
-  if (!locationMatch.matches) {
-    return 0;
+
+  // Location match is OPTIONAL - adds to score but not required
+  const isRemotePreferred = userProfile.remote_preferences && userProfile.remote_preferences.includes('Fully Remote');
+  const locationMatch = matchesLocation(job.location, userProfile.preferred_locations, job.remote, isRemotePreferred);
+  if (locationMatch.matches) {
+    totalScore += locationMatch.score;
+    matchReasons.push("Location match");
   }
+
+  // Ensure minimum score for any role match
+  const finalScore = Math.max(totalScore + 10, 35); // Min 35% for role-only match
   
-  // Only jobs matching ALL criteria get scored
-  // Role score is now 48-50 for exact matches, industry 0-20, location 15-20, base 10
-  // Exact role match with location = 48 + 20 + 10 = 78 minimum
-  // Exact role + industry + location = 48 + 20 + 20 + 10 = 98 (near perfect)
-  const totalScore = roleMatch.score + industryScore + locationMatch.score + 10;
-  return Math.min(totalScore, 100);
+  return {
+    score: Math.min(finalScore, 100),
+    matches: true, // All role matches are considered matches
+    reasons: matchReasons
+  };
 }
 
 Deno.serve(async (req) => {
   try {
     const { job, userProfile } = await req.json();
     
-    const score = calculateMatchScore(job, userProfile);
+    const result = calculateMatchScore(job, userProfile);
     
     return Response.json({
-      match_score: score,
-      matches: score >= 50
+      match_score: result.score,
+      matches: result.matches,
+      match_reasons: result.reasons
     });
   } catch (error) {
     console.error('Match score calculation error:', error);

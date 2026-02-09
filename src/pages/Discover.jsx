@@ -148,12 +148,12 @@ export default function Discover() {
   const weekAgo = new Date();
   weekAgo.setDate(weekAgo.getDate() - 7);
 
-  // Only show jobs with 50%+ match (filtering happens on backend)
-  const allOpportunities = allRoles.filter(r => r.status !== "not_interested" && r.match_score >= 50);
+  // Show all role matches (backend already filters by role)
+  const allOpportunities = allRoles.filter(r => r.status !== "not_interested");
   const highMatchOpportunities = allOpportunities.filter(r => r.match_score >= 88);
   const newThisWeek = allOpportunities.filter(r => {
     const createdDate = new Date(r.created_date);
-    return createdDate >= weekAgo && r.match_score >= 50;
+    return createdDate >= weekAgo;
   });
 
   const currentOpportunities = activeTab === "all" ? allOpportunities
@@ -260,63 +260,29 @@ export default function Discover() {
           >
             New This Week ({newThisWeek.length})
           </button>
-          <button
-            className={`discover-tab ${activeTab === "companies" ? "active" : ""}`}
-            onClick={() => setActiveTab("companies")}
-          >
-            Target Companies ({companies.length})
-          </button>
+
         </div>
 
         {/* Tab Content */}
-        {activeTab !== "companies" && (
-          <OpportunitiesTabContent
-            opportunities={currentOpportunities}
-            loading={rolesLoading}
-            emptyMessage={
-              activeTab === "all"
-                ? "No opportunities discovered yet"
-                : activeTab === "high-match"
-                ? "No high-match opportunities yet"
-                : "No new opportunities this week"
-            }
-            emptyDescription={
-              activeTab === "all"
-                ? "Every night, we scan thousands of companies matching your target profile. Check back tomorrow for fresh recommendations."
-                : activeTab === "high-match"
-                ? "High-match roles will appear here when discovery finds 88%+ alignment."
-                : "We're monitoring sources daily. New matches will appear here automatically."
-            }
-            profile={profile}
-          />
-        )}
-
-        {activeTab === "companies" && (
-          <TargetCompaniesTabContent
-            companies={filteredCompanies}
-            searchTerm={searchTerm}
-            setSearchTerm={setSearchTerm}
-            industryFilter={industryFilter}
-            setIndustryFilter={setIndustryFilter}
-            industries={industries}
-            viewMode={viewMode}
-            setViewMode={setViewMode}
-            profile={profile}
-            isSearching={isSearching}
-            discoveryResults={discoveryResults}
-            showDiscoveryResults={showDiscoveryResults}
-            setShowDiscoveryResults={setShowDiscoveryResults}
-            handleDiscoverCompanies={handleDiscoverCompanies}
-            handleAddToTargetList={handleAddToTargetList}
-            handleRemoveFromTarget={handleRemoveFromTarget}
-            selectedIndustries={selectedIndustries}
-            setSelectedIndustries={setSelectedIndustries}
-            selectedSizes={selectedSizes}
-            setSelectedSizes={setSelectedSizes}
-            selectedFunding={selectedFunding}
-            setSelectedFunding={setSelectedFunding}
-          />
-        )}
+        <OpportunitiesTabContent
+          opportunities={currentOpportunities}
+          loading={rolesLoading}
+          emptyMessage={
+            activeTab === "all"
+              ? "No opportunities discovered yet"
+              : activeTab === "high-match"
+              ? "No high-match opportunities yet"
+              : "No new opportunities this week"
+          }
+          emptyDescription={
+            activeTab === "all"
+              ? "Run discovery to scan job boards and RSS feeds for roles matching your target profile."
+              : activeTab === "high-match"
+              ? "High-match roles will appear here when discovery finds 88%+ alignment."
+              : "We're monitoring sources daily. New matches will appear here automatically."
+          }
+          profile={profile}
+        />
       </div>
     </div>
   );
