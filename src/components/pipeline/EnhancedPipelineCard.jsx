@@ -171,14 +171,14 @@ export default function EnhancedPipelineCard({ item, job, onStatusChange, onLaun
                   <Button
                     size="sm"
                     variant="outline"
-                    className="w-full text-xs rounded-lg"
+                    className="w-full text-xs rounded-lg text-red-600 border-red-300 hover:bg-red-50"
                     onClick={() => {
-                      const newStatus = item.stage === "interviewing" ? "offer" : 
-                                       item.stage === "applied" ? "interviewing" : "applied";
-                      onStatusChange(item.id, newStatus);
+                      if (confirm('Remove this opportunity from your pipeline?')) {
+                        onStatusChange(item.id, 'closed');
+                      }
                     }}
                   >
-                    Update Status
+                    Remove from Pipeline
                   </Button>
                 </>
               );
