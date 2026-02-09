@@ -5,11 +5,18 @@ Deno.serve(async (req) => {
     const base44 = createClientFromRequest(req);
 
     const payload = await req.json();
-    const { job_id, pipeline_id, company_id, company_name, company_domain } = payload;
+    
+    // Handle automation payload format
+    const isAutomation = payload.event && payload.data;
+    const job_id = isAutomation ? payload.data.job_id : payload.job_id;
+    const pipeline_id = isAutomation ? payload.data.id : payload.pipeline_id;
+    const company_id = isAutomation ? payload.data.company_id : payload.company_id;
+    const company_name = payload.company_name;
+    const company_domain = payload.company_domain;
 
-    if (!job_id || !pipeline_id) {
+    if (!job_id) {
       console.error('Invalid enrichment payload:', payload);
-      return Response.json({ error: 'Missing job_id or pipeline_id' }, { status: 400 });
+      return Response.json({ error: 'Missing job_id' }, { status: 400 });
     }
 
     // Check for existing contacts
