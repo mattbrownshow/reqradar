@@ -64,6 +64,24 @@ const AVAILABILITY_OPTIONS = [
   "4 weeks notice required", "6-8 weeks notice required", "Flexible timing"
 ];
 
+const ROLES_DB = {
+  'C-Suite': [
+    'Chief Executive Officer (CEO)', 'Chief Financial Officer (CFO)',
+    'Chief Technology Officer (CTO)', 'Chief Operating Officer (COO)',
+    'Chief Marketing Officer (CMO)', 'Chief Information Officer (CIO)',
+    'Chief Human Resources Officer (CHRO)', 'Chief Product Officer (CPO)',
+    'Chief Revenue Officer (CRO)', 'Chief Data Officer (CDO)'
+  ],
+  'VP Level': [
+    'VP of Finance', 'VP of Engineering', 'VP of Sales',
+    'VP of Marketing', 'VP of Operations', 'VP of Product'
+  ],
+  'Director Level': [
+    'Director of Finance', 'Director of Engineering',
+    'Director of Operations', 'Director of Marketing'
+  ]
+};
+
 const US_CITIES = [
   "New York, NY", "Los Angeles, CA", "San Francisco, CA", "Chicago, IL",
   "Houston, TX", "Phoenix, AZ", "Philadelphia, PA", "San Antonio, TX",
@@ -105,8 +123,7 @@ export default function CandidateSetup() {
     industries: [], funding_stages: [], setup_complete: false
   });
 
-  const [locationInput, setLocationInput] = useState("");
-  const [roleInput, setRoleInput] = useState("");
+
 
   const { data: user } = useQuery({
     queryKey: ["currentUser"],
@@ -230,13 +247,6 @@ export default function CandidateSetup() {
     saveMutation.mutate(profile);
   };
 
-  const addToList = (key, value, setInput) => {
-    if (value.trim() && !(profile[key] || []).includes(value.trim())) {
-      setProfile(prev => ({ ...prev, [key]: [...(prev[key] || []), value.trim()] }));
-      setInput("");
-    }
-  };
-
   const removeFromList = (key, value) => {
     setProfile(prev => ({ ...prev, [key]: prev[key].filter(v => v !== value) }));
   };
@@ -323,18 +333,16 @@ export default function CandidateSetup() {
                 {/* Target Roles */}
                 <div>
                   <Label>Target Executive Roles</Label>
-                  <div className="flex gap-2 mt-1.5">
-                    <Input value={roleInput} onChange={e => setRoleInput(e.target.value)} onKeyDown={e => e.key === "Enter" && (e.preventDefault(), addToList("target_roles", roleInput, setRoleInput))} className="rounded-xl" placeholder="e.g., Chief Financial Officer (CFO)" />
-                    <Button type="button" onClick={() => addToList("target_roles", roleInput, setRoleInput)} variant="outline" className="rounded-xl shrink-0">Add</Button>
-                  </div>
-                  <div className="flex flex-wrap gap-2 mt-3">
-                    {(profile.target_roles || []).map(role => (
-                      <Badge key={role} variant="secondary" className="bg-orange-50 text-[#F7931E] rounded-lg py-1 px-3 gap-1">
-                        {role}
-                        <X className="w-3 h-3 cursor-pointer" onClick={() => removeFromList("target_roles", role)} />
-                      </Badge>
-                    ))}
-                  </div>
+                  <p className="text-xs text-gray-500 mt-1 mb-3">Search or add custom roles</p>
+                  <SearchableMultiSelect
+                    items={[]}
+                    groupedBy={ROLES_DB}
+                    selected={profile.target_roles || []}
+                    onSelect={(role) => setProfile(p => ({ ...p, target_roles: [...(p.target_roles || []), role] }))}
+                    onRemove={(role) => removeFromList("target_roles", role)}
+                    placeholder="Search roles (e.g., CFO, CTO, VP Finance)..."
+                    allowCustom={true}
+                  />
                 </div>
             </div>
           )}
