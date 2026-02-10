@@ -142,25 +142,54 @@ Deno.serve(async (req) => {
         let rssJobsTotal = 0;
         for (const feed of activeFeeds) {
           try {
-            console.log(`Fetching: ${feed.feed_name}`);
+            console.log(`Fetching: ${feed.feed_name} (${feed.feed_url})`);
             const response = await fetch(feed.feed_url, {
-              headers: { 'User-Agent': 'Mozilla/5.0 (compatible; ReqRadar/1.0)' }
+              headers: { 
+                'User-Agent': 'Mozilla/5.0 (compatible; ReqRadar/1.0)',
+                'Accept': 'application/rss+xml, application/xml, text/xml, */*'
+              }
             });
             
             if (response.ok) {
+              const contentType = response.headers.get('content-type') || '';
+              console.log(`Response content-type: ${contentType}`);
+              
               const feedContent = await response.text();
+              console.log(`Received ${feedContent.length} characters`);
+              
+              // Check if it's actually XML/RSS
+              if (!feedContent.includes('<rss') && !feedContent.includes('<feed')) {
+                console.error(`Invalid RSS feed format for ${feed.feed_name}`);
+                await base44.asServiceRole.entities.RSSFeed.update(feed.id, {
+                  status: 'error',
+                  last_updated: new Date().toISOString()
+                });
+                continue;
+              }
+              
               const jobs = parseRSSFeed(feedContent, feed.feed_name, targetRoles);
+              console.log(`Parsed ${jobs.length} jobs from ${feed.feed_name}`);
+              
               const newJobs = jobs.filter(j => !existingUrls.has(j.source_url));
               
               if (newJobs.length > 0) {
                 await base44.asServiceRole.entities.OpenRole.bulkCreate(newJobs);
                 rssJobsTotal += newJobs.length;
-                console.log(`Created ${newJobs.length} jobs from ${feed.feed_name}`);
+                console.log(`Created ${newJobs.length} new jobs from ${feed.feed_name}`);
+              } else {
+                console.log(`No new jobs from ${feed.feed_name} (all duplicates)`);
               }
               
               // Update feed stats
               await base44.asServiceRole.entities.RSSFeed.update(feed.id, {
                 jobs_found: (feed.jobs_found || 0) + newJobs.length,
+                last_updated: new Date().toISOString(),
+                status: 'active'
+              });
+            } else {
+              console.error(`HTTP ${response.status} for ${feed.feed_name}`);
+              await base44.asServiceRole.entities.RSSFeed.update(feed.id, {
+                status: 'error',
                 last_updated: new Date().toISOString()
               });
             }
@@ -172,12 +201,15 @@ Deno.serve(async (req) => {
             });
           }
         }
+        results.rss.found = rssJobsTotal;
         results.rss.created = rssJobsTotal;
         totalJobsCreated += rssJobsTotal;
       } catch (error) {
         results.rss.error = error.message;
         console.error('RSS feeds error:', error.message);
       }
+    } else {
+      console.log('No active RSS feeds configured');
     }
     
     // STEP 7: Count unique companies
