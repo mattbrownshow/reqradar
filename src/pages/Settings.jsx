@@ -94,7 +94,7 @@ export default function Settings() {
     onSuccess: (result) => {
       setShowResetConfirm(false);
       if (result.success) {
-        alert(`Reset complete!\n\nDeleted:\n- ${result.deleted.openRoles} jobs\n- ${result.deleted.companies} companies\n- ${result.deleted.contacts} contacts\n\nPreserved:\n- ${result.preserved.profiles} profiles\n- ${result.preserved.rssFeeds} RSS feeds`);
+        alert(`Reset complete!\n\nDeleted:\n- ${result.deleted.openRoles} jobs\n- ${result.deleted.companies} companies\n- ${result.deleted.contacts} contacts\n\nCreated:\n- ${result.created.rssFeeds} RSS feeds`);
         // Refresh data
         queryClient.invalidateQueries();
         window.location.href = createPageUrl("Dashboard");
