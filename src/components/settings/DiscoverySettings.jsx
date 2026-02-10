@@ -198,6 +198,15 @@ export default function DiscoverySettings() {
     queryFn: () => base44.entities.RSSFeed.list("-created_date"),
   });
 
+  // Auto-create default feeds if none exist
+  React.useEffect(() => {
+    if (!feedsLoading && feeds.length === 0) {
+      base44.functions.invoke("createDefaultFeeds", {})
+        .then(() => queryClient.invalidateQueries({ queryKey: ["feeds"] }))
+        .catch(err => console.error("Failed to create default feeds:", err));
+    }
+  }, [feedsLoading, feeds.length]);
+
   // Sort by created date descending
   const sortedFeeds = feeds.sort((a, b) => new Date(b.created_date) - new Date(a.created_date));
 
