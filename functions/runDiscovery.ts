@@ -25,9 +25,14 @@ Deno.serve(async (req) => {
     
     // STEP 1: Get user's target roles
     const allProfiles = await base44.asServiceRole.entities.CandidateProfile.list('-created_date', 100);
-    const profile = allProfiles.find(p => p.created_by === user.email);
+    let profile = allProfiles.find(p => p.created_by === user.email && p.data?.setup_complete === true);
     
-    if (!profile || !profile.target_roles || profile.target_roles.length === 0) {
+    // Fallback: if no setup_complete profile found, try any profile by this user
+    if (!profile) {
+      profile = allProfiles.find(p => p.created_by === user.email);
+    }
+    
+    if (!profile || !profile.data?.target_roles || profile.data.target_roles.length === 0) {
       await base44.asServiceRole.entities.DiscoveryRun.update(runRecord.id, {
         status: 'failed',
         error_message: 'No target roles configured',
@@ -40,7 +45,7 @@ Deno.serve(async (req) => {
       });
     }
     
-    const targetRoles = profile.target_roles;
+    const targetRoles = profile.data.target_roles;
     console.log(`Target roles: ${targetRoles.join(', ')}`);
     
     // STEP 2: Get existing jobs to avoid duplicates
