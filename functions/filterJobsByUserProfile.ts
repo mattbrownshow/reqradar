@@ -13,13 +13,23 @@ Deno.serve(async (req) => {
     const profiles = await base44.entities.CandidateProfile.filter({ 
       created_by: user.email 
     });
-    const userProfile = profiles[0];
+    const userProfile = profiles?.[0];
     
     if (!userProfile || !userProfile.target_roles || userProfile.target_roles.length === 0) {
+      // Return empty but valid response
       return Response.json({ 
-        success: false,
-        error: 'User profile not configured',
-        jobs: []
+        success: true,
+        total: 0,
+        highMatch: 0,
+        mediumMatch: 0,
+        lowMatch: 0,
+        jobs: [],
+        categorized: {
+          highMatch: [],
+          mediumMatch: [],
+          lowMatch: [],
+          all: []
+        }
       });
     }
 
