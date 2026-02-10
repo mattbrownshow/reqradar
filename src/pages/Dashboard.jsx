@@ -84,13 +84,15 @@ export default function Dashboard() {
   });
 
   const runDiscoveryMutation = useMutation({
-    mutationFn: () => base44.functions.invoke("runDailyDiscovery", {}),
+    mutationFn: () => base44.functions.invoke("runDiscovery", {}),
     onMutate: () => {
       setDiscoveryMessage(`Searching ${activeMonitors} data feeds... This may take a few minutes.`);
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["openRoles"] });
       queryClient.invalidateQueries({ queryKey: ["activities"] });
+      queryClient.invalidateQueries({ queryKey: ["discoveryRuns"] });
+      queryClient.invalidateQueries({ queryKey: ["rssFeeds"] });
       setDiscoveryMessage("✓ Discovery complete!");
       setTimeout(() => setDiscoveryMessage(""), 3000);
     },
