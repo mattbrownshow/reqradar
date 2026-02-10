@@ -12,7 +12,7 @@ export default function CompanyHeader({ company, enriching }) {
           {company.logo_url ? (
             <img src={company.logo_url} alt={company.name} className="w-full h-full object-cover rounded-2xl" />
           ) : (
-            company.name[0]
+            company.name?.[0] || '?'
           )}
         </div>
 
