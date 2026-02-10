@@ -210,6 +210,12 @@ export default function Dashboard() {
   // Dynamic action cards - reordered by opportunity progression
   let primaryCard, secondaryCard, tertiaryCard;
   
+  // Count unique companies from all jobs
+  const uniqueCompaniesCount = new Set(openRoles.map(j => j.company_name)).size;
+  
+  // Count active sources (APIs + RSS feeds)
+  const activeSources = activeMonitors;
+  
   // Primary: New opportunities discovered
   primaryCard = {
     icon: Search,
@@ -223,7 +229,7 @@ export default function Dashboard() {
   const contactsCount = outreach.length; // Total contacts mapped
   secondaryCard = {
     icon: BarChart3,
-    title: `${applicationsInProgress} ${applicationsInProgress === 1 ? 'opportunity' : 'opportunities'} in active pursuit`,
+    title: `${uniqueCompaniesCount} ${uniqueCompaniesCount === 1 ? 'company' : 'companies'} tracked`,
     description: `${contactsCount} decision ${contactsCount === 1 ? 'maker' : 'makers'} mapped`,
     ctaText: 'Continue Pursuit →',
     ctaLink: createPageUrl('Manage')
@@ -233,7 +239,7 @@ export default function Dashboard() {
   tertiaryCard = {
     icon: Briefcase,
     title: 'Discovery automation active',
-    description: `Monitoring ${rssFeeds.length} ${rssFeeds.length === 1 ? 'source' : 'sources'} for new opportunities`,
+    description: `Monitoring ${activeSources} ${activeSources === 1 ? 'source' : 'sources'} for new opportunities`,
     ctaText: 'Discovery Settings →',
     ctaLink: createPageUrl('Settings')
   };
