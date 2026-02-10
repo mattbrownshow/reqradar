@@ -32,7 +32,7 @@ Deno.serve(async (req) => {
     });
     const profile = allProfiles.find(p => p.target_roles && p.target_roles.length > 0);
     
-    if (!profile || !profile.data?.target_roles || profile.data.target_roles.length === 0) {
+    if (!profile || !profile.target_roles || profile.target_roles.length === 0) {
       await base44.asServiceRole.entities.DiscoveryRun.update(runRecord.id, {
         status: 'failed',
         error_message: 'No target roles configured',
