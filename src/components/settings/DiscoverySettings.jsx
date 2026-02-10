@@ -69,7 +69,7 @@ export default function DiscoverySettings() {
   });
 
   const toggleFeedMutation = useMutation({
-    mutationFn: ({ id, status }) => base44.entities.RSSFeed.update(id, { status: status === "active" ? "paused" : "active" }),
+    mutationFn: ({ id, status }) => base44.entities.RSSFeed.update(id, { status: status === "paused" ? "active" : "paused" }),
     onSuccess: () => queryClient.invalidateQueries({ queryKey: ["feeds"] }),
   });
 
@@ -136,53 +136,76 @@ export default function DiscoverySettings() {
         {feeds.length === 0 && !feedsLoading ? (
           <div className="text-center p-8 border-2 border-dashed border-gray-200 rounded-xl">
             <Rss className="w-12 h-12 text-gray-300 mx-auto mb-3" />
-            <p className="text-sm text-gray-600">No RSS feeds configured</p>
+            <p className="text-sm font-medium text-gray-600 mb-2">No RSS feeds configured</p>
+            <p className="text-xs text-gray-500">Add RSS feeds to start discovering jobs matching your target roles</p>
           </div>
         ) : (
           <div className="space-y-3">
-            {feeds.map(feed => (
-              <div key={feed.id} className="border border-gray-200 rounded-xl p-4">
-                <div className="flex items-start justify-between gap-4">
-                  <div className="flex items-start gap-3 flex-1">
-                    <div className="w-10 h-10 bg-orange-50 rounded-xl flex items-center justify-center shrink-0">
-                      <Rss className="w-5 h-5 text-[#F7931E]" />
-                    </div>
-                    <div className="flex-1 min-w-0">
-                      <h4 className="font-semibold text-gray-900 text-sm">{feed.feed_name || "Untitled Feed"}</h4>
-                      <p className="text-xs text-gray-400 mt-0.5 truncate">{feed.feed_url}</p>
-                      <div className="flex items-center gap-3 mt-2">
-                        <StatusBadge status={feed.status || "active"} />
-                        <span className="text-xs text-gray-500">{feed.jobs_found || 0} jobs found</span>
+            {feeds.map(feed => {
+              const statusDisplay = feed.status === "active" ? "✅ Active" : 
+                                   feed.status === "error" ? "❌ Error" :
+                                   feed.status === "paused" ? "⏸️ Paused" :
+                                   (feed.jobs_found === 0 ? "⚠️ No Jobs Found" : "✅ Active");
+              
+              return (
+                <div key={feed.id} className="border border-gray-200 rounded-xl p-4 hover:shadow-sm transition-shadow">
+                  <div className="flex items-start justify-between gap-4">
+                    <div className="flex items-start gap-3 flex-1">
+                      <div className="w-10 h-10 bg-orange-50 rounded-xl flex items-center justify-center shrink-0">
+                        <Rss className="w-5 h-5 text-[#F7931E]" />
+                      </div>
+                      <div className="flex-1 min-w-0">
+                        <h4 className="font-semibold text-gray-900 text-sm mb-1">{feed.feed_name || "RSS Feed"}</h4>
+                        <p className="text-xs text-gray-400 truncate mb-2">{feed.feed_url}</p>
+                        <div className="flex items-center gap-3 text-xs">
+                          <span className={`font-medium ${feed.status === "error" ? "text-red-600" : feed.jobs_found === 0 ? "text-amber-600" : "text-emerald-600"}`}>
+                            {statusDisplay}
+                          </span>
+                          {feed.last_updated && (
+                            <>
+                              <span className="text-gray-300">•</span>
+                              <span className="text-gray-500">Last checked: {format(new Date(feed.last_updated), "MMM d, h:mm a")}</span>
+                            </>
+                          )}
+                          <span className="text-gray-300">•</span>
+                          <span className="text-gray-700 font-medium">{feed.jobs_found || 0} jobs found</span>
+                        </div>
                       </div>
                     </div>
-                  </div>
-                  <div className="flex gap-1 shrink-0">
-                    <Button
-                      size="icon"
-                      variant="ghost"
-                      className="h-8 w-8"
-                      onClick={() => toggleFeedMutation.mutate({ id: feed.id, status: feed.status })}
-                    >
-                      {feed.status === "active" ? <Pause className="w-4 h-4 text-gray-400" /> : <Play className="w-4 h-4 text-emerald-500" />}
-                    </Button>
-                    <Button
-                      size="icon"
-                      variant="ghost"
-                      className="h-8 w-8"
-                      onClick={() => deleteFeedMutation.mutate(feed.id)}
-                    >
-                      <Trash2 className="w-4 h-4 text-red-400" />
-                    </Button>
+                    <div className="flex gap-1 shrink-0">
+                      <Button
+                        size="icon"
+                        variant="ghost"
+                        className="h-8 w-8"
+                        title={feed.status === "paused" ? "Resume feed" : "Pause feed"}
+                        onClick={() => toggleFeedMutation.mutate({ id: feed.id, status: feed.status })}
+                      >
+                        {feed.status === "paused" ? <Play className="w-4 h-4 text-emerald-500" /> : <Pause className="w-4 h-4 text-gray-400" />}
+                      </Button>
+                      <Button
+                        size="icon"
+                        variant="ghost"
+                        className="h-8 w-8"
+                        title="Delete feed"
+                        onClick={() => {
+                          if (confirm(`Delete this RSS feed?\n\n${feed.feed_url}\n\nThis action cannot be undone.`)) {
+                            deleteFeedMutation.mutate(feed.id);
+                          }
+                        }}
+                      >
+                        <Trash2 className="w-4 h-4 text-red-400" />
+                      </Button>
+                    </div>
                   </div>
                 </div>
-              </div>
-            ))}
+              );
+            })}
           </div>
         )}
 
         <div className="pt-4 border-t border-gray-200">
           <p className="text-xs text-gray-500">
-            Monitoring {feeds.filter(f => f.status === "active").length} active sources for {profile?.target_roles?.join(', ') || 'your target roles'} • {jobBoardRoles.length} opportunities found
+            Monitoring {feeds.length} {feeds.length === 1 ? 'source' : 'sources'} for {profile?.target_roles?.join(', ') || 'your target roles'} • {jobBoardRoles.length} opportunities found
           </p>
         </div>
       </div>
