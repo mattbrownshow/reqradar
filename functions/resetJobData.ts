@@ -10,17 +10,22 @@ Deno.serve(async (req) => {
       return Response.json({ error: 'Unauthorized' }, { status: 401 });
     }
 
+    console.log('=== STARTING DATA RESET ===');
+
     // Count entities before deletion
-    const openRoles = await base44.asServiceRole.entities.OpenRole.filter({ created_by: user.email });
-    const companies = await base44.asServiceRole.entities.Company.filter({ created_by: user.email });
-    const contacts = await base44.asServiceRole.entities.Contact.filter({ created_by: user.email });
-    const jobPipelines = await base44.asServiceRole.entities.JobPipeline.filter({ created_by: user.email });
-    const companyPipelines = await base44.asServiceRole.entities.CompanyPipeline.filter({ created_by: user.email });
-    const applications = await base44.asServiceRole.entities.Application.filter({ created_by: user.email });
-    const outreach = await base44.asServiceRole.entities.OutreachMessage.filter({ created_by: user.email });
-    const activities = await base44.asServiceRole.entities.ActivityLog.filter({ created_by: user.email });
-    const suggestions = await base44.asServiceRole.entities.SuggestedCompany.filter({ created_by: user.email });
-    const discoveryRuns = await base44.asServiceRole.entities.DiscoveryRun.filter({ created_by: user.email });
+    const openRoles = await base44.asServiceRole.entities.OpenRole.list('-created_date', 1000);
+    const companies = await base44.asServiceRole.entities.Company.list('-created_date', 1000);
+    const contacts = await base44.asServiceRole.entities.Contact.list('-created_date', 1000);
+    const jobPipelines = await base44.asServiceRole.entities.JobPipeline.list('-created_date', 1000);
+    const companyPipelines = await base44.asServiceRole.entities.CompanyPipeline.list('-created_date', 1000);
+    const applications = await base44.asServiceRole.entities.Application.list('-created_date', 1000);
+    const outreach = await base44.asServiceRole.entities.OutreachMessage.list('-created_date', 1000);
+    const activities = await base44.asServiceRole.entities.ActivityLog.list('-created_date', 1000);
+    const suggestions = await base44.asServiceRole.entities.SuggestedCompany.list('-created_date', 1000);
+    const discoveryRuns = await base44.asServiceRole.entities.DiscoveryRun.list('-run_at', 1000);
+    const rssFeeds = await base44.asServiceRole.entities.RSSFeed.list('-created_date', 1000);
+
+    console.log(`Found: ${openRoles.length} jobs, ${companies.length} companies, ${rssFeeds.length} feeds`);
 
     // Delete all job-related data
     const deletePromises = [];
@@ -55,15 +60,51 @@ Deno.serve(async (req) => {
     if (discoveryRuns.length > 0) {
       deletePromises.push(...discoveryRuns.map(dr => base44.asServiceRole.entities.DiscoveryRun.delete(dr.id)));
     }
+    
+    // NEW: Also delete RSS feeds
+    if (rssFeeds.length > 0) {
+      deletePromises.push(...rssFeeds.map(f => base44.asServiceRole.entities.RSSFeed.delete(f.id)));
+    }
 
     await Promise.all(deletePromises);
+    console.log('✓ Deleted all data');
+
+    // NEW: Recreate RSS feeds with correct URLs
+    const defaultFeeds = [
+      {
+        feed_name: 'We Work Remotely - All Remote Jobs',
+        feed_url: 'https://weworkremotely.com/remote-jobs.rss',
+        status: 'active',
+        jobs_found: 0,
+        last_updated: new Date().toISOString()
+      },
+      {
+        feed_name: 'RemoteOK - Remote Jobs',
+        feed_url: 'https://remoteok.com/remote-jobs.rss',
+        status: 'active',
+        jobs_found: 0,
+        last_updated: new Date().toISOString()
+      },
+      {
+        feed_name: 'Remotive Jobs RSS',
+        feed_url: 'https://remotive.com/api/remote-jobs/feed',
+        status: 'active',
+        jobs_found: 0,
+        last_updated: new Date().toISOString()
+      }
+    ];
+    
+    await base44.asServiceRole.entities.RSSFeed.bulkCreate(defaultFeeds);
+    console.log(`✓ Created ${defaultFeeds.length} RSS feeds`);
 
     // Get preserved data counts
-    const profiles = await base44.asServiceRole.entities.CandidateProfile.filter({ created_by: user.email });
-    const rssFeeds = await base44.asServiceRole.entities.RSSFeed.filter({ created_by: user.email });
+    const profiles = await base44.asServiceRole.entities.CandidateProfile.list('-created_date', 100);
+
+    console.log('=== RESET COMPLETE ===');
 
     return Response.json({
       success: true,
+      message: 'Job data reset and RSS feeds recreated successfully',
       deleted: {
         openRoles: openRoles.length,
         companies: companies.length,
@@ -74,11 +115,14 @@ Deno.serve(async (req) => {
         outreach: outreach.length,
         activities: activities.length,
         suggestions: suggestions.length,
-        discoveryRuns: discoveryRuns.length
+        discoveryRuns: discoveryRuns.length,
+        rssFeeds: rssFeeds.length
+      },
+      created: {
+        rssFeeds: defaultFeeds.length
       },
       preserved: {
-        profiles: profiles.length,
-        rssFeeds: rssFeeds.length
+        profiles: profiles.length
       }
     });
   } catch (error) {
