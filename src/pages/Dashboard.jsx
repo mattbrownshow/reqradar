@@ -218,21 +218,22 @@ export default function Dashboard() {
   };
 
   // Secondary: Pipeline momentum
+  const contactsCount = outreach.length; // Total contacts mapped
   secondaryCard = {
     icon: BarChart3,
     title: `${applicationsInProgress} ${applicationsInProgress === 1 ? 'opportunity' : 'opportunities'} in active pursuit`,
-    description: companiesWithoutOutreach > 0 ? `${companiesWithoutOutreach} decision makers mapped` : 'Outreach launched and in progress',
+    description: `${contactsCount} decision ${contactsCount === 1 ? 'maker' : 'makers'} mapped`,
     ctaText: 'Continue Pursuit →',
-    ctaLink: createPageUrl('JobsPipeline')
+    ctaLink: createPageUrl('Manage')
   };
 
   // Tertiary: Discovery automation health
   tertiaryCard = {
     icon: Briefcase,
     title: 'Discovery automation active',
-    description: `Monitoring ${activeMonitors} ${activeMonitors === 1 ? 'source' : 'sources'} for new opportunities`,
+    description: `Monitoring ${rssFeeds.length} ${rssFeeds.length === 1 ? 'source' : 'sources'} for new opportunities`,
     ctaText: 'Discovery Settings →',
-    ctaLink: createPageUrl('DiscoverySources')
+    ctaLink: createPageUrl('Settings')
   };
 
   return (
