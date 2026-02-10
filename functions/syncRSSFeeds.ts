@@ -69,18 +69,7 @@ Deno.serve(async (req) => {
     const remoteToAdd = remoteFeeds.filter(f => !existingUrls.has(f.feed_url));
     feedsToAdd.push(...remoteToAdd);
     
-    // Delete old role-based feeds that don't match current roles
-    const oldRoleFeeds = existingFeeds.filter(f => 
-      f.feed_name && f.feed_name.startsWith('Indeed - ') && !f.feed_name.includes('Remote')
-    );
-    
-    for (const oldFeed of oldRoleFeeds) {
-      const isStillValid = newFeeds.some(nf => nf.feed_url === oldFeed.feed_url);
-      if (!isStillValid) {
-        await base44.entities.RSSFeed.delete(oldFeed.id);
-      }
-    }
-    
+    // NEVER DELETE FEEDS - only add missing ones
     // Create new feeds
     if (feedsToAdd.length > 0) {
       await base44.entities.RSSFeed.bulkCreate(
@@ -96,8 +85,7 @@ Deno.serve(async (req) => {
       success: true,
       message: 'RSS feeds synced with profile',
       feeds_added: feedsToAdd.length,
-      feeds_removed: oldRoleFeeds.filter(f => !newFeeds.some(nf => nf.feed_url === f.feed_url)).length,
-      total_active_feeds: (existingFeeds.length - oldRoleFeeds.length) + feedsToAdd.length
+      total_active_feeds: existingFeeds.length + feedsToAdd.length
     });
     
   } catch (error) {
