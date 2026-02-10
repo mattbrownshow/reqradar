@@ -24,10 +24,13 @@ Deno.serve(async (req) => {
     });
     
     // STEP 1: Get user's target roles
-    const allProfiles = await base44.asServiceRole.entities.CandidateProfile.list('-created_date', 100);
-    // Find profile with target roles, prioritizing setup_complete profiles
-    let profile = allProfiles.find(p => p.data?.setup_complete === true && p.data?.target_roles?.length > 0);
+    // First try to find profile created by current user
+    let profile = await base44.entities.CandidateProfile.list('-created_date', 100);
+    profile = profile.find(p => p.data?.target_roles && p.data.target_roles.length > 0);
+    
+    // If no profile found, try to find any profile with target roles (for backward compatibility)
     if (!profile) {
+      const allProfiles = await base44.asServiceRole.entities.CandidateProfile.list('-created_date', 100);
       profile = allProfiles.find(p => p.data?.target_roles && p.data.target_roles.length > 0);
     }
     
