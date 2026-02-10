@@ -45,7 +45,7 @@ Deno.serve(async (req) => {
       });
     }
     
-    const targetRoles = profile.data.target_roles;
+    const targetRoles = profile.target_roles;
     console.log(`Target roles: ${targetRoles.join(', ')}`);
     
     // STEP 2: Get existing jobs to avoid duplicates
