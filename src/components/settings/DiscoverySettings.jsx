@@ -21,7 +21,7 @@ export default function DiscoverySettings() {
 
   const { data: feeds = [], isLoading: feedsLoading } = useQuery({
     queryKey: ["feeds"],
-    queryFn: () => base44.entities.RSSFeed.list("-created_date", 50),
+    queryFn: () => base44.entities.RSSFeed.list("-created_date"),
   });
 
   const { data: roles = [] } = useQuery({
