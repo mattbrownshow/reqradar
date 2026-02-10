@@ -23,16 +23,9 @@ Deno.serve(async (req) => {
       career_pages_scanned: 0
     });
     
-    // STEP 1: Get user's target roles
-    // First try to find profile created by current user
-    let profile = await base44.entities.CandidateProfile.list('-created_date', 100);
-    profile = profile.find(p => p.data?.target_roles && p.data.target_roles.length > 0);
-    
-    // If no profile found, try to find any profile with target roles (for backward compatibility)
-    if (!profile) {
-      const allProfiles = await base44.asServiceRole.entities.CandidateProfile.list('-created_date', 100);
-      profile = allProfiles.find(p => p.data?.target_roles && p.data.target_roles.length > 0);
-    }
+    // STEP 1: Get user's target roles - use most recent profile with target roles
+    const allProfiles = await base44.asServiceRole.entities.CandidateProfile.list('-updated_date', 100);
+    const profile = allProfiles.find(p => p.data?.target_roles && p.data.target_roles.length > 0);
     
     if (!profile || !profile.data?.target_roles || profile.data.target_roles.length === 0) {
       await base44.asServiceRole.entities.DiscoveryRun.update(runRecord.id, {
