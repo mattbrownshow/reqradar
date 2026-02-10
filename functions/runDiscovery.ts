@@ -369,6 +369,7 @@ async function fetchSerperJobs(targetRoles, apiKey) {
 }
 
 function parseRSSFeed(xml, feedName, targetRoles) {
+  console.log(`Parsing RSS feed: ${feedName}`);
   const jobs = [];
   const itemRegex = /<item>([\s\S]*?)<\/item>/g;
   let match;
@@ -380,7 +381,11 @@ function parseRSSFeed(xml, feedName, targetRoles) {
     });
   });
   
+  console.log(`Target role keywords: ${Array.from(roleKeywords).join(', ')}`);
+  
+  let itemCount = 0;
   while ((match = itemRegex.exec(xml)) !== null) {
+    itemCount++;
     const itemContent = match[1];
     const title = extractXMLValue(itemContent, 'title');
     const description = extractXMLValue(itemContent, 'description');
@@ -410,6 +415,7 @@ function parseRSSFeed(xml, feedName, targetRoles) {
     }
   }
   
+  console.log(`Parsed ${itemCount} RSS items, ${jobs.length} matched target roles`);
   return jobs;
 }
 
