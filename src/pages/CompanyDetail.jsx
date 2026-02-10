@@ -7,6 +7,7 @@ import { Button } from "@/components/ui/button";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { ArrowLeft, Loader2, Send } from "lucide-react";
 import { toast } from "sonner";
+import { toast } from "sonner";
 import ConfirmDialog from "../components/shared/ConfirmDialog";
 import CompanyHeader from "../components/company/CompanyHeader";
 import OverviewTab from "../components/company/OverviewTab";
@@ -179,7 +180,7 @@ export default function CompanyDetail() {
       });
     } catch (error) {
       console.error('Failed to generate message:', error);
-      alert('Failed to generate message');
+      toast.error('Failed to generate message');
     } finally {
       setGeneratingContactId(null);
     }
@@ -187,7 +188,7 @@ export default function CompanyDetail() {
 
   const handleManualApply = (contact, message) => {
     // TODO: Implement manual apply modal
-    alert('Manual apply functionality coming soon');
+    toast.info('Manual apply functionality coming soon');
   };
 
   if (!companyName && !companyId) {
