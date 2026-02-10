@@ -12,64 +12,129 @@ Deno.serve(async (req) => {
 
     console.log('=== STARTING DATA RESET ===');
 
-    // Count entities before deletion
+    // Get all entities (use list instead of filter to avoid created_by issues)
     const openRoles = await base44.asServiceRole.entities.OpenRole.list('-created_date', 1000);
     const companies = await base44.asServiceRole.entities.Company.list('-created_date', 1000);
     const contacts = await base44.asServiceRole.entities.Contact.list('-created_date', 1000);
     const jobPipelines = await base44.asServiceRole.entities.JobPipeline.list('-created_date', 1000);
-    const companyPipelines = await base44.asServiceRole.entities.CompanyPipeline.list('-created_date', 1000);
     const applications = await base44.asServiceRole.entities.Application.list('-created_date', 1000);
     const outreach = await base44.asServiceRole.entities.OutreachMessage.list('-created_date', 1000);
     const activities = await base44.asServiceRole.entities.ActivityLog.list('-created_date', 1000);
-    const suggestions = await base44.asServiceRole.entities.SuggestedCompany.list('-created_date', 1000);
     const discoveryRuns = await base44.asServiceRole.entities.DiscoveryRun.list('-run_at', 1000);
     const rssFeeds = await base44.asServiceRole.entities.RSSFeed.list('-created_date', 1000);
 
     console.log(`Found: ${openRoles.length} jobs, ${companies.length} companies, ${rssFeeds.length} feeds`);
 
-    // Delete all job-related data
-    const deletePromises = [];
-    
-    if (openRoles.length > 0) {
-      deletePromises.push(...openRoles.map(r => base44.asServiceRole.entities.OpenRole.delete(r.id)));
-    }
-    if (companies.length > 0) {
-      deletePromises.push(...companies.map(c => base44.asServiceRole.entities.Company.delete(c.id)));
-    }
-    if (contacts.length > 0) {
-      deletePromises.push(...contacts.map(c => base44.asServiceRole.entities.Contact.delete(c.id)));
-    }
-    if (jobPipelines.length > 0) {
-      deletePromises.push(...jobPipelines.map(jp => base44.asServiceRole.entities.JobPipeline.delete(jp.id)));
-    }
-    if (companyPipelines.length > 0) {
-      deletePromises.push(...companyPipelines.map(cp => base44.asServiceRole.entities.CompanyPipeline.delete(cp.id)));
-    }
-    if (applications.length > 0) {
-      deletePromises.push(...applications.map(a => base44.asServiceRole.entities.Application.delete(a.id)));
-    }
-    if (outreach.length > 0) {
-      deletePromises.push(...outreach.map(o => base44.asServiceRole.entities.OutreachMessage.delete(o.id)));
-    }
-    if (activities.length > 0) {
-      deletePromises.push(...activities.map(a => base44.asServiceRole.entities.ActivityLog.delete(a.id)));
-    }
-    if (suggestions.length > 0) {
-      deletePromises.push(...suggestions.map(s => base44.asServiceRole.entities.SuggestedCompany.delete(s.id)));
-    }
-    if (discoveryRuns.length > 0) {
-      deletePromises.push(...discoveryRuns.map(dr => base44.asServiceRole.entities.DiscoveryRun.delete(dr.id)));
-    }
-    
-    // NEW: Also delete RSS feeds
-    if (rssFeeds.length > 0) {
-      deletePromises.push(...rssFeeds.map(f => base44.asServiceRole.entities.RSSFeed.delete(f.id)));
-    }
+    let deletedCount = 0;
 
-    await Promise.all(deletePromises);
-    console.log('✓ Deleted all data');
+    // Delete jobs
+    for (const role of openRoles) {
+      try {
+        await base44.asServiceRole.entities.OpenRole.delete(role.id);
+        deletedCount++;
+      } catch (e) {
+        console.error(`Failed to delete job ${role.id}:`, e.message);
+      }
+    }
+    console.log(`Deleted ${deletedCount} jobs`);
 
-    // NEW: Recreate RSS feeds with correct URLs
+    // Delete companies
+    deletedCount = 0;
+    for (const company of companies) {
+      try {
+        await base44.asServiceRole.entities.Company.delete(company.id);
+        deletedCount++;
+      } catch (e) {
+        console.error(`Failed to delete company ${company.id}:`, e.message);
+      }
+    }
+    console.log(`Deleted ${deletedCount} companies`);
+
+    // Delete contacts
+    deletedCount = 0;
+    for (const contact of contacts) {
+      try {
+        await base44.asServiceRole.entities.Contact.delete(contact.id);
+        deletedCount++;
+      } catch (e) {
+        console.error(`Failed to delete contact ${contact.id}:`, e.message);
+      }
+    }
+    console.log(`Deleted ${deletedCount} contacts`);
+
+    // Delete job pipelines
+    deletedCount = 0;
+    for (const pipeline of jobPipelines) {
+      try {
+        await base44.asServiceRole.entities.JobPipeline.delete(pipeline.id);
+        deletedCount++;
+      } catch (e) {
+        console.error(`Failed to delete pipeline ${pipeline.id}:`, e.message);
+      }
+    }
+    console.log(`Deleted ${deletedCount} pipelines`);
+
+    // Delete applications
+    deletedCount = 0;
+    for (const app of applications) {
+      try {
+        await base44.asServiceRole.entities.Application.delete(app.id);
+        deletedCount++;
+      } catch (e) {
+        console.error(`Failed to delete application ${app.id}:`, e.message);
+      }
+    }
+    console.log(`Deleted ${deletedCount} applications`);
+
+    // Delete outreach
+    deletedCount = 0;
+    for (const msg of outreach) {
+      try {
+        await base44.asServiceRole.entities.OutreachMessage.delete(msg.id);
+        deletedCount++;
+      } catch (e) {
+        console.error(`Failed to delete outreach ${msg.id}:`, e.message);
+      }
+    }
+    console.log(`Deleted ${deletedCount} outreach messages`);
+
+    // Delete activities
+    deletedCount = 0;
+    for (const activity of activities) {
+      try {
+        await base44.asServiceRole.entities.ActivityLog.delete(activity.id);
+        deletedCount++;
+      } catch (e) {
+        console.error(`Failed to delete activity ${activity.id}:`, e.message);
+      }
+    }
+    console.log(`Deleted ${deletedCount} activities`);
+
+    // Delete discovery runs
+    deletedCount = 0;
+    for (const run of discoveryRuns) {
+      try {
+        await base44.asServiceRole.entities.DiscoveryRun.delete(run.id);
+        deletedCount++;
+      } catch (e) {
+        console.error(`Failed to delete run ${run.id}:`, e.message);
+      }
+    }
+    console.log(`Deleted ${deletedCount} discovery runs`);
+
+    // Delete RSS feeds
+    deletedCount = 0;
+    for (const feed of rssFeeds) {
+      try {
+        await base44.asServiceRole.entities.RSSFeed.delete(feed.id);
+        deletedCount++;
+      } catch (e) {
+        console.error(`Failed to delete feed ${feed.id}:`, e.message);
+      }
+    }
+    console.log(`Deleted ${deletedCount} RSS feeds`);
+
+    // Create new RSS feeds with correct URLs
     const defaultFeeds = [
       {
         feed_name: 'We Work Remotely - All Remote Jobs',
@@ -97,9 +162,6 @@ Deno.serve(async (req) => {
     await base44.asServiceRole.entities.RSSFeed.bulkCreate(defaultFeeds);
     console.log(`✓ Created ${defaultFeeds.length} RSS feeds`);
 
-    // Get preserved data counts
-    const profiles = await base44.asServiceRole.entities.CandidateProfile.list('-created_date', 100);
-
     console.log('=== RESET COMPLETE ===');
 
     return Response.json({
@@ -110,26 +172,22 @@ Deno.serve(async (req) => {
         companies: companies.length,
         contacts: contacts.length,
         jobPipelines: jobPipelines.length,
-        companyPipelines: companyPipelines.length,
         applications: applications.length,
         outreach: outreach.length,
         activities: activities.length,
-        suggestions: suggestions.length,
         discoveryRuns: discoveryRuns.length,
         rssFeeds: rssFeeds.length
       },
       created: {
         rssFeeds: defaultFeeds.length
-      },
-      preserved: {
-        profiles: profiles.length
       }
     });
   } catch (error) {
     console.error('Reset job data error:', error);
     return Response.json({ 
       success: false,
-      error: error.message 
+      error: error.message,
+      stack: error.stack
     }, { status: 500 });
   }
 });
