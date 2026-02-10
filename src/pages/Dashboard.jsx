@@ -83,6 +83,12 @@ export default function Dashboard() {
     enabled: isReady && profile?.setup_complete,
   });
 
+  const { data: runs = [] } = useQuery({
+    queryKey: ["discoveryRuns"],
+    queryFn: () => base44.entities.DiscoveryRun.list("-run_at", 5),
+    enabled: isReady && profile?.setup_complete,
+  });
+
   const runDiscoveryMutation = useMutation({
     mutationFn: () => base44.functions.invoke("runDiscovery", {}),
     onMutate: () => {
