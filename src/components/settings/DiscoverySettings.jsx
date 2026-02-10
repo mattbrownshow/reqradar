@@ -19,10 +19,17 @@ export default function DiscoverySettings() {
   const [showAddFeed, setShowAddFeed] = useState(false);
   const [newFeed, setNewFeed] = useState({ feed_url: "", feed_name: "", refresh_frequency: "every_4_hours" });
 
+  // Get ALL feeds - don't filter by status
   const { data: feeds = [], isLoading: feedsLoading } = useQuery({
     queryKey: ["feeds"],
     queryFn: () => base44.entities.RSSFeed.list("-created_date"),
   });
+
+  // Sort by created date descending
+  const sortedFeeds = feeds.sort((a, b) => new Date(b.created_date) - new Date(a.created_date));
+
+  // Calculate total jobs found
+  const totalJobsFound = sortedFeeds.reduce((sum, feed) => sum + (feed.jobs_found || 0), 0);
 
   const { data: roles = [] } = useQuery({
     queryKey: ["openRoles"],
@@ -133,15 +140,15 @@ export default function DiscoverySettings() {
           </div>
         )}
 
-        {feeds.length === 0 && !feedsLoading ? (
+        {sortedFeeds.length === 0 && !feedsLoading ? (
           <div className="text-center p-8 border-2 border-dashed border-gray-200 rounded-xl">
             <Rss className="w-12 h-12 text-gray-300 mx-auto mb-3" />
             <p className="text-sm font-medium text-gray-600 mb-2">No RSS feeds configured</p>
-            <p className="text-xs text-gray-500">Add RSS feeds to start discovering jobs matching your target roles</p>
+            <p className="text-xs text-gray-500">Click "Add Feed" to start discovering jobs</p>
           </div>
         ) : (
           <div className="space-y-3">
-            {feeds.map(feed => {
+            {sortedFeeds.map(feed => {
               const statusDisplay = feed.status === "active" ? "✅ Active" : 
                                    feed.status === "error" ? "❌ Error" :
                                    feed.status === "paused" ? "⏸️ Paused" :
@@ -205,7 +212,7 @@ export default function DiscoverySettings() {
 
         <div className="pt-4 border-t border-gray-200">
           <p className="text-xs text-gray-500">
-            Monitoring {feeds.length} {feeds.length === 1 ? 'source' : 'sources'} for {profile?.target_roles?.join(', ') || 'your target roles'} • {jobBoardRoles.length} opportunities found
+            Monitoring {sortedFeeds.length} {sortedFeeds.length === 1 ? 'source' : 'sources'} for {profile?.target_roles?.join(', ') || 'your target roles'} • {totalJobsFound} opportunities found
           </p>
         </div>
       </div>
