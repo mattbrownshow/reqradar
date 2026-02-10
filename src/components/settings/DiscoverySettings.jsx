@@ -280,54 +280,48 @@ export default function DiscoverySettings() {
                                    (feed.jobs_found === 0 ? "⚠️ No Jobs Found" : "✅ Active");
               
               return (
-                <div key={feed.id} className="border border-gray-200 rounded-xl p-4 hover:shadow-sm transition-shadow">
-                  <div className="flex items-start justify-between gap-4">
-                    <div className="flex items-start gap-3 flex-1">
-                      <div className="w-10 h-10 bg-orange-50 rounded-xl flex items-center justify-center shrink-0">
-                        <Rss className="w-5 h-5 text-[#F7931E]" />
-                      </div>
-                      <div className="flex-1 min-w-0">
-                        <h4 className="font-semibold text-gray-900 text-sm mb-1">{feed.feed_name || "RSS Feed"}</h4>
-                        <p className="text-xs text-gray-400 truncate mb-2">{feed.feed_url}</p>
-                        <div className="flex items-center gap-3 text-xs">
-                          <span className={`font-medium ${feed.status === "error" ? "text-red-600" : feed.jobs_found === 0 ? "text-amber-600" : "text-emerald-600"}`}>
-                            {statusDisplay}
-                          </span>
-                          {feed.last_updated && (
-                            <>
-                              <span className="text-gray-300">•</span>
-                              <span className="text-gray-500">Last checked: {format(new Date(feed.last_updated), "MMM d, h:mm a")}</span>
-                            </>
-                          )}
-                          <span className="text-gray-300">•</span>
-                          <span className="text-gray-700 font-medium">{feed.jobs_found || 0} jobs found</span>
-                        </div>
-                      </div>
+                <div key={feed.id} className="feed-card">
+                  <div className="feed-icon">📡</div>
+                  
+                  <div className="feed-details">
+                    <h3>{feed.feed_name || "RSS Feed"}</h3>
+                    <p className="feed-url">{feed.feed_url}</p>
+                    
+                    <div className="feed-stats">
+                      <span className={`status-badge status-${feed.status}`}>
+                        {statusDisplay}
+                      </span>
+                      
+                      {feed.last_updated && (
+                        <span className="last-checked">
+                          Last checked: {format(new Date(feed.last_updated), "MMM d, h:mm a")}
+                        </span>
+                      )}
+                      
+                      <span className="jobs-found">
+                        Jobs found: {feed.jobs_found || 0}
+                      </span>
                     </div>
-                    <div className="flex gap-1 shrink-0">
-                      <Button
-                        size="icon"
-                        variant="ghost"
-                        className="h-8 w-8"
-                        title={feed.status === "paused" ? "Resume feed" : "Pause feed"}
-                        onClick={() => toggleFeedMutation.mutate({ id: feed.id, status: feed.status })}
-                      >
-                        {feed.status === "paused" ? <Play className="w-4 h-4 text-emerald-500" /> : <Pause className="w-4 h-4 text-gray-400" />}
-                      </Button>
-                      <Button
-                        size="icon"
-                        variant="ghost"
-                        className="h-8 w-8"
-                        title="Delete feed"
-                        onClick={() => {
-                          if (confirm(`Delete this RSS feed?\n\n${feed.feed_url}\n\nThis action cannot be undone.`)) {
-                            deleteFeedMutation.mutate(feed.id);
-                          }
-                        }}
-                      >
-                        <Trash2 className="w-4 h-4 text-red-400" />
-                      </Button>
-                    </div>
+                  </div>
+                  
+                  <div className="feed-actions">
+                    <button
+                      onClick={() => toggleFeedMutation.mutate({ id: feed.id, status: feed.status })}
+                      disabled={toggleFeedMutation.isPending}
+                    >
+                      {feed.status === "paused" ? "Resume" : "Pause"}
+                    </button>
+                    <button
+                      className="danger"
+                      onClick={() => {
+                        if (confirm(`Delete this RSS feed?\n\n${feed.feed_url}\n\nThis action cannot be undone.`)) {
+                          deleteFeedMutation.mutate(feed.id);
+                        }
+                      }}
+                      disabled={deleteFeedMutation.isPending}
+                    >
+                      Delete
+                    </button>
                   </div>
                 </div>
               );
