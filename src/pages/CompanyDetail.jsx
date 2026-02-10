@@ -10,6 +10,7 @@ import CompanyHeader from "../components/company/CompanyHeader";
 import OverviewTab from "../components/company/OverviewTab";
 import ContactCard from "../components/company/ContactCard";
 import OutreachComposerModal from "../components/outreach/OutreachComposerModal";
+import DecisionMakersTab from "../components/company/DecisionMakersTab";
 
 export default function CompanyDetail() {
   const queryClient = useQueryClient();
@@ -26,6 +27,7 @@ export default function CompanyDetail() {
   const [showOutreachModal, setShowOutreachModal] = useState(false);
   const [user, setUser] = useState(null);
   const [highlightedJob, setHighlightedJob] = useState(highlightJobId);
+  const [findingContacts, setFindingContacts] = useState(false);
 
   useEffect(() => {
     base44.auth.me().then(setUser).catch(() => {
@@ -247,7 +249,7 @@ export default function CompanyDetail() {
         <Tabs defaultValue="overview" className="space-y-6">
           <TabsList className="bg-white border border-gray-200 rounded-xl p-1">
             <TabsTrigger value="overview" className="rounded-lg data-[state=active]:bg-gray-100">Overview</TabsTrigger>
-            <TabsTrigger value="contacts" className="rounded-lg data-[state=active]:bg-gray-100">
+            <TabsTrigger value="decision-makers" className="rounded-lg data-[state=active]:bg-gray-100">
               Decision Makers ({contacts.length})
             </TabsTrigger>
             <TabsTrigger value="intelligence" className="rounded-lg data-[state=active]:bg-gray-100">Intelligence</TabsTrigger>
@@ -261,7 +263,42 @@ export default function CompanyDetail() {
             <OverviewTab company={company} roles={roles} />
           </TabsContent>
 
-          {/* Contacts Tab */}
+          {/* Decision Makers Tab */}
+          <TabsContent value="decision-makers" className="space-y-4">
+            <DecisionMakersTab
+              company={company}
+              contacts={contacts}
+              onFindDecisionMakers={async () => {
+                setFindingContacts(true);
+                try {
+                  const result = await base44.functions.invoke('enrichCompanyContacts', {
+                    company_id: companyId
+                  });
+                  
+                  if (result.data.error) {
+                    alert(result.data.error);
+                    return;
+                  }
+
+                  if (result.data.cached) {
+                    alert(result.data.message);
+                  } else {
+                    alert(`Found ${result.data.count} decision makers!`);
+                  }
+                  
+                  queryClient.invalidateQueries({ queryKey: ["contacts", companyId] });
+                } catch (error) {
+                  console.error('Error:', error);
+                  alert(error.message || 'Failed to find decision makers.');
+                } finally {
+                  setFindingContacts(false);
+                }
+              }}
+              finding={findingContacts}
+            />
+          </TabsContent>
+
+          {/* Contacts Tab (Legacy) */}
           <TabsContent value="contacts" className="space-y-4">
             {contacts.length === 0 ? (
               <div className="bg-white border border-gray-200 rounded-xl p-8 text-center">
