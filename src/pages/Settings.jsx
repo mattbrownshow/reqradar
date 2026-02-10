@@ -88,19 +88,19 @@ export default function Settings() {
 
   const resetDataMutation = useMutation({
     mutationFn: async () => {
-      const response = await base44.functions.invoke('resetUserData', {});
-      // Clear all client-side caches
-      localStorage.clear();
-      sessionStorage.clear();
-      queryClient.clear();
-      return response;
+      const response = await base44.functions.invoke('resetJobData', {});
+      return response.data;
     },
-    onSuccess: () => {
+    onSuccess: (result) => {
       setShowResetConfirm(false);
-      // Hard redirect to force page reload
-      setTimeout(() => {
-        window.location.href = createPageUrl("CandidateSetup");
-      }, 500);
+      if (result.success) {
+        alert(`Reset complete!\n\nDeleted:\n- ${result.deleted.openRoles} jobs\n- ${result.deleted.companies} companies\n- ${result.deleted.contacts} contacts\n\nPreserved:\n- ${result.preserved.profiles} profiles\n- ${result.preserved.rssFeeds} RSS feeds`);
+        // Refresh data
+        queryClient.invalidateQueries();
+        window.location.href = createPageUrl("Dashboard");
+      } else {
+        alert('Reset failed: ' + result.error);
+      }
     },
     onError: (error) => {
       console.error('Reset failed:', error);
@@ -494,8 +494,8 @@ export default function Settings() {
             {/* Reset Data Section */}
             <div className="pt-6 border-t border-gray-100 space-y-4">
               <div>
-                <h4 className="font-semibold text-sm text-gray-900 mb-2">Reset All Data</h4>
-                <p className="text-xs text-gray-500 mb-3">This will only clear all the data you've created within the application, such as your candidate profile, saved companies, job opportunities, applications, and activity logs. Your account itself will remain, but all your personalized data will be removed.</p>
+                <h4 className="font-semibold text-sm text-gray-900 mb-2">Reset Job Data</h4>
+                <p className="text-xs text-gray-500 mb-3">Clear all discovered jobs and companies, but keep your profile and RSS feeds</p>
               </div>
               {!showResetConfirm ? (
                 <Button
@@ -503,12 +503,12 @@ export default function Settings() {
                   className="border-orange-300 text-orange-600 hover:bg-orange-50 hover:text-orange-700 rounded-xl gap-2"
                   onClick={() => setShowResetConfirm(true)}
                 >
-                  <Trash2 className="w-4 h-4" /> Reset All Data
+                  <Trash2 className="w-4 h-4" /> Reset Job Data Only
                 </Button>
               ) : (
                 <div className="p-4 bg-orange-50 border border-orange-200 rounded-xl space-y-3">
-                  <p className="text-sm font-medium text-gray-900">Are you sure? This cannot be undone.</p>
-                  <p className="text-xs text-gray-600">You'll be taken through setup again to configure your profile.</p>
+                  <p className="text-sm font-medium text-gray-900">This will delete all job data (jobs, companies, contacts) but KEEP your profile, target roles, and RSS feed configurations.</p>
+                  <p className="text-xs text-gray-600">Are you sure?</p>
                   <div className="flex gap-2">
                     <Button
                       variant="outline"
@@ -525,7 +525,7 @@ export default function Settings() {
                       disabled={resetDataMutation.isPending}
                     >
                       {resetDataMutation.isPending && <Loader2 className="w-3 h-3 animate-spin" />}
-                      Yes, Reset Everything
+                      Yes, Reset Job Data
                     </Button>
                   </div>
                 </div>
