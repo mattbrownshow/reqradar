@@ -10,29 +10,8 @@ Deno.serve(async (req) => {
     if (existingFeeds.length === 0) {
       console.log('No feeds found, creating defaults...');
       
-      // Create default feeds
+      // Create ONLY real RSS feeds (not API endpoints)
       const defaultFeeds = [
-        {
-          feed_name: 'Adzuna API - Job Search',
-          feed_url: 'https://api.adzuna.com/v1/api/jobs/us/search',
-          status: 'active',
-          jobs_found: 0,
-          last_updated: new Date().toISOString()
-        },
-        {
-          feed_name: 'SerpAPI - Google Jobs',
-          feed_url: 'https://serpapi.com/search',
-          status: 'active',
-          jobs_found: 0,
-          last_updated: new Date().toISOString()
-        },
-        {
-          feed_name: 'Serper - Google Jobs',
-          feed_url: 'https://google.serper.dev/jobs',
-          status: 'active',
-          jobs_found: 0,
-          last_updated: new Date().toISOString()
-        },
         {
           feed_name: 'We Work Remotely - All Remote Jobs',
           feed_url: 'https://weworkremotely.com/remote-jobs.rss',
@@ -46,6 +25,13 @@ Deno.serve(async (req) => {
           status: 'active',
           jobs_found: 0,
           last_updated: new Date().toISOString()
+        },
+        {
+          feed_name: 'Remotive Jobs RSS',
+          feed_url: 'https://remotive.com/api/remote-jobs/feed',
+          status: 'active',
+          jobs_found: 0,
+          last_updated: new Date().toISOString()
         }
       ];
       
@@ -54,7 +40,8 @@ Deno.serve(async (req) => {
       
       return Response.json({
         success: true,
-        message: `Created ${defaultFeeds.length} default RSS feeds`
+        message: `Created ${defaultFeeds.length} default RSS feeds`,
+        feeds: defaultFeeds
       });
     } else {
       console.log(`${existingFeeds.length} feeds already exist`);
