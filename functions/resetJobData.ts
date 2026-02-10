@@ -4,14 +4,14 @@ async function sleep(ms) {
   return new Promise(resolve => setTimeout(resolve, ms));
 }
 
-async function deleteInBatches(base44, entity, items, batchSize = 10) {
+async function deleteInBatches(base44, entity, items, batchSize = 5) {
   let deleted = 0;
   for (let i = 0; i < items.length; i += batchSize) {
     const batch = items.slice(i, i + batchSize);
     await Promise.all(batch.map(item => base44.asServiceRole.entities[entity].delete(item.id).catch(e => console.error(e))));
     deleted += batch.length;
     if (i + batchSize < items.length) {
-      await sleep(200);
+      await sleep(500);
     }
   }
   return deleted;
