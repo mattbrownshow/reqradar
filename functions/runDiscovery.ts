@@ -26,6 +26,10 @@ Deno.serve(async (req) => {
     
     // STEP 1: Get user's target roles - use most recent profile with target roles
     const allProfiles = await base44.asServiceRole.entities.CandidateProfile.list('-updated_date', 100);
+    console.log(`Total profiles in DB: ${allProfiles.length}`);
+    allProfiles.forEach(p => {
+      console.log(`Profile ID: ${p.id}, created_by: ${p.created_by}, target_roles: ${JSON.stringify(p.data?.target_roles)}`);
+    });
     const profile = allProfiles.find(p => p.data?.target_roles && p.data.target_roles.length > 0);
     
     if (!profile || !profile.data?.target_roles || profile.data.target_roles.length === 0) {
