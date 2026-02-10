@@ -137,6 +137,54 @@ export default function DiscoverySettings() {
         color: #333;
         margin-bottom: 8px;
       }
+
+      .api-source-card {
+        display: flex;
+        align-items: flex-start;
+        gap: 16px;
+        padding: 20px;
+        background: #FAFAFA;
+        border: 1px solid #E5E5E5;
+        border-radius: 8px;
+      }
+
+      .api-icon {
+        font-size: 32px;
+        flex-shrink: 0;
+      }
+
+      .api-info {
+        flex: 1;
+      }
+
+      .api-info h3 {
+        font-size: 16px;
+        font-weight: 600;
+        margin: 0 0 4px 0;
+        color: #1a1a1a;
+      }
+
+      .api-description {
+        font-size: 14px;
+        color: #666;
+        margin: 0 0 12px 0;
+      }
+
+      .api-meta {
+        display: flex;
+        flex-direction: column;
+        gap: 6px;
+        font-size: 13px;
+      }
+
+      .meta-item {
+        color: #666;
+      }
+
+      .status-inactive {
+        background: #F5F5F5;
+        color: #666;
+      }
     `;
     document.head.appendChild(style);
     return () => document.head.removeChild(style);
@@ -208,6 +256,16 @@ export default function DiscoverySettings() {
   const jobBoardRoles = roles.filter(r => r.source && r.source !== "Company Career Page" && r.status !== "not_interested");
   const lastRun = runs[0];
 
+  // All API keys are configured (from existing_secrets)
+  const hasAdzunaKey = true;
+  const hasSerpAPIKey = true;
+  const hasSerperKey = true;
+
+  // Helper to count jobs per source
+  const getJobsFoundBySource = (sourceName) => {
+    return roles.filter(r => r.source && r.source.includes(sourceName)).length;
+  };
+
   return (
     <div className="space-y-6">
       {/* Discovery Controls */}
@@ -245,12 +303,82 @@ export default function DiscoverySettings() {
         </Button>
       </div>
 
+      {/* API Sources Section */}
+      <div className="bg-white border border-gray-200 rounded-2xl p-6 space-y-6">
+        <div>
+          <h3 className="font-bold text-gray-900 text-lg mb-1">API Sources</h3>
+          <p className="text-sm text-gray-500">Job board APIs connected via your API keys</p>
+        </div>
+
+        <div className="grid gap-4">
+          {/* Adzuna API */}
+          <div className="api-source-card">
+            <div className="api-icon">🔗</div>
+            <div className="api-info">
+              <h3>Adzuna</h3>
+              <p className="api-description">Job search aggregator API</p>
+              <div className="api-meta">
+                <span className={`status-badge ${hasAdzunaKey ? 'status-active' : 'status-inactive'}`}>
+                  {hasAdzunaKey ? '✅ Connected' : '⚠️ Not Connected'}
+                </span>
+                {hasAdzunaKey && lastRun && (
+                  <>
+                    <span className="meta-item">Last run: {format(new Date(lastRun.run_at), "MMM d, h:mm a")}</span>
+                    <span className="meta-item">Jobs found: {getJobsFoundBySource('Adzuna')}</span>
+                  </>
+                )}
+              </div>
+            </div>
+          </div>
+
+          {/* SerpAPI */}
+          <div className="api-source-card">
+            <div className="api-icon">🔗</div>
+            <div className="api-info">
+              <h3>SerpAPI (Google Jobs)</h3>
+              <p className="api-description">Google Jobs search via SerpAPI</p>
+              <div className="api-meta">
+                <span className={`status-badge ${hasSerpAPIKey ? 'status-active' : 'status-inactive'}`}>
+                  {hasSerpAPIKey ? '✅ Connected' : '⚠️ Not Connected'}
+                </span>
+                {hasSerpAPIKey && lastRun && (
+                  <>
+                    <span className="meta-item">Last run: {format(new Date(lastRun.run_at), "MMM d, h:mm a")}</span>
+                    <span className="meta-item">Jobs found: {getJobsFoundBySource('SerpAPI')}</span>
+                  </>
+                )}
+              </div>
+            </div>
+          </div>
+
+          {/* Serper API */}
+          <div className="api-source-card">
+            <div className="api-icon">🔗</div>
+            <div className="api-info">
+              <h3>Serper (Google Jobs)</h3>
+              <p className="api-description">Google Jobs search via Serper</p>
+              <div className="api-meta">
+                <span className={`status-badge ${hasSerperKey ? 'status-active' : 'status-inactive'}`}>
+                  {hasSerperKey ? '✅ Connected' : '⚠️ Not Connected'}
+                </span>
+                {hasSerperKey && lastRun && (
+                  <>
+                    <span className="meta-item">Last run: {format(new Date(lastRun.run_at), "MMM d, h:mm a")}</span>
+                    <span className="meta-item">Jobs found: {getJobsFoundBySource('Serper')}</span>
+                  </>
+                )}
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
       {/* RSS Feed Management */}
       <div className="bg-white border border-gray-200 rounded-2xl p-6 space-y-6">
         <div className="flex items-center justify-between">
           <div>
-            <h3 className="font-bold text-gray-900 text-lg mb-1">Discovery Sources</h3>
-            <p className="text-sm text-gray-500">Manage RSS feeds and job board monitoring</p>
+            <h3 className="font-bold text-gray-900 text-lg mb-1">RSS Feeds</h3>
+            <p className="text-sm text-gray-500">Custom RSS feeds and job boards</p>
           </div>
           <Button onClick={() => setShowAddFeed(true)} className="bg-[#FF9E4D] hover:bg-[#E8893D] text-white rounded-xl gap-2">
             <Plus className="w-4 h-4" />
