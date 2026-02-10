@@ -16,6 +16,131 @@ import { format } from "date-fns";
 
 export default function DiscoverySettings() {
   const queryClient = useQueryClient();
+
+  React.useEffect(() => {
+    const style = document.createElement('style');
+    style.textContent = `
+      .feed-card {
+        display: flex;
+        align-items: flex-start;
+        gap: 16px;
+        padding: 24px;
+        background: white;
+        border: 1px solid #E5E5E5;
+        border-radius: 8px;
+        margin-bottom: 16px;
+      }
+
+      .feed-icon {
+        font-size: 24px;
+        flex-shrink: 0;
+      }
+
+      .feed-details {
+        flex: 1;
+      }
+
+      .feed-details h3 {
+        font-size: 16px;
+        font-weight: 600;
+        margin: 0 0 4px 0;
+        color: #1a1a1a;
+      }
+
+      .feed-url {
+        font-size: 14px;
+        color: #666;
+        margin: 0 0 12px 0;
+        word-break: break-all;
+      }
+
+      .feed-stats {
+        display: flex;
+        gap: 16px;
+        align-items: center;
+        font-size: 14px;
+      }
+
+      .status-badge {
+        padding: 4px 12px;
+        border-radius: 12px;
+        font-weight: 500;
+        font-size: 13px;
+      }
+
+      .status-active {
+        background: #E8F5E9;
+        color: #2E7D32;
+      }
+
+      .status-paused {
+        background: #FFF3E0;
+        color: #E65100;
+      }
+
+      .status-error {
+        background: #FFEBEE;
+        color: #C62828;
+      }
+
+      .last-checked,
+      .jobs-found {
+        color: #666;
+      }
+
+      .feed-actions {
+        display: flex;
+        gap: 8px;
+        flex-direction: column;
+      }
+
+      .feed-actions button {
+        padding: 8px 16px;
+        border-radius: 6px;
+        font-size: 14px;
+        cursor: pointer;
+        border: 1px solid #E5E5E5;
+        background: white;
+        color: #333;
+      }
+
+      .feed-actions button:hover {
+        background: #F5F5F5;
+      }
+
+      .feed-actions button.danger {
+        color: #C62828;
+        border-color: #FFEBEE;
+      }
+
+      .feed-actions button.danger:hover {
+        background: #FFEBEE;
+      }
+
+      .monitoring-summary {
+        margin-top: 16px;
+        padding: 16px;
+        background: #F5F5F5;
+        border-radius: 6px;
+        font-size: 14px;
+        color: #666;
+      }
+
+      .empty-state {
+        text-align: center;
+        padding: 48px 24px;
+        color: #666;
+      }
+
+      .empty-state p:first-child {
+        font-size: 18px;
+        color: #333;
+        margin-bottom: 8px;
+      }
+    `;
+    document.head.appendChild(style);
+    return () => document.head.removeChild(style);
+  }, []);
   const [showAddFeed, setShowAddFeed] = useState(false);
   const [newFeed, setNewFeed] = useState({ feed_url: "", feed_name: "", refresh_frequency: "every_4_hours" });
 
