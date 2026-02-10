@@ -21,7 +21,7 @@ Deno.serve(async (req) => {
 
     // Get all active RSS feeds
     const allFeeds = await base44.asServiceRole.entities.RSSFeed.list('-created_date', 100);
-    const feeds = allFeeds.filter(f => f.status === 'active');
+    const feeds = allFeeds; // Don't filter - we'll handle status in the loop
     
     console.log(`Found ${feeds.length} active feeds`);
     
@@ -124,6 +124,12 @@ Deno.serve(async (req) => {
     // Fetch and parse each feed
     for (const feed of feeds) {
       try {
+        // Skip paused feeds but keep them in the database
+        if (feed.status === 'paused') {
+          console.log(`Skipping paused feed: ${feed.feed_name}`);
+          continue;
+        }
+
         const feedUrl = feed.feed_url;
         let jobs = [];
 
@@ -187,8 +193,14 @@ Deno.serve(async (req) => {
         }
       } catch (error) {
         console.error(`Error processing feed ${feed.feed_name}:`, error);
+
+        // Mark feed as error status
+        await base44.asServiceRole.entities.RSSFeed.update(feed.id, {
+          status: 'error',
+          last_updated: new Date().toISOString()
+        });
       }
-    }
+      }
 
     return Response.json({
       success: true,
