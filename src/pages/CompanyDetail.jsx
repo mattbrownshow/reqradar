@@ -6,6 +6,8 @@ import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { Button } from "@/components/ui/button";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { ArrowLeft, Loader2, Send } from "lucide-react";
+import { toast } from "sonner";
+import ConfirmDialog from "../components/shared/ConfirmDialog";
 import CompanyHeader from "../components/company/CompanyHeader";
 import OverviewTab from "../components/company/OverviewTab";
 import ContactCard from "../components/company/ContactCard";
@@ -28,6 +30,7 @@ export default function CompanyDetail() {
   const [user, setUser] = useState(null);
   const [highlightedJob, setHighlightedJob] = useState(highlightJobId);
   const [findingContacts, setFindingContacts] = useState(false);
+  const [showRefreshConfirm, setShowRefreshConfirm] = useState(false);
 
   useEffect(() => {
     base44.auth.me().then(setUser).catch(() => {
@@ -276,20 +279,20 @@ export default function CompanyDetail() {
                   });
                   
                   if (result.data.error) {
-                    alert(result.data.error);
+                    toast.error(result.data.error);
                     return;
                   }
 
                   if (result.data.cached) {
-                    alert(result.data.message);
+                    toast.info(result.data.message);
                   } else {
-                    alert(`Found ${result.data.count} decision makers!`);
+                    toast.success(`Found ${result.data.count} decision makers!`);
                   }
                   
                   queryClient.invalidateQueries({ queryKey: ["contacts", companyId] });
                 } catch (error) {
                   console.error('Error:', error);
-                  alert(error.message || 'Failed to find decision makers.');
+                  toast.error(error.message || 'Failed to find decision makers.');
                 } finally {
                   setFindingContacts(false);
                 }
@@ -307,32 +310,29 @@ export default function CompanyDetail() {
                 <div className="flex gap-3 justify-center">
                   <Button
                     onClick={async () => {
-                      const confirmed = window.confirm(
-                        `This will find up to 3 decision makers at ${company.name}.\n\nEstimated credit cost: ~3 contacts\n\nContinue?`
-                      );
-                      
-                      if (!confirmed) return;
-
+                      setFindingContacts(true);
                       try {
                         const result = await base44.functions.invoke('enrichCompanyContacts', {
                           company_id: companyId
                         });
                         
                         if (result.data.error) {
-                          alert(result.data.error);
+                          toast.error(result.data.error);
                           return;
                         }
 
                         if (result.data.cached) {
-                          alert(result.data.message);
+                          toast.info(result.data.message);
                         } else {
-                          alert(`Found ${result.data.count} decision makers! Daily quota: ${result.data.daily_quota_used}/${result.data.daily_quota_limit}`);
+                          toast.success(`Found ${result.data.count} decision makers! Daily quota: ${result.data.daily_quota_used}/${result.data.daily_quota_limit}`);
                         }
                         
                         queryClient.invalidateQueries({ queryKey: ["contacts", companyId] });
                       } catch (error) {
                         console.error('Error:', error);
-                        alert(error.message || 'Failed to find decision makers. Please try again.');
+                        toast.error(error.message || 'Failed to find decision makers. Please try again.');
+                      } finally {
+                        setFindingContacts(false);
                       }
                     }}
                     className="bg-orange-600 hover:bg-orange-700 text-white"
@@ -360,33 +360,7 @@ export default function CompanyDetail() {
                   </div>
                   <div className="flex gap-2">
                     <Button
-                      onClick={async () => {
-                        const confirmed = window.confirm(
-                          `Refresh contacts for ${company.name}?\n\nThis will use credits to find up to 3 new decision makers.\n\nContinue?`
-                        );
-                        
-                        if (!confirmed) return;
-
-                        try {
-                          await base44.entities.Company.update(companyId, { last_enriched: null });
-                          
-                          const result = await base44.functions.invoke('enrichCompanyContacts', {
-                            company_id: companyId
-                          });
-                          
-                          if (result.data.error) {
-                            alert(result.data.error);
-                            return;
-                          }
-
-                          alert(`Found ${result.data.count} decision makers! Daily quota: ${result.data.daily_quota_used}/${result.data.daily_quota_limit}`);
-                          queryClient.invalidateQueries({ queryKey: ["contacts", companyId] });
-                          queryClient.invalidateQueries({ queryKey: ["company", companyId] });
-                        } catch (error) {
-                          console.error('Error:', error);
-                          alert(error.message || 'Failed to refresh contacts.');
-                        }
-                      }}
+                      onClick={() => setShowRefreshConfirm(true)}
                       variant="outline"
                       size="sm"
                     >
@@ -496,6 +470,37 @@ export default function CompanyDetail() {
           onClose={() => setShowOutreachModal(false)}
         />
       )}
+
+      {/* Refresh Contacts Confirmation */}
+      <ConfirmDialog
+        open={showRefreshConfirm}
+        onClose={() => setShowRefreshConfirm(false)}
+        onConfirm={async () => {
+          try {
+            await base44.entities.Company.update(companyId, { last_enriched: null });
+            
+            const result = await base44.functions.invoke('enrichCompanyContacts', {
+              company_id: companyId
+            });
+            
+            if (result.data.error) {
+              toast.error(result.data.error);
+              return;
+            }
+
+            toast.success(`Found ${result.data.count} decision makers!`);
+            queryClient.invalidateQueries({ queryKey: ["contacts", companyId] });
+            queryClient.invalidateQueries({ queryKey: ["company", companyId] });
+          } catch (error) {
+            console.error('Error:', error);
+            toast.error(error.message || 'Failed to refresh contacts.');
+          }
+        }}
+        title="Refresh Contacts"
+        description={`Refresh contacts for ${company?.name}?\n\nThis will use credits to find up to 3 new decision makers.`}
+        confirmText="Refresh Contacts"
+        variant="warning"
+      />
     </div>
   );
 }
