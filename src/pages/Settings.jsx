@@ -40,17 +40,8 @@ export default function Settings() {
 
   const [jobSearchPrefs, setJobSearchPrefs] = useState({
     target_roles: [],
-    industries: [],
-    preferred_locations: [],
-    remote_preferences: [],
-    min_salary: 150000,
-    max_salary: 350000,
-    company_sizes: [],
-    employee_counts: [],
-    funding_stages: [],
-    target_departments: [],
-    target_seniority_levels: [],
-    availability: ""
+    location_type: "remote_only",
+    preferred_locations: []
   });
 
   useEffect(() => {
@@ -72,20 +63,11 @@ export default function Settings() {
     if (profile.id) {
       setJobSearchPrefs({
         target_roles: profile.target_roles || [],
-        industries: profile.industries || [],
-        preferred_locations: profile.preferred_locations || [],
-        remote_preferences: profile.remote_preferences || [],
-        min_salary: profile.min_salary || 150000,
-        max_salary: profile.max_salary || 350000,
-        company_sizes: profile.company_sizes || [],
-        employee_counts: profile.employee_counts || [],
-        funding_stages: profile.funding_stages || [],
-        target_departments: profile.target_departments || [],
-        target_seniority_levels: profile.target_seniority_levels || [],
-        availability: profile.availability || ""
+        location_type: profile.location_type || "remote_only",
+        preferred_locations: profile.preferred_locations || []
       });
     }
-  }, [profile?.id, profile?.target_roles, profile?.industries, profile?.preferred_locations]);
+  }, [profile?.id, profile?.target_roles, profile?.location_type, profile?.preferred_locations]);
 
   const saveJobSearchMutation = useMutation({
     mutationFn: async () => {
@@ -354,290 +336,66 @@ export default function Settings() {
           <div className="bg-white border border-gray-100 rounded-2xl p-6 sm:p-8 space-y-8 max-w-4xl">
             <div>
               <h3 className="font-semibold text-gray-900 text-lg">Job Search Preferences</h3>
-              <p className="text-sm text-gray-500 mt-1">Configure your job search criteria to find the best matches</p>
+              <p className="text-sm text-gray-500 mt-1">We show you all jobs from RSS feeds matching your target roles and location preferences</p>
             </div>
 
             {/* Target Roles */}
             <div>
               <Label className="text-base font-semibold">Target Roles *</Label>
-              <p className="text-xs text-gray-500 mt-1 mb-3">The executive roles you're targeting</p>
+              <p className="text-xs text-gray-500 mt-1 mb-3">The job titles you're searching for</p>
               <SearchableMultiSelect
                 items={[]}
                 groupedBy={ROLES_DB}
                 selected={jobSearchPrefs.target_roles}
                 onSelect={(role) => setJobSearchPrefs(p => ({ ...p, target_roles: [...p.target_roles, role] }))}
                 onRemove={(role) => setJobSearchPrefs(p => ({ ...p, target_roles: p.target_roles.filter(r => r !== role) }))}
-                placeholder="Search roles (e.g., CFO, CTO, VP Finance)..."
+                placeholder="Search roles (e.g., Chief Marketing Officer, VP Marketing)..."
               />
             </div>
 
-            {/* Industries */}
+            {/* Location Preferences */}
             <div>
-              <Label className="text-base font-semibold">Preferred Industries</Label>
-              <p className="text-xs text-gray-500 mt-1 mb-3">Optional - leave blank for all industries</p>
-              <SearchableMultiSelect
-                items={INDUSTRIES_DB}
-                selected={jobSearchPrefs.industries}
-                onSelect={(ind) => setJobSearchPrefs(p => ({ ...p, industries: [...p.industries, ind] }))}
-                onRemove={(ind) => setJobSearchPrefs(p => ({ ...p, industries: p.industries.filter(i => i !== ind) }))}
-                placeholder="Search industries..."
-              />
-            </div>
-
-            {/* Location */}
-            <div>
-              <Label className="text-base font-semibold">Location Preferences</Label>
-              <p className="text-xs text-gray-500 mt-1 mb-3">Where you're willing to work</p>
-              <SearchableMultiSelect
-                items={US_CITIES}
-                selected={jobSearchPrefs.preferred_locations}
-                onSelect={(city) => setJobSearchPrefs(p => ({ ...p, preferred_locations: [...p.preferred_locations, city] }))}
-                onRemove={(city) => setJobSearchPrefs(p => ({ ...p, preferred_locations: p.preferred_locations.filter(c => c !== city) }))}
-                placeholder="Search cities..."
-              />
-              <label className="flex items-center gap-2 mt-3 cursor-pointer">
-                <Checkbox
-                  checked={jobSearchPrefs.remote_preferences.includes("Fully Remote")}
-                  onCheckedChange={(checked) => {
-                    setJobSearchPrefs(p => ({
-                      ...p,
-                      remote_preferences: checked ? ["Fully Remote"] : []
-                    }));
-                  }}
-                />
-                <span className="text-sm">Open to Remote Work</span>
-              </label>
-            </div>
-
-            {/* Salary Range */}
-            <div>
-              <Label className="text-base font-semibold">Target Salary Range</Label>
-              <p className="text-xs text-gray-500 mt-1 mb-2">Your desired compensation range</p>
-              <div className="grid grid-cols-2 gap-4">
-                <div>
-                  <Label className="text-xs text-gray-500">Minimum</Label>
-                  <div className="relative mt-1">
-                    <span className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-500">$</span>
-                    <Input
-                      type="number"
-                      value={jobSearchPrefs.min_salary}
-                      onChange={e => setJobSearchPrefs(p => ({ ...p, min_salary: parseInt(e.target.value) || 0 }))}
-                      className="pl-7 rounded-xl"
-                    />
+              <Label className="text-base font-semibold">Location Preferences *</Label>
+              <p className="text-xs text-gray-500 mt-1 mb-3">Choose your work location preference</p>
+              <RadioGroup value={jobSearchPrefs.location_type} onValueChange={v => setJobSearchPrefs(p => ({ ...p, location_type: v }))}>
+                <label className="flex items-start gap-3 p-4 border border-gray-200 rounded-xl cursor-pointer hover:bg-gray-50">
+                  <RadioGroupItem value="remote_only" />
+                  <div>
+                    <p className="font-medium text-gray-900">Remote Only</p>
+                    <p className="text-xs text-gray-500 mt-0.5">Only show remote positions</p>
                   </div>
-                </div>
-                <div>
-                  <Label className="text-xs text-gray-500">Maximum</Label>
-                  <div className="relative mt-1">
-                    <span className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-500">$</span>
-                    <Input
-                      type="number"
-                      value={jobSearchPrefs.max_salary}
-                      onChange={e => setJobSearchPrefs(p => ({ ...p, max_salary: parseInt(e.target.value) || 0 }))}
-                      className="pl-7 rounded-xl"
-                    />
+                </label>
+                <label className="flex items-start gap-3 p-4 border border-gray-200 rounded-xl cursor-pointer hover:bg-gray-50">
+                  <RadioGroupItem value="specific_locations" />
+                  <div>
+                    <p className="font-medium text-gray-900">Specific Locations</p>
+                    <p className="text-xs text-gray-500 mt-0.5">Jobs in certain cities/states</p>
                   </div>
-                </div>
-              </div>
-            </div>
-
-            {/* Company Size (Revenue Range) */}
-            <div>
-              <Label className="text-base font-semibold">Company Size (Revenue Range)</Label>
-              <p className="text-xs text-gray-500 mt-1 mb-3">Select all that apply</p>
-              <div className="space-y-2">
-                {[
-                  "Startup ($1M - $10M)",
-                  "Growth ($10M - $50M)",
-                  "Mid-Market ($50M - $500M)",
-                  "Enterprise ($500M - $1B)",
-                  "Large Enterprise ($1B+)"
-                ].map(size => (
-                  <label key={size} className={`flex items-center gap-3 p-3 border rounded-xl cursor-pointer transition-colors ${
-                    jobSearchPrefs.company_sizes.includes(size) ? "border-[#F7931E] bg-[#FEF3E2]" : "border-gray-200 hover:bg-gray-50"
-                  }`}>
-                    <Checkbox
-                      checked={jobSearchPrefs.company_sizes.includes(size)}
-                      onCheckedChange={(checked) => {
-                        setJobSearchPrefs(p => ({
-                          ...p,
-                          company_sizes: checked 
-                            ? [...p.company_sizes, size]
-                            : p.company_sizes.filter(s => s !== size)
-                        }));
-                      }}
-                    />
-                    <span className="text-sm font-medium">{size}</span>
-                  </label>
-                ))}
-              </div>
-            </div>
-
-            {/* Employee Count */}
-            <div>
-              <Label className="text-base font-semibold">Employee Count</Label>
-              <p className="text-xs text-gray-500 mt-1 mb-3">Select all that apply</p>
-              <div className="grid grid-cols-2 gap-2">
-                {[
-                  "1-10 employees",
-                  "11-50 employees",
-                  "51-200 employees",
-                  "201-500 employees",
-                  "501-1,000 employees",
-                  "1,001-5,000 employees",
-                  "5,001-10,000 employees",
-                  "10,000+ employees"
-                ].map(count => (
-                  <label key={count} className={`flex items-center gap-3 p-3 border rounded-xl cursor-pointer transition-colors ${
-                    jobSearchPrefs.employee_counts?.includes(count) ? "border-[#F7931E] bg-[#FEF3E2]" : "border-gray-200 hover:bg-gray-50"
-                  }`}>
-                    <Checkbox
-                      checked={(jobSearchPrefs.employee_counts || []).includes(count)}
-                      onCheckedChange={(checked) => {
-                        setJobSearchPrefs(p => ({
-                          ...p,
-                          employee_counts: checked 
-                            ? [...(p.employee_counts || []), count]
-                            : (p.employee_counts || []).filter(c => c !== count)
-                        }));
-                      }}
-                    />
-                    <span className="text-sm font-medium">{count}</span>
-                  </label>
-                ))}
-              </div>
-            </div>
-
-            {/* Funding Stage */}
-            <div>
-              <Label className="text-base font-semibold">Company Funding Stage</Label>
-              <p className="text-xs text-gray-500 mt-1 mb-3">Optional - filter by fundraising stage</p>
-              <div className="space-y-2">
-                {[
-                  "Pre seed",
-                  "Seed",
-                  "Series A",
-                  "Series B",
-                  "Series C",
-                  "Series D",
-                  "Series E-J",
-                  "Other"
-                ].map(stage => (
-                  <label key={stage} className={`flex items-center gap-3 p-3 border rounded-xl cursor-pointer transition-colors ${
-                    jobSearchPrefs.funding_stages.includes(stage) ? "border-[#F7931E] bg-[#FEF3E2]" : "border-gray-200 hover:bg-gray-50"
-                  }`}>
-                    <Checkbox
-                      checked={jobSearchPrefs.funding_stages.includes(stage)}
-                      onCheckedChange={(checked) => {
-                        setJobSearchPrefs(p => ({
-                          ...p,
-                          funding_stages: checked 
-                            ? [...p.funding_stages, stage]
-                            : p.funding_stages.filter(s => s !== stage)
-                        }));
-                      }}
-                    />
-                    <span className="text-sm font-medium">{stage}</span>
-                  </label>
-                ))}
-              </div>
-            </div>
-
-            {/* Decision Makers */}
-            <div>
-              <Label className="text-base font-semibold">Decision Makers You'd Like To Reach At Hiring Companies</Label>
-              <p className="text-xs text-gray-500 mt-1 mb-4">
-                Select the departments and seniority levels you want to target. We'll find matching contacts at every company.
-              </p>
-              
-              <div className="space-y-6">
-                {/* Departments */}
-                <div className="border border-gray-200 rounded-xl p-4">
-                  <h4 className="font-semibold text-sm text-gray-900 mb-3">Departments</h4>
-                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-2">
-                    {[
-                      "Executive / Leadership",
-                      "Engineering / Technology",
-                      "Product",
-                      "Sales / Revenue",
-                      "Marketing",
-                      "Finance",
-                      "Operations",
-                      "Human Resources / Talent",
-                      "Legal"
-                    ].map(dept => (
-                      <label key={dept} className="flex items-center gap-3 p-3 border border-gray-100 rounded-lg cursor-pointer hover:bg-gray-50 transition-colors">
-                        <Checkbox 
-                          checked={(jobSearchPrefs.target_departments || []).includes(dept)} 
-                          onCheckedChange={(checked) => {
-                            setJobSearchPrefs(p => ({
-                              ...p,
-                              target_departments: checked 
-                                ? [...p.target_departments, dept]
-                                : p.target_departments.filter(d => d !== dept)
-                            }));
-                          }} 
-                        />
-                        <span className="text-sm font-medium text-gray-700">{dept}</span>
-                      </label>
-                    ))}
+                </label>
+                <label className="flex items-start gap-3 p-4 border border-gray-200 rounded-xl cursor-pointer hover:bg-gray-50">
+                  <RadioGroupItem value="both" />
+                  <div>
+                    <p className="font-medium text-gray-900">Both Remote and On-site</p>
+                    <p className="text-xs text-gray-500 mt-0.5">Show all opportunities</p>
                   </div>
-                </div>
-
-                {/* Seniority Levels */}
-                <div className="border border-gray-200 rounded-xl p-4">
-                  <h4 className="font-semibold text-sm text-gray-900 mb-3">Seniority Levels</h4>
-                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-2">
-                    {[
-                      "Founder / Owner",
-                      "C-Suite",
-                      "Partner",
-                      "Vice President",
-                      "Head",
-                      "Director",
-                      "Manager"
-                    ].map(level => (
-                      <label key={level} className="flex items-center gap-3 p-3 border border-gray-100 rounded-lg cursor-pointer hover:bg-gray-50 transition-colors">
-                        <Checkbox 
-                          checked={(jobSearchPrefs.target_seniority_levels || []).includes(level)} 
-                          onCheckedChange={(checked) => {
-                            setJobSearchPrefs(p => ({
-                              ...p,
-                              target_seniority_levels: checked 
-                                ? [...p.target_seniority_levels, level]
-                                : p.target_seniority_levels.filter(l => l !== level)
-                            }));
-                          }} 
-                        />
-                        <span className="text-sm font-medium text-gray-700">{level}</span>
-                      </label>
-                    ))}
-                  </div>
-                </div>
-              </div>
-
-              {((jobSearchPrefs.target_departments || []).length > 0 || (jobSearchPrefs.target_seniority_levels || []).length > 0) && (
-                <div className="mt-4 p-3 bg-emerald-50 border border-emerald-200 rounded-xl">
-                  <p className="text-sm text-emerald-800">
-                    ✓ <strong>{(jobSearchPrefs.target_departments || []).length} departments</strong> and <strong>{(jobSearchPrefs.target_seniority_levels || []).length} seniority levels selected</strong> — We'll search for matching contacts at every target company.
-                  </p>
-                </div>
-              )}
-            </div>
-
-            {/* Availability */}
-            <div>
-              <Label className="text-base font-semibold">Availability</Label>
-              <p className="text-xs text-gray-500 mt-1 mb-3">When can you start a new role?</p>
-              <RadioGroup value={jobSearchPrefs.availability} onValueChange={v => setJobSearchPrefs(p => ({ ...p, availability: v }))}>
-                {["Immediately (within 1 week)", "2 weeks notice required", "4 weeks notice required", "6-8 weeks notice required", "Flexible timing"].map(av => (
-                  <label key={av} className="flex items-center gap-3 p-3 border border-gray-200 rounded-xl cursor-pointer hover:bg-gray-50">
-                    <RadioGroupItem value={av} />
-                    <span className="text-sm">{av}</span>
-                  </label>
-                ))}
+                </label>
               </RadioGroup>
             </div>
+
+            {/* Specific Locations (conditional) */}
+            {(jobSearchPrefs.location_type === "specific_locations" || jobSearchPrefs.location_type === "both") && (
+              <div>
+                <Label className="text-base font-semibold">Specific Locations</Label>
+                <p className="text-xs text-gray-500 mt-1 mb-3">Enter cities/states you're interested in</p>
+                <SearchableMultiSelect
+                  items={US_CITIES}
+                  selected={jobSearchPrefs.preferred_locations}
+                  onSelect={(city) => setJobSearchPrefs(p => ({ ...p, preferred_locations: [...p.preferred_locations, city] }))}
+                  onRemove={(city) => setJobSearchPrefs(p => ({ ...p, preferred_locations: p.preferred_locations.filter(c => c !== city) }))}
+                  placeholder="Search cities..."
+                />
+              </div>
+            )}
 
             <div className="flex justify-end pt-4 border-t">
               <Button 

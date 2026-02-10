@@ -22,54 +22,47 @@ Deno.serve(async (req) => {
     
     // Get existing feeds
     const existingFeeds = await base44.entities.RSSFeed.list('-created_date', 100);
-    
-    // Skip creating Indeed feeds - they block RSS requests
-    // Instead, rely on public API sources (Remotive, Arbeitnow, The Muse) which handle role-based filtering
-    const newFeeds = [];
-    
-    // Add remote job feeds and public APIs if not already present
-    const remoteFeeds = [
-      {
-        feed_name: "We Work Remotely",
-        feed_url: "https://weworkremotely.com/remote-jobs.rss",
-        refresh_frequency: "every_4_hours",
-        status: "active"
-      },
-      {
-        feed_name: "RemoteOK - Remote Jobs",
-        feed_url: "https://remoteok.com/remote-jobs.rss",
-        refresh_frequency: "every_4_hours",
-        status: "active"
-      },
-      {
-        feed_name: "Remotive - Remote Jobs API",
-        feed_url: "https://remotive.com/api/remote-jobs",
-        refresh_frequency: "every_4_hours",
-        status: "active"
-      },
-      {
-        feed_name: "Arbeitnow - Job Board API",
-        feed_url: "https://www.arbeitnow.com/api/job-board-api",
-        refresh_frequency: "every_4_hours",
-        status: "active"
-      },
-      {
-        feed_name: "The Muse - Jobs API",
-        feed_url: "https://www.themuse.com/developers/api/v2/jobs",
-        refresh_frequency: "every_4_hours",
-        status: "active"
-      }
-    ];
-    
-    // Check which feeds to add (avoid duplicates)
     const existingUrls = new Set(existingFeeds.map(f => f.feed_url));
-    const feedsToAdd = newFeeds.filter(f => !existingUrls.has(f.feed_url));
     
-    // Add remote feeds if not present
-    const remoteToAdd = remoteFeeds.filter(f => !existingUrls.has(f.feed_url));
-    feedsToAdd.push(...remoteToAdd);
+    const feedsToAdd = [];
+    const locationType = profile.location_type || 'remote_only';
+    const locations = profile.preferred_locations || [];
     
-    // NEVER DELETE FEEDS - only add missing ones
+    // Generate feeds based on location preference
+    if (locationType === 'remote_only' || locationType === 'both') {
+      // Add remote job boards
+      const remoteFeeds = [
+        {
+          feed_name: "We Work Remotely",
+          feed_url: "https://weworkremotely.com/remote-jobs.rss",
+          refresh_frequency: "every_4_hours",
+          status: "active"
+        },
+        {
+          feed_name: "RemoteOK",
+          feed_url: "https://remoteok.com/remote-jobs.rss",
+          refresh_frequency: "every_4_hours",
+          status: "active"
+        },
+        {
+          feed_name: "Remote.co",
+          feed_url: "https://remote.co/remote-jobs/rss",
+          refresh_frequency: "every_4_hours",
+          status: "active"
+        }
+      ];
+      
+      remoteFeeds.forEach(feed => {
+        if (!existingUrls.has(feed.feed_url)) {
+          feedsToAdd.push(feed);
+        }
+      });
+    }
+    
+    // Note: Location-specific RSS feeds are limited
+    // Most job boards don't support RSS with location filtering
+    // We'll rely on post-fetch filtering in the discovery function
+    
     // Create new feeds
     if (feedsToAdd.length > 0) {
       await base44.entities.RSSFeed.bulkCreate(
@@ -84,6 +77,9 @@ Deno.serve(async (req) => {
     return Response.json({
       success: true,
       message: 'RSS feeds synced with profile',
+      target_roles: profile.target_roles,
+      location_type: locationType,
+      locations: locations,
       feeds_added: feedsToAdd.length,
       total_active_feeds: existingFeeds.length + feedsToAdd.length
     });
