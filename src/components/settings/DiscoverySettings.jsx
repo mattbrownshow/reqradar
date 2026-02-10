@@ -226,11 +226,12 @@ export default function DiscoverySettings() {
 
 
   const runDiscoveryMutation = useMutation({
-    mutationFn: () => base44.functions.invoke("runDailyDiscovery", {}),
+    mutationFn: () => base44.functions.invoke("runDiscovery", {}),
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["suggestions"] });
       queryClient.invalidateQueries({ queryKey: ["discoveryRuns"] });
       queryClient.invalidateQueries({ queryKey: ["openRoles"] });
+      queryClient.invalidateQueries({ queryKey: ["feeds"] });
     }
   });
 
