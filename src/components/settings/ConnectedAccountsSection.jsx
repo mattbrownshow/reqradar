@@ -261,6 +261,73 @@ export default function ConnectedAccountsSection({ user }) {
           </div>
         </div>
       </div>
+
+      {/* Contact Enrichment APIs */}
+      <div>
+        <h3 className="text-lg font-semibold text-gray-900 mb-3">Contact Enrichment APIs</h3>
+        <p className="text-sm text-gray-500 mb-4">
+          APIs used to find decision makers at companies
+        </p>
+
+        <div className="space-y-3">
+          {/* Apollo */}
+          <div className="border border-gray-200 rounded-xl p-5 bg-white">
+            <div className="flex items-center justify-between">
+              <div className="flex items-center gap-3">
+                <div className="w-10 h-10 bg-blue-50 rounded-lg flex items-center justify-center text-2xl">
+                  🎯
+                </div>
+                <div>
+                  <h4 className="font-semibold text-gray-900">Apollo.io</h4>
+                  <p className="text-sm text-gray-500">B2B contact database</p>
+                </div>
+              </div>
+              <div className="flex items-center gap-2 text-sm font-medium text-green-700 bg-green-50 px-3 py-2 rounded-lg">
+                <CheckCircle2 className="w-4 h-4" />
+                Connected
+              </div>
+            </div>
+          </div>
+
+          {/* Amplemarket */}
+          <div className="border border-gray-200 rounded-xl p-5 bg-white">
+            <div className="flex items-center justify-between">
+              <div className="flex items-center gap-3">
+                <div className="w-10 h-10 bg-purple-50 rounded-lg flex items-center justify-center text-2xl">
+                  🎯
+                </div>
+                <div>
+                  <h4 className="font-semibold text-gray-900">Amplemarket</h4>
+                  <p className="text-sm text-gray-500">Sales intelligence platform</p>
+                </div>
+              </div>
+              <div className="flex items-center gap-2 text-sm font-medium text-green-700 bg-green-50 px-3 py-2 rounded-lg">
+                <CheckCircle2 className="w-4 h-4" />
+                Connected
+              </div>
+            </div>
+          </div>
+
+          {/* Lusha */}
+          <div className="border border-gray-200 rounded-xl p-5 bg-white">
+            <div className="flex items-center justify-between">
+              <div className="flex items-center gap-3">
+                <div className="w-10 h-10 bg-indigo-50 rounded-lg flex items-center justify-center text-2xl">
+                  🎯
+                </div>
+                <div>
+                  <h4 className="font-semibold text-gray-900">Lusha</h4>
+                  <p className="text-sm text-gray-500">Contact enrichment service</p>
+                </div>
+              </div>
+              <div className="flex items-center gap-2 text-sm font-medium text-green-700 bg-green-50 px-3 py-2 rounded-lg">
+                <CheckCircle2 className="w-4 h-4" />
+                Connected
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
     </div>
   );
 }
