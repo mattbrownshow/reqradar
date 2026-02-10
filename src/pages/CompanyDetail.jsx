@@ -7,7 +7,6 @@ import { Button } from "@/components/ui/button";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { ArrowLeft, Loader2, Send } from "lucide-react";
 import { toast } from "sonner";
-import { toast } from "sonner";
 import ConfirmDialog from "../components/shared/ConfirmDialog";
 import CompanyHeader from "../components/company/CompanyHeader";
 import OverviewTab from "../components/company/OverviewTab";
@@ -287,7 +286,7 @@ export default function CompanyDetail() {
                   if (result.data.cached) {
                     toast.info(result.data.message);
                   } else {
-                    toast.success(`Found ${result.data.count} decision makers!`);
+                    toast.success(`🎯 Found ${result.data.count} decision makers!`);
                   }
                   
                   queryClient.invalidateQueries({ queryKey: ["contacts", companyId] });
@@ -489,7 +488,7 @@ export default function CompanyDetail() {
               return;
             }
 
-            toast.success(`Found ${result.data.count} decision makers!`);
+            toast.success(`🔄 Found ${result.data.count} decision makers!`);
             queryClient.invalidateQueries({ queryKey: ["contacts", companyId] });
             queryClient.invalidateQueries({ queryKey: ["company", companyId] });
           } catch (error) {
