@@ -13,6 +13,7 @@ Deno.serve(async (req) => {
     }
     
     console.log(`Running discovery for: ${user.email}`);
+    console.log(`User ID: ${user.id}, User role: ${user.role}`);
     
     // Create discovery run record
     const runRecord = await base44.asServiceRole.entities.DiscoveryRun.create({
