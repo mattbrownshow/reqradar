@@ -108,26 +108,6 @@ export default function Settings() {
     }
   });
 
-  const resetJobDataMutation = useMutation({
-    mutationFn: async () => {
-      return await base44.functions.invoke('resetJobData', {});
-    },
-    onSuccess: (response) => {
-      const data = response.data;
-      if (data.success) {
-        alert(`Reset complete!\n\nDeleted:\n• ${data.deleted.openRoles} jobs\n• ${data.deleted.companies} companies\n• ${data.deleted.contacts} contacts\n• ${data.deleted.applications} applications\n• ${data.deleted.outreach} outreach messages\n\nPreserved:\n• ${data.preserved.profiles} profile(s)\n• ${data.preserved.rssFeeds} RSS feed(s)`);
-        queryClient.invalidateQueries();
-        navigate(createPageUrl("Dashboard"));
-      } else {
-        alert('Reset failed: ' + (data.error || 'Unknown error'));
-      }
-    },
-    onError: (error) => {
-      console.error('Reset job data failed:', error);
-      alert('Reset failed. Please try again.');
-    }
-  });
-
   const ROLES_DB = {
     'C-Suite': [
       'Chief Executive Officer (CEO)', 'Chief Financial Officer (CFO)',
@@ -511,31 +491,11 @@ export default function Settings() {
               <Button variant="outline" className="rounded-xl">Export My Data (CSV)</Button>
             </div>
             
-            {/* Reset Job Data Section */}
-            <div className="pt-6 border-t border-gray-100 space-y-4">
-              <div>
-                <h4 className="font-semibold text-sm text-gray-900 mb-2">Reset Job Data</h4>
-                <p className="text-xs text-gray-500 mb-3">Clear all discovered jobs, companies, contacts, and applications, but keep your profile and RSS feed configurations.</p>
-              </div>
-              <Button
-                variant="outline"
-                className="border-blue-300 text-blue-600 hover:bg-blue-50 hover:text-blue-700 rounded-xl gap-2"
-                onClick={() => resetJobDataMutation.mutate()}
-                disabled={resetJobDataMutation.isPending}
-              >
-                {resetJobDataMutation.isPending ? (
-                  <><Loader2 className="w-4 h-4 animate-spin" /> Resetting...</>
-                ) : (
-                  <><Trash2 className="w-4 h-4" /> Reset Job Data Only</>
-                )}
-              </Button>
-            </div>
-
-            {/* Reset All Data Section */}
+            {/* Reset Data Section */}
             <div className="pt-6 border-t border-gray-100 space-y-4">
               <div>
                 <h4 className="font-semibold text-sm text-gray-900 mb-2">Reset All Data</h4>
-                <p className="text-xs text-gray-500 mb-3">This will clear all the data you've created within the application, including your candidate profile, saved companies, job opportunities, applications, and activity logs. Your account itself will remain, but all your personalized data will be removed.</p>
+                <p className="text-xs text-gray-500 mb-3">This will only clear all the data you've created within the application, such as your candidate profile, saved companies, job opportunities, applications, and activity logs. Your account itself will remain, but all your personalized data will be removed.</p>
               </div>
               {!showResetConfirm ? (
                 <Button
