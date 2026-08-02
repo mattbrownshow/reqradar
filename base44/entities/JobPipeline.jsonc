@@ -1,0 +1,64 @@
+{
+  "name": "JobPipeline",
+  "type": "object",
+  "properties": {
+    "job_id": {
+      "type": "string",
+      "description": "Associated open role ID"
+    },
+    "company_id": {
+      "type": "string",
+      "description": "Associated company ID"
+    },
+    "stage": {
+      "type": "string",
+      "enum": [
+        "saved",
+        "researching",
+        "applied",
+        "interviewing",
+        "offer",
+        "rejected",
+        "not_interested"
+      ],
+      "default": "saved",
+      "description": "Pipeline stage"
+    },
+    "priority": {
+      "type": "string",
+      "enum": [
+        "high",
+        "medium",
+        "low"
+      ],
+      "default": "medium",
+      "description": "Priority level"
+    },
+    "saved_at": {
+      "type": "string",
+      "format": "date-time",
+      "description": "When saved"
+    },
+    "applied_at": {
+      "type": "string",
+      "format": "date-time",
+      "description": "When applied"
+    },
+    "interview_date": {
+      "type": "string",
+      "format": "date-time",
+      "description": "Interview scheduled date"
+    },
+    "offer_amount": {
+      "type": "number",
+      "description": "Offer amount in dollars"
+    },
+    "notes": {
+      "type": "string",
+      "description": "User notes"
+    }
+  },
+  "required": [
+    "job_id"
+  ]
+}

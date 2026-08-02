@@ -1,0 +1,44 @@
+{
+  "name": "RSSFeed",
+  "type": "object",
+  "properties": {
+    "feed_name": {
+      "type": "string",
+      "description": "Feed display name"
+    },
+    "feed_url": {
+      "type": "string",
+      "description": "RSS feed URL"
+    },
+    "refresh_frequency": {
+      "type": "string",
+      "enum": [
+        "hourly",
+        "every_4_hours",
+        "daily"
+      ],
+      "default": "every_4_hours"
+    },
+    "status": {
+      "type": "string",
+      "enum": [
+        "active",
+        "paused",
+        "error"
+      ],
+      "default": "active"
+    },
+    "last_updated": {
+      "type": "string",
+      "description": "Last fetch time"
+    },
+    "jobs_found": {
+      "type": "number",
+      "default": 0,
+      "description": "Number of jobs found"
+    }
+  },
+  "required": [
+    "feed_url"
+  ]
+}

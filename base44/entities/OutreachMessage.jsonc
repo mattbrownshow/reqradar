@@ -1,0 +1,76 @@
+{
+  "name": "OutreachMessage",
+  "type": "object",
+  "properties": {
+    "contact_id": {
+      "type": "string",
+      "description": "Target contact ID"
+    },
+    "contact_name": {
+      "type": "string",
+      "description": "Contact name"
+    },
+    "contact_title": {
+      "type": "string",
+      "description": "Contact title"
+    },
+    "company_id": {
+      "type": "string",
+      "description": "Associated company ID"
+    },
+    "company_name": {
+      "type": "string",
+      "description": "Company name"
+    },
+    "subject": {
+      "type": "string",
+      "description": "Message subject"
+    },
+    "body": {
+      "type": "string",
+      "description": "Message body"
+    },
+    "channel": {
+      "type": "string",
+      "enum": [
+        "email",
+        "linkedin",
+        "both"
+      ],
+      "default": "email"
+    },
+    "status": {
+      "type": "string",
+      "enum": [
+        "draft",
+        "queued",
+        "sent",
+        "delivered",
+        "opened",
+        "responded",
+        "bounced"
+      ],
+      "default": "draft"
+    },
+    "sent_at": {
+      "type": "string",
+      "description": "When sent"
+    },
+    "opened_at": {
+      "type": "string",
+      "description": "When opened"
+    },
+    "responded_at": {
+      "type": "string",
+      "description": "When responded"
+    },
+    "template_type": {
+      "type": "string",
+      "description": "Template used"
+    }
+  },
+  "required": [
+    "contact_name",
+    "company_name"
+  ]
+}

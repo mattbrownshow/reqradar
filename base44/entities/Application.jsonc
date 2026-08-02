@@ -1,0 +1,60 @@
+{
+  "name": "Application",
+  "type": "object",
+  "properties": {
+    "role_id": {
+      "type": "string",
+      "description": "Associated open role ID"
+    },
+    "company_id": {
+      "type": "string",
+      "description": "Associated company ID"
+    },
+    "company_name": {
+      "type": "string",
+      "description": "Company name"
+    },
+    "role_title": {
+      "type": "string",
+      "description": "Role title"
+    },
+    "status": {
+      "type": "string",
+      "enum": [
+        "applied",
+        "screening",
+        "interview",
+        "offer",
+        "rejected",
+        "withdrawn"
+      ],
+      "default": "applied"
+    },
+    "applied_date": {
+      "type": "string",
+      "format": "date",
+      "description": "Date applied"
+    },
+    "auto_applied": {
+      "type": "boolean",
+      "default": false
+    },
+    "notes": {
+      "type": "string",
+      "description": "Application notes"
+    },
+    "next_step": {
+      "type": "string",
+      "description": "Next action item"
+    },
+    "interview_date": {
+      "type": "string",
+      "format": "date",
+      "description": "Scheduled interview"
+    }
+  },
+  "required": [
+    "company_name",
+    "role_title"
+  ]
+}

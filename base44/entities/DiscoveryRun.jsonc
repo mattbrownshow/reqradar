@@ -1,0 +1,45 @@
+{
+  "name": "DiscoveryRun",
+  "type": "object",
+  "properties": {
+    "run_at": {
+      "type": "string",
+      "format": "date-time",
+      "description": "When run started"
+    },
+    "status": {
+      "type": "string",
+      "enum": [
+        "running",
+        "completed",
+        "failed"
+      ],
+      "default": "running",
+      "description": "Run status"
+    },
+    "companies_found": {
+      "type": "number",
+      "default": 0,
+      "description": "Number of companies found"
+    },
+    "jobs_found": {
+      "type": "number",
+      "default": 0,
+      "description": "Number of jobs found"
+    },
+    "career_pages_scanned": {
+      "type": "number",
+      "default": 0,
+      "description": "Career pages scanned"
+    },
+    "duration_ms": {
+      "type": "number",
+      "description": "Duration in milliseconds"
+    },
+    "error_message": {
+      "type": "string",
+      "description": "Error message if failed"
+    }
+  },
+  "required": []
+}

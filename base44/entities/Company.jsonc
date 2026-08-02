@@ -1,0 +1,173 @@
+{
+  "name": "Company",
+  "type": "object",
+  "properties": {
+    "name": {
+      "type": "string",
+      "description": "Company name"
+    },
+    "domain": {
+      "type": "string",
+      "description": "Company website domain"
+    },
+    "industry": {
+      "type": "string",
+      "description": "Industry sector"
+    },
+    "sub_sector": {
+      "type": "string",
+      "description": "Industry sub-sector"
+    },
+    "employee_count": {
+      "type": "number",
+      "description": "Number of employees"
+    },
+    "revenue_estimate": {
+      "type": "string",
+      "description": "Estimated revenue"
+    },
+    "founded_year": {
+      "type": "number",
+      "description": "Year company was founded"
+    },
+    "location": {
+      "type": "string",
+      "description": "Primary location"
+    },
+    "additional_offices": {
+      "type": "string",
+      "description": "Other office locations"
+    },
+    "match_score": {
+      "type": "number",
+      "description": "Match score 0-100"
+    },
+    "description": {
+      "type": "string",
+      "description": "Company description"
+    },
+    "funding_stage": {
+      "type": "string",
+      "description": "Funding stage"
+    },
+    "recent_funding": {
+      "type": "string",
+      "description": "Recent funding details"
+    },
+    "growth_rate": {
+      "type": "string",
+      "description": "Growth percentage"
+    },
+    "employee_growth_rate": {
+      "type": "string",
+      "description": "Employee growth rate"
+    },
+    "tech_stack": {
+      "type": "array",
+      "items": {
+        "type": "string"
+      },
+      "description": "Technologies used"
+    },
+    "open_positions_count": {
+      "type": "number",
+      "description": "Number of open positions"
+    },
+    "pipeline_stage": {
+      "type": "string",
+      "enum": [
+        "research",
+        "contacted",
+        "engaged",
+        "negotiation",
+        "partnership",
+        "closed"
+      ],
+      "default": "research",
+      "description": "Pipeline stage"
+    },
+    "logo_url": {
+      "type": "string",
+      "description": "Company logo URL"
+    },
+    "intelligence_signals": {
+      "type": "array",
+      "items": {
+        "type": "string"
+      },
+      "description": "Recent intelligence signals"
+    },
+    "hiring_signals": {
+      "type": "array",
+      "items": {
+        "type": "string"
+      },
+      "description": "Hiring activity signals"
+    },
+    "recent_news": {
+      "type": "array",
+      "items": {
+        "type": "string"
+      },
+      "description": "Recent company news"
+    },
+    "executive_leadership": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "properties": {
+          "name": {
+            "type": "string"
+          },
+          "title": {
+            "type": "string"
+          },
+          "status": {
+            "type": "string"
+          }
+        }
+      },
+      "description": "C-suite composition"
+    },
+    "tracked": {
+      "type": "boolean",
+      "default": false,
+      "description": "Whether company is tracked"
+    },
+    "notes": {
+      "type": "string",
+      "description": "User notes about company"
+    },
+    "enrichment_status": {
+      "type": "string",
+      "enum": [
+        "pending",
+        "enriching",
+        "complete",
+        "failed"
+      ],
+      "default": "pending",
+      "description": "Enrichment status"
+    },
+    "enrichment_error": {
+      "type": "string",
+      "description": "Error message if enrichment failed"
+    },
+    "last_enriched": {
+      "type": "string",
+      "format": "date-time",
+      "description": "Last enrichment timestamp"
+    },
+    "apollo_id": {
+      "type": "string",
+      "description": "Apollo.io organization ID"
+    },
+    "linkedin_url": {
+      "type": "string",
+      "description": "Company LinkedIn profile URL"
+    }
+  },
+  "required": [
+    "name"
+  ]
+}

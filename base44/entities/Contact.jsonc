@@ -1,0 +1,132 @@
+{
+  "name": "Contact",
+  "type": "object",
+  "properties": {
+    "company_id": {
+      "type": "string",
+      "description": "Associated company ID"
+    },
+    "company_name": {
+      "type": "string",
+      "description": "Company name for display"
+    },
+    "company_domain": {
+      "type": "string",
+      "description": "Company domain"
+    },
+    "full_name": {
+      "type": "string",
+      "description": "Contact full name"
+    },
+    "first_name": {
+      "type": "string",
+      "description": "First name"
+    },
+    "last_name": {
+      "type": "string",
+      "description": "Last name"
+    },
+    "title": {
+      "type": "string",
+      "description": "Job title"
+    },
+    "email": {
+      "type": "string",
+      "description": "Email address"
+    },
+    "email_verified": {
+      "type": "boolean",
+      "default": false,
+      "description": "Email verified status"
+    },
+    "email_source": {
+      "type": "string",
+      "description": "Source of email (apollo, lusha, amplemarket)"
+    },
+    "phone": {
+      "type": "string",
+      "description": "Phone number"
+    },
+    "phone_source": {
+      "type": "string",
+      "description": "Source of phone"
+    },
+    "linkedin_url": {
+      "type": "string",
+      "description": "LinkedIn profile URL"
+    },
+    "linkedin_source": {
+      "type": "string",
+      "description": "Source of LinkedIn"
+    },
+    "data_sources": {
+      "type": "array",
+      "items": {
+        "type": "string"
+      },
+      "description": "List of data sources used"
+    },
+    "data_quality_score": {
+      "type": "number",
+      "description": "Quality score 0-100"
+    },
+    "data_quality_rating": {
+      "type": "string",
+      "description": "Quality rating (excellent, good, partial, limited)"
+    },
+    "apollo_data": {
+      "type": "object",
+      "description": "Raw Apollo data"
+    },
+    "lusha_data": {
+      "type": "object",
+      "description": "Raw Lusha data"
+    },
+    "amplemarket_data": {
+      "type": "object",
+      "description": "Raw Amplemarket data"
+    },
+    "is_primary": {
+      "type": "boolean",
+      "default": false,
+      "description": "Primary decision maker"
+    },
+    "verified": {
+      "type": "boolean",
+      "default": false,
+      "description": "Contact verified"
+    },
+    "tags": {
+      "type": "array",
+      "items": {
+        "type": "string"
+      },
+      "description": "Contact tags"
+    },
+    "tenure": {
+      "type": "string",
+      "description": "Tenure at company"
+    },
+    "seniority": {
+      "type": "string",
+      "description": "Seniority level"
+    },
+    "department": {
+      "type": "string",
+      "description": "Department"
+    },
+    "relevance_score": {
+      "type": "number",
+      "description": "Relevance score 0-100"
+    },
+    "last_updated": {
+      "type": "string",
+      "format": "date-time",
+      "description": "Last update timestamp"
+    }
+  },
+  "required": [
+    "full_name",
+    "company_id"
+  ]
+}

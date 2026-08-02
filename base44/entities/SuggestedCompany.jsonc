@@ -1,0 +1,73 @@
+{
+  "name": "SuggestedCompany",
+  "type": "object",
+  "properties": {
+    "company_data": {
+      "type": "object",
+      "description": "Raw company data from Apollo/Lusha/Amplemarket"
+    },
+    "company_name": {
+      "type": "string",
+      "description": "Company name"
+    },
+    "company_domain": {
+      "type": "string",
+      "description": "Company domain"
+    },
+    "match_score": {
+      "type": "number",
+      "description": "Match score 0-100"
+    },
+    "match_reasons": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "properties": {
+          "type": {
+            "type": "string"
+          },
+          "message": {
+            "type": "string"
+          }
+        }
+      },
+      "description": "Why it matches"
+    },
+    "status": {
+      "type": "string",
+      "enum": [
+        "new",
+        "reviewed",
+        "added_to_target",
+        "dismissed"
+      ],
+      "default": "new",
+      "description": "Suggestion status"
+    },
+    "suggested_at": {
+      "type": "string",
+      "format": "date-time",
+      "description": "When suggested"
+    },
+    "reviewed_at": {
+      "type": "string",
+      "format": "date-time",
+      "description": "When reviewed"
+    },
+    "jobs_found": {
+      "type": "number",
+      "default": 0,
+      "description": "Number of jobs found"
+    },
+    "jobs_data": {
+      "type": "array",
+      "items": {
+        "type": "object"
+      },
+      "description": "Jobs found at company"
+    }
+  },
+  "required": [
+    "company_name"
+  ]
+}

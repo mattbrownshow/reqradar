@@ -1,0 +1,67 @@
+{
+  "name": "CandidateProfile",
+  "type": "object",
+  "properties": {
+    "full_name": {
+      "type": "string",
+      "description": "Candidate full name"
+    },
+    "email": {
+      "type": "string",
+      "description": "Candidate email"
+    },
+    "phone": {
+      "type": "string",
+      "description": "Phone number"
+    },
+    "linkedin_url": {
+      "type": "string",
+      "description": "LinkedIn profile URL"
+    },
+    "resume_url": {
+      "type": "string",
+      "description": "Uploaded resume file URL"
+    },
+    "resume_filename": {
+      "type": "string",
+      "description": "Original filename of uploaded resume"
+    },
+    "current_title": {
+      "type": "string",
+      "description": "Current or most recent title"
+    },
+    "target_roles": {
+      "type": "array",
+      "items": {
+        "type": "string"
+      },
+      "description": "Target job titles for job search"
+    },
+    "location_type": {
+      "type": "string",
+      "enum": [
+        "remote_only",
+        "specific_locations",
+        "both"
+      ],
+      "default": "remote_only",
+      "description": "Location preference type"
+    },
+    "preferred_locations": {
+      "type": "array",
+      "items": {
+        "type": "string"
+      },
+      "description": "Specific cities/states if location_type is specific_locations or both"
+    },
+    "setup_complete": {
+      "type": "boolean",
+      "default": false,
+      "description": "Whether profile setup is done"
+    }
+  },
+  "required": [
+    "full_name",
+    "email"
+  ]
+}

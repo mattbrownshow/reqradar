@@ -1,0 +1,102 @@
+{
+  "name": "OpenRole",
+  "type": "object",
+  "properties": {
+    "company_id": {
+      "type": "string",
+      "description": "Associated company ID"
+    },
+    "company_name": {
+      "type": "string",
+      "description": "Company name for display"
+    },
+    "title": {
+      "type": "string",
+      "description": "Role title"
+    },
+    "description": {
+      "type": "string",
+      "description": "Role description"
+    },
+    "requirements": {
+      "type": "array",
+      "items": {
+        "type": "string"
+      },
+      "description": "Role requirements"
+    },
+    "salary_min": {
+      "type": "number",
+      "description": "Minimum salary"
+    },
+    "salary_max": {
+      "type": "number",
+      "description": "Maximum salary"
+    },
+    "location": {
+      "type": "string",
+      "description": "Role location"
+    },
+    "work_type": {
+      "type": "string",
+      "description": "Remote/Hybrid/Onsite"
+    },
+    "reports_to": {
+      "type": "string",
+      "description": "Who this role reports to"
+    },
+    "posted_date": {
+      "type": "string",
+      "format": "date",
+      "description": "When posted"
+    },
+    "source": {
+      "type": "string",
+      "description": "Source of listing"
+    },
+    "source_type": {
+      "type": "string",
+      "enum": [
+        "rss_feed",
+        "career_page",
+        "manual"
+      ],
+      "default": "rss_feed",
+      "description": "Type of source"
+    },
+    "source_url": {
+      "type": "string",
+      "description": "URL to listing"
+    },
+    "match_score": {
+      "type": "number",
+      "description": "Match score 0-100"
+    },
+    "match_reasons": {
+      "type": "array",
+      "items": {
+        "type": "string"
+      },
+      "description": "Why this matches"
+    },
+    "status": {
+      "type": "string",
+      "enum": [
+        "new",
+        "saved",
+        "applied",
+        "not_interested"
+      ],
+      "default": "new",
+      "description": "User action status"
+    },
+    "industry": {
+      "type": "string",
+      "description": "Industry"
+    }
+  },
+  "required": [
+    "title",
+    "company_name"
+  ]
+}

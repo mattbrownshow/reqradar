@@ -1,0 +1,53 @@
+{
+  "name": "CompanyPipeline",
+  "type": "object",
+  "properties": {
+    "company_id": {
+      "type": "string",
+      "description": "Associated company ID"
+    },
+    "stage": {
+      "type": "string",
+      "enum": [
+        "suggested",
+        "researching",
+        "contacted",
+        "applied",
+        "interviewing"
+      ],
+      "default": "researching",
+      "description": "Pipeline stage"
+    },
+    "priority": {
+      "type": "string",
+      "enum": [
+        "high",
+        "medium",
+        "low"
+      ],
+      "default": "medium",
+      "description": "Priority level"
+    },
+    "contacted_at": {
+      "type": "string",
+      "format": "date-time",
+      "description": "When contacted"
+    },
+    "contact_person": {
+      "type": "string",
+      "description": "Primary contact person"
+    },
+    "last_interaction": {
+      "type": "string",
+      "format": "date-time",
+      "description": "Last interaction date"
+    },
+    "notes": {
+      "type": "string",
+      "description": "User notes"
+    }
+  },
+  "required": [
+    "company_id"
+  ]
+}

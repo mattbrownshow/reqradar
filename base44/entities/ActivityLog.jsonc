@@ -1,0 +1,42 @@
+{
+  "name": "ActivityLog",
+  "type": "object",
+  "properties": {
+    "type": {
+      "type": "string",
+      "enum": [
+        "application",
+        "outreach",
+        "response",
+        "interview",
+        "status_change",
+        "company_added"
+      ],
+      "description": "Activity type"
+    },
+    "title": {
+      "type": "string",
+      "description": "Activity title"
+    },
+    "description": {
+      "type": "string",
+      "description": "Activity description"
+    },
+    "company_name": {
+      "type": "string",
+      "description": "Related company"
+    },
+    "entity_id": {
+      "type": "string",
+      "description": "Related entity ID"
+    },
+    "icon": {
+      "type": "string",
+      "description": "Icon type for display"
+    }
+  },
+  "required": [
+    "type",
+    "title"
+  ]
+}
